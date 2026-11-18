@@ -87,3 +87,15 @@
 .copy-launch:disabled{background:#32516a;color:#91aabb;box-shadow:none;cursor:not-allowed;transform:none}
 .copy-disclaimer{margin:19px 0 0;font-size:11px;line-height:1.7;color:#91a5c0}
 @media(max-width:1220px){.indexed-game-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}@media(max-width:940px){.indexed-game-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.index-controls{grid-template-columns:1fr 1fr}.index-query-label{grid-column:span 2;grid-row:1}.index-select-label.region-label{grid-column:2;grid-row:2}.index-hero{grid-template-columns:240px 1fr;gap:12px}.index-hero-copy{padding-right:23px}}@media(max-width:680px){.index-hero{grid-template-columns:1fr;gap:0}.index-hero-display{min-height:160px}.index-hologram{width:135px;height:135px;font-size:38px}.index-hero-copy{padding:12px 24px 26px}.index-controls{grid-template-columns:1fr}.index-query-label,.index-select-label.region-label{grid-column:auto;grid-row:auto}.indexed-game-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.index-cover{max-height:180px}.index-card-content{padding:11px}.index-card h3{font-size:15px;min-height:51px}.index-card-description{font-size:10px}.index-card-action{flex-wrap:wrap}.index-count strong{font-size:28px}.index-count{min-width:90px}.index-pagination{gap:10px}.index-pagination button{font-size:9px}.copy-dialog-top{padding:19px}.copy-dialog-body{padding:17px}.copy-dialog-top h3{font-size:24px}.copy-identity strong{font-size:16px}}@media(max-width:390px){.indexed-game-grid{grid-template-columns:1fr 1fr}.index-card-action button{font-size:9px}.index-card h3{font-size:14px}.index-hero-copy h3{font-size:26px}}
+
+/* Private title bookmarks — metadata is remembered, ROM bytes never are. */
+.owned-collection{margin-top:27px;padding:25px 28px;background:linear-gradient(120deg,#0b2033,#151936);border:1px solid #385c7d}
+.owned-title{display:flex;align-items:center;justify-content:space-between;gap:12px;font:700 17px var(--display);letter-spacing:.04em}
+.owned-title span{font:700 9px var(--display);letter-spacing:.12em;color:#5cfc76}
+.owned-collection>p{max-width:760px;color:#93aac7;font:12px/1.7 var(--sans);margin:10px 0 18px}
+#owned-recent-list{display:flex;flex-wrap:wrap;gap:9px}
+.owned-recent{display:flex;align-items:center;gap:9px;background:#132c49;border:1px solid #355f7d;color:#e7f4ff;padding:9px 14px;font:700 11px var(--display)}
+.owned-recent:hover{border-color:#5cfc76}
+.owned-recent small{font:700 9px var(--display);color:#b997ff;letter-spacing:.08em}
+.owned-recent span{color:#5cfc76}
+.owned-empty{color:#879fbd;font:12px var(--sans)}
