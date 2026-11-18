@@ -308,7 +308,25 @@ window.addEventListener('message',e=>{
  if(e.data?.ugnEmuStage==='ready')$('#player-status').textContent='CORE READY — CLICK INSIDE GAME WINDOW TO START';
  if(e.data?.ugnEmuStage==='started'){finishHostedBoot?.();$('#player-status').textContent='GAME RUNNING / '+String(document.querySelector('#player-title')?.textContent||'')};
 });
-async function validateROMS(){await Promise.all(games.map(async g=>{try{let res=await fetch('./'+g.file,{method:'HEAD',cache:'no-store'});installed[g.file]=res.ok&&Number(res.headers.get('content-length')||10000)>2000}catch{installed[g.file]=false}}));renderSystems();renderGames();renderHistory();changeSpot(0);window.__ugnArchiveRefresh?.();}
+async function validateROMS(){
+ try{
+   const response=await fetch('./catalog/hosted.json',{cache:'no-store'});
+   if(!response.ok)throw Error('Hosted catalog HTTP '+response.status);
+   const manifest=await response.json();
+   if(!Array.isArray(manifest?.games))throw Error('Invalid hosted catalog');
+   const byPath=new Map(manifest.games.map(e=>[e.path,Number(e.bytes)]));
+   for(const game of games)installed[game.file]=(byPath.get(game.file)||0)>=2048;
+ }catch(error){
+   console.warn('Hosted manifest unavailable; checking game files in small batches',error);
+   for(let i=0;i<games.length;i+=8){
+     await Promise.all(games.slice(i,i+8).map(async g=>{
+       try{const response=await fetch('./'+g.file,{method:'HEAD'});installed[g.file]=response.ok&&Number(response.headers.get('content-length')||10000)>2000}
+       catch{installed[g.file]=false}
+     }));
+   }
+ }
+ renderSystems();renderGames();renderHistory();changeSpot(0);window.__ugnArchiveRefresh?.();
+}
 renderPills();renderSystems();renderGames();renderHistory();validateROMS();
 /* The complete console-title catalog runs independently of the hosted ROM collection. */
 let fullConsoleIndex=null;
