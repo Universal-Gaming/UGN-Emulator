@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "description": "CI-validated game files distributed by the UGN Emulator site.",
+  "description": "Game files physically shipped in the static site; checked by CI.",
   "games": [
     {
       "path": "roms/atari2600/sheep-it-up.a26",
