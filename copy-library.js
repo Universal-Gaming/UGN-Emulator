@@ -1,3 +1,4 @@
+import { attachBootOverlay } from './player-boot.js';
 /* UGN Emulator — complete title index and private use-your-own-copy browser playback.
    No commercial game binaries, BIOS or uploaded files are sent to UGN.
    Metadata: Libretro Database, CC BY-SA 4.0. */
@@ -7,7 +8,7 @@ export function mountConsoleIndex(api) {
   const dialog=$('#my-copy-dialog'), gameDialog=$('#game-dialog');
   const map=new Map();
   let manifest=null,active='nes',term='',region='all',page=0,results=[],loading=false;
-  let selected=null,rom=null,bios=null,currentFrame=null,activeUrls=[],currentListKey=0;
+  let selected=null,rom=null,bios=null,currentFrame=null,activeUrls=[],currentListKey=0,finishLocalBoot=null;
   const PAGE_SIZE=30;
   const titlesBySystem=Object.fromEntries(api.systems.map(s=>[s.id,s.name]));
   const systemById=id=>api.systems.find(s=>s.id===id);
@@ -202,19 +203,19 @@ export function mountConsoleIndex(api) {
     $('#player-title').textContent=entry.title;
     $('#player-system').textContent=keyMap[entry.system].toUpperCase()+' / LOCAL USER COPY';
     $('#player-status').textContent='LOADING YOUR LOCAL FILE · NOTHING UPLOADED';
-    const viewport=$('#player-viewport');viewport.replaceChildren(frame);
+    const viewport=$('#player-viewport');viewport.replaceChildren(frame);finishLocalBoot?.();finishLocalBoot=attachBootOverlay(viewport,keyMap[entry.system],entry.title);
     dialog.close();gameDialog.showModal();
   }
   $('#copy-launch').onclick=launchFile;
   gameDialog.addEventListener('close',()=>{
-    currentFrame=null;
+    finishLocalBoot?.();finishLocalBoot=null;currentFrame=null;
     activeUrls.forEach(url=>URL.revokeObjectURL(url));activeUrls=[];
   });
   window.addEventListener('message',e=>{
     if(!currentFrame||e.source!==currentFrame.contentWindow||!e.data)return;
     if(e.data.ugnLocalStage==='ready')$('#player-status').textContent='CORE LOADED · STARTING YOUR COPY';
-    if(e.data.ugnLocalStage==='started')$('#player-status').textContent='GAME RUNNING · LOCAL FILE';
-    if(e.data.ugnLocalError)$('#player-status').textContent='LOCAL EMULATOR ERROR · '+String(e.data.ugnLocalError).slice(0,140);
+    if(e.data.ugnLocalStage==='started'){finishLocalBoot?.();$('#player-status').textContent='GAME RUNNING · LOCAL FILE';}
+    if(e.data.ugnLocalError){finishLocalBoot?.();$('#player-status').textContent='LOCAL EMULATOR ERROR · '+String(e.data.ugnLocalError).slice(0,140);}
   });
   $('#index-console').addEventListener('change',e=>{active=e.target.value;buildResults()});
   $('#index-query').addEventListener('input',e=>{
