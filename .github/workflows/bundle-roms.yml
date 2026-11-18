@@ -62,12 +62,18 @@ jobs:
           grab "$free/break-an-egg.md" "roms/genesis/break-an-egg.md"
           grab "$free/sheep-it-up.a26" "roms/atari2600/sheep-it-up.a26"
           grab "$free/asteroids-neo.ngp" "roms/ngp/asteroids-neo.ngp"
+          # NES Homebrew Hub entries with explicit GPL/zlib/FSFAP redistribution licenses.
+          nesdb='https://raw.githubusercontent.com/nesdev-org/homebrew-db/main/entries'
+          grab "$nesdb/croom/croom.nes" "roms/nes/concentration-room.nes"
+          grab "$nesdb/rhde/rhde.nes" "roms/nes/rhde-furniture-fight.nes"
+          grab "$nesdb/thwaite/thwaite128.nes" "roms/nes/thwaite.nes"
+          grab "$nesdb/zap-ruder/ruder.nes" "roms/nes/zap-ruder.nes"
           # Validate Nintendo NES header and expected file sizes.
           python3 - <<'PY'
           from pathlib import Path
           files=list(Path('roms').rglob('*'))
           roms=[p for p in files if p.is_file()]
-          assert len(roms)==27, f'Expected 27 ROM files, got {len(roms)}'
+          assert len(roms)==31, f'Expected 31 ROM files, got {len(roms)}'
           for p in roms:
               assert p.stat().st_size >= (4096 if p.suffix=='.a26' else 8000), f'Undersized ROM {p}'
               data=p.read_bytes()
