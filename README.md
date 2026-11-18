@@ -28,6 +28,8 @@ A premium, interactive, 3D browser console-emulation experience for **Universal 
 - `index.html` — UGN console experience
 - `styles.css` — responsive premium UI
 - `app.js` — verified game catalog, system hardware showroom, playable ROM launching
+- `room-studio.js` — photo-inspired PBR gaming bedroom and editable furniture scenes
+- `ROOM_STUDIO_GUIDE.md` — room editing, custom layouts, save/export and performance details
 - `roms/` — licensed redistributable game binaries
 - `catalog/byo/` — real console title indexes (no game binaries)
 - `copy-library.js` — full title browsing and local ROM/BIOS file launch
@@ -53,7 +55,7 @@ A **console museum and emulator**, never a generic browser arcade. Immersive 3D,
 
 The primary page includes a fully explorable Three.js starship with sixteen interactive hardware pedestals and a planetary observation deck, cinematic entry with skip, holographic game-case browsing, quick 2D accessibility mode (`library.html`), optional synthesized ambient spacecraft audio, adjustable graphics quality, and local 3D gaming room customization.
 
-Available room designs: 1980s Retro, 1990s Bedroom, 2000s Gaming Setup, Futuristic UGN, Premium Collector, and Cosmic Observation. You can add, drag, rotate, and remove objects; layouts are stored locally. Hardware console meshes are original stylized 3D approximations paired with real hardware photos, not licensed photogrammetry models. WebGL and network availability can affect how scenes render.
+Available room designs: the photo-matched UGN Retro Bedroom, 1980s Retro, 1990s Bedroom, 2000s Gaming Setup, Futuristic UGN, Premium Collector, and Cosmic Observation. Each has its own furnished layout, materials, lighting, window views and locally saved customization. Add, drag, rotate, duplicate, remove, undo and redo objects; export/import layouts as JSON or save a room screenshot. See [the Room Studio guide](ROOM_STUDIO_GUIDE.md) for the full feature set. Hardware console meshes are original stylized 3D approximations paired with real hardware photos, not licensed photogrammetry models. WebGL and network availability can affect how scenes render.
 
 ## Catalog copyright and credit
 
