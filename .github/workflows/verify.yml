@@ -42,11 +42,12 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           roms=[p for p in Path('roms').rglob('*') if p.is_file()]
-          assert len(roms)==31, f'Expected 31 ROMs; found {len(roms)}'
+          assert len(roms)==40, f'Expected 40 ROMs; found {len(roms)}'
           for p in roms:
             b=p.read_bytes()
             assert len(b)>=4096, f'Undersized ROM {p}'
             if p.suffix=='.nes': assert b[:4]==b'NES\x1a',f'Invalid NES header: {p}'
+            if p.suffix=='.nds': assert len(b)>=0x200, f'Invalid DS ROM size: {p}'
             assert not b.lstrip().startswith(b'<html'),f'HTML instead of ROM: {p}'
           print('Verified',len(roms),'console ROM payloads')
           PY
