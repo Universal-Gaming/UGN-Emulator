@@ -62,6 +62,7 @@ jobs:
           path: |
             smoke-intro.png
             smoke-shelf.png
+            smoke-photo-room.png
             smoke-room.png
             smoke-catalog.png
             smoke-desktop.png
