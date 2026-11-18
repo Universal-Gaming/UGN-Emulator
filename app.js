@@ -157,7 +157,14 @@ $$('[data-recent]').forEach(b=>b.onclick=()=>{const g=allTitles.find(x=>x.id===b
 $('#game-search').oninput=e=>{search=e.target.value.toLowerCase().trim();renderGames()};
 $('#game-sort').onchange=e=>{sort=e.target.value;renderGames()};
 $('#show-favorites').onclick=()=>{favoritesOnly=!favoritesOnly;$('#show-favorites').classList.toggle('active',favoritesOnly);$('#show-favorites').setAttribute('aria-pressed',String(favoritesOnly));renderGames()};
-$('#reset-filters').onclick=()=>{platform='all';search='';favoritesOnly=false;$('#game-search').value='';$('#show-favorites').classList.remove('active');renderPills();renderGames()};
+$('#reset-filters').onclick=()=>{
+ platform='all';search='';sort='featured';favoritesOnly=false;visibleLimit=36;
+ $('#game-search').value='';$('#game-sort').value='featured';
+ $('#show-favorites').classList.remove('active');
+ $('#show-favorites').setAttribute('aria-pressed','false');
+ setCatalogMode('hosted');
+ notify('All game filters have been reset');
+};
 $('#export-history').onclick=()=>{const blob=new Blob([JSON.stringify(memory,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ugn-emulator-history.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)};
 $('#nav-toggle').onclick=()=>{const nav=$('.primary-nav');nav.classList.toggle('open');$('#nav-toggle').setAttribute('aria-expanded',String(nav.classList.contains('open')))};
 $$('.primary-nav a').forEach(a=>a.onclick=()=>{$('.primary-nav').classList.remove('open');$('#nav-toggle').setAttribute('aria-expanded','false')});
@@ -268,6 +275,10 @@ window.UGN_OpenConsoleCatalog=function(consoleId){
 };
 window.UGN_OpenCustomCopy=function(consoleId){
   if(fullConsoleIndex)fullConsoleIndex.openCustom(consoleId);
+  else {
+    document.querySelector('#all-games')?.scrollIntoView({behavior:'smooth',block:'start'});
+    notify('Preparing the console catalog. Try again after it loads.');
+  }
 };
 
 /* Galactic Archive: the starship world is the primary UI. The classic console grid remains an accessibility fallback. */
