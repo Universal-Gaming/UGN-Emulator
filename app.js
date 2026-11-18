@@ -82,7 +82,7 @@ $('#play-title').textContent=g.name.toUpperCase();$('#play-tag').textContent=sys
 const frame=document.createElement('iframe');frame.title='UGN Emulator: '+g.name;frame.allow='autoplay; fullscreen; gamepad';frame.setAttribute('allowfullscreen','');frame.style.cssText='display:block;width:100%;height:100%;border:0;background:#030711';host.appendChild(frame);
 const gamePath=new URL('./'+g.file,location.href).href;
 const safePath=JSON.stringify(gamePath).replace(/</g,'\\u003c');
-const safeCore=JSON.stringify(g.core);
+const safeCore=JSON.stringify(g.core==='gbc'?'gb':g.core);
 const safeName=JSON.stringify(g.name).replace(/</g,'\\u003c');
 frame.srcdoc='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#020614;color:white"><div id="game" style="height:100dvh;width:100vw"></div><script>window.EJS_player="#game";window.EJS_core='+safeCore+';window.EJS_gameUrl='+safePath+';window.EJS_gameName='+safeName+';window.EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";window.EJS_startOnLoaded=true;window.EJS_color="#00d4ff";window.EJS_backgroundColor="#050b1b";window.EJS_backgroundImage="";window.EJS_Buttons={playPause:true,restart:true,mute:true,settings:true,fullscreen:true,saveState:true,loadState:true,screenRecord:false};window.addEventListener("error",e=>parent.postMessage({ugnEmulatorError:String(e.message)},"*"));<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script></body></html>';
 dlg.showModal();status.textContent='Emulator core loading from EmulatorJS; game ROM hosted inside the UGN repository.';
