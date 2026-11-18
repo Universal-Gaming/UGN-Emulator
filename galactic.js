@@ -411,7 +411,7 @@ export function mountGalacticArchive(api) {
     const list=$('#exhibit-game-list');list.innerHTML='';
     if(available.length)available.slice(0,12).forEach(g=>{const b=document.createElement('button');b.textContent=g.name+(g.mode==='personal'?' / MY COPY':' / PLAY')+'  ↗';b.onclick=()=>api.inspect(g.id);list.append(b)});
     else{const p=document.createElement('p');p.textContent='Browse authentic software titles for this console. Bring a lawful local game copy for titles not hosted by UGN.';list.append(p)}
-    $('#exhibit-view-library').onclick=()=>openShelf(id);
+    $('#exhibit-view-library').onclick=()=>{window.UGN_OpenConsoleCatalog?.(id);report('OPENED FULL '+s.short.toUpperCase()+' CONSOLE CATALOG');};$('#exhibit-open-own').onclick=()=>window.UGN_OpenCustomCopy?.(id);
     const theta=i/api.systems.length*Math.PI*2+.45;
     userCameraX=Math.sin(theta)*5.9;userCameraZ=Math.cos(theta)*5.9;
     movingTo={z:userCameraZ,x:userCameraX};
@@ -451,11 +451,11 @@ export function mountGalacticArchive(api) {
   }
   $('#holo-prev').onclick=()=>{shelfIndex=Math.max(0,shelfIndex-1);renderShelf()};
   $('#holo-next').onclick=()=>{shelfIndex=Math.min(shelfResults.length-1,shelfIndex+1);renderShelf()};
-  $('#holo-search-input').oninput=()=>{shelfIndex=0;renderShelf()};
+  $('#holo-search-input').oninput=()=>{shelfIndex=0;renderShelf()};$('#holo-all-games').onclick=()=>window.UGN_OpenConsoleCatalog?.('all');
   $('#close-holo-shelf').onclick=()=>{setSector('archive')};
   $('#close-exhibit').onclick=()=>{setSector('archive')};
   $('#close-room').onclick=()=>{setSector('archive')};
-  $('#return-archive').onclick=()=>{setSector('archive')};
+  $('#return-archive').onclick=()=>{setSector('archive')};$('#room-play-game').onclick=()=>openShelf();
   $('#enter-room')?.addEventListener('click',()=>setSector('room'));
   $$('[data-sector]').forEach(b=>b.onclick=()=>setSector(b.dataset.sector,{fromIntro:true}));
   $('#quick-library').onclick=()=>{$('.world-intro').classList.add('hidden');openShelf()};
@@ -581,6 +581,6 @@ export function mountGalacticArchive(api) {
     }
   }
   boot3D();
-  window.UGN_GALACTIC={go:setSector,openShelf,focusExhibit,refresh,settings:config};
+  window.UGN_GALACTIC={go:setSector,openShelf,focusExhibit,refresh,settings:config,openCatalog:id=>window.UGN_OpenConsoleCatalog?.(id)};
   document.addEventListener('visibilitychange',()=>{if(document.hidden)held.clear()});
 }
