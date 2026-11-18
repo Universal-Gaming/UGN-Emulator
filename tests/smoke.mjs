@@ -33,12 +33,14 @@ try{
  await page.locator('[data-platform=all]').click();
  // The starship is the primary experience, not a static marketing hero.
  await page.locator('#galactic-stage').waitFor({timeout:10000});
+ await page.screenshot({path:'smoke-intro.png',fullPage:false});
  await page.locator('#enter-archive').click();
  await page.locator('#skip-cinematic').click();
  await page.locator('[data-sector="shelves"]').click();
  await page.locator('#holo-shelf:not([hidden])').waitFor();
  assert.ok((await page.locator('#holo-selected-name').innerText()).length>0);
  await page.locator('#holo-next').click();
+ await page.screenshot({path:'smoke-shelf.png',fullPage:false});
  await page.locator('[data-sector="room"]').click();
  await page.locator('#room-panel:not([hidden])').waitFor();
  await page.locator('#room-preset').selectOption('bedroom90');
@@ -47,6 +49,7 @@ try{
  const roomSave=await page.evaluate(()=>JSON.parse(localStorage.getItem('ugn-galactic-room-v1')));
  assert.equal(roomSave.preset,'bedroom90');
  assert.equal(roomSave.furniture.length,5);
+ await page.screenshot({path:'smoke-room.png',fullPage:false});
  await page.locator('[data-sector="archive"]').click();
  await page.locator('#exhibit-panel').evaluate(el=>el.hidden=true);
  await page.locator('#game-grid [data-play]').first().click();
@@ -54,6 +57,8 @@ try{
  assert.equal(await page.locator('#player-viewport iframe').count(),1);
  const player=await page.locator('#player-viewport iframe').getAttribute('srcdoc');
  assert.match(player,/EJS_core/);
+ try {await page.locator('#player-status').getByText('GAME RUNNING',{exact:false}).waitFor({timeout:45000});}
+ catch (e) {console.warn('Actual game startup not confirmed:',await page.locator('#player-status').textContent());throw e;}
  await page.locator('#player-close').click();
  assert.equal(await page.locator('#game-dialog[open]').count(),0);
  await page.screenshot({path:'smoke-desktop.png',fullPage:true});
