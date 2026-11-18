@@ -1,0 +1,58 @@
+name: Build BYO console game index
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/generate_catalog.py
+      - .github/workflows/catalog.yml
+permissions:
+  contents: write
+concurrency:
+  group: ugn-catalog-generation
+  cancel-in-progress: false
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile game title index only (no commercial ROMs)
+        run: python scripts/generate_catalog.py
+      - name: Validate catalog data
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          m=json.loads(Path("catalog/manifest.json").read_text())
+          assert len(m["systems"])==16
+          assert m["total"]>5000, m["total"]
+          for s in m["systems"]:
+            rows=json.loads(Path(s["file"]).read_text())
+            assert len(rows)==s["count"] and rows
+            assert all(isinstance(r,list) and len(r)==2 for r in rows)
+          print("Validated",m["total"],"catalog entries, no game binaries")
+          PY
+      - name: Commit browser-readable catalog
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add catalog/
+          if git diff --cached --quiet; then
+            echo "No game metadata updates"
+            exit 0
+          fi
+          git commit -m "Publish title-only BYO game catalog"
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 2
+          done
+          echo "::error::Failed to publish catalog after retries"
+          exit 1
