@@ -49,6 +49,10 @@ try{
  await page.waitForFunction(()=>document.querySelector('#room-preset')?.value==='photo',null,{timeout:15000});
  const initialRoom=await page.evaluate(()=>JSON.parse(localStorage.getItem('ugn-galactic-room-v1'))||{furniture:[]});
  assert.ok(initialRoom.furniture?.length>=16,'Photographic UGN starter room should contain detailed furnishings');
+ assert.ok(initialRoom.furniture.some(f=>f.type==='holo'),'Photo-match room should include a holographic terminal');
+ assert.ok(initialRoom.furniture.some(f=>f.type==='neonsign'),'Photo-match room should include the UGN wall sign');
+ await page.screenshot({path:'smoke-photo-room.png',fullPage:false});
+
  await page.locator('#room-preset').selectOption('bedroom90');
  const countBefore=await page.evaluate(()=>JSON.parse(localStorage.getItem('ugn-galactic-room-v1')).furniture.length);
  assert.ok(countBefore>=12,'The 90s gaming bedroom must be fully furnished');
@@ -75,6 +79,17 @@ try{
  assert.equal(await page.locator('.room-reference-overlay').isVisible(),true);
  await page.locator('#room-show-reference').click();
  assert.equal(await page.locator('.room-reference-overlay').isVisible(),false);
+ await page.locator('#room-effects').uncheck();
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ugn-galactic-room-v1')).roomEffects),false);
+ await page.locator('#room-effects').check();
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ugn-galactic-room-v1')).roomEffects),true);
+ await page.locator('[data-furniture="controller"]').click();
+ await page.locator('[data-furniture="holo"]').click();
+ await page.locator('[data-furniture="neonsign"]').click();
+ const newRoom=await page.evaluate(()=>JSON.parse(localStorage.getItem('ugn-galactic-room-v1')));
+ assert.ok(newRoom.furniture.some(f=>f.type==='controller'));
+ assert.ok(newRoom.furniture.some(f=>f.type==='holo'));
+ assert.ok(newRoom.furniture.some(f=>f.type==='neonsign'));
  await page.locator('[data-room-view="desk"]').click();
  assert.equal(await page.locator('[data-room-view="desk"]').getAttribute('class'),'room-view-active');
  await page.locator('#room-display-0').evaluate(el=>el.closest('details').open=true);
