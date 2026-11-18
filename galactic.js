@@ -102,6 +102,7 @@ export function mountGalacticArchive(api) {
     const el=$('#room-save-status');if(el)el.textContent='✓ ROOM AUTOSAVED / '+config.furniture.length+' OBJECTS';
     const count=$('#room-object-count');if(count)count.textContent=config.furniture.length+' PLACED';
   };
+  persist();
   const report=s=>{const el=$('#world-prompt');if(el)el.textContent=s;api.notify?.(s)};
   const rect=(w,h,d,material)=>new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
   const material=(c,metal=.2,rough=.55)=>new THREE.MeshStandardMaterial({color:c,metalness:metal,roughness:rough});
@@ -390,6 +391,7 @@ export function mountGalacticArchive(api) {
   }
   function buildRoom(){
     if(!roomStudio||!scene)return;
+    const previousSelectedId=selectedFurniture?.userData.furnitureId;
     if(roomGroup){
       if(selectionHelper){roomGroup.remove(selectionHelper);selectionHelper.geometry?.dispose?.();selectionHelper.material?.dispose?.();selectionHelper=null;}
       scene.remove(roomGroup);
@@ -409,7 +411,9 @@ export function mountGalacticArchive(api) {
     selectedFurniture=null;
     scene.add(roomGroup);
     config.furniture.forEach(makeFurniture);
-    const selected=$('#furniture-selected');if(selected)selected.textContent='NONE';
+    const remembered=previousSelectedId?roomGroup.children.find(o=>o.userData.furnitureId===previousSelectedId):null;
+    if(remembered)selectFurniture(remembered);
+    else {const selected=$('#furniture-selected');if(selected)selected.textContent='NONE';}
     const count=$('#room-object-count');if(count)count.textContent=config.furniture.length+' PLACED';
   }
   function setSector(next,options={}){
