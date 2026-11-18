@@ -195,11 +195,12 @@ export function mountConsoleIndex(api) {
   $('#copy-close').onclick=()=>dialog.close();
   dialog.addEventListener('close',()=>{selected=null;rom=null;bios=null;$('#copy-rom-file').value='';$('#copy-bios-file').value=''});
   const createDoc=(entry,gameUrl,biosUrl,gameFilename)=>{
+    const stableGameId=key=>{let hash=2166136261;for(const c of String(key)){hash=Math.imul(hash^c.charCodeAt(0),16777619)>>>0}return hash||1};
     const val=x=>JSON.stringify(x).replace(/</g,'\\u003c');
     const s=systemById(entry.system);
     return '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#030814">'+
     '<div id="game" style="width:100vw;height:100dvh"></div><script>'+
-    'window.EJS_player="#game";window.EJS_core='+val(s.core)+';window.EJS_gameName='+val(gameFilename)+';'+
+    'window.EJS_player="#game";window.EJS_core='+val(s.core)+';window.EJS_gameName='+val(gameFilename)+';window.EJS_gameID='+stableGameId(entry.system+'/'+entry.title)+';'+
     'window.EJS_gameUrl='+val(gameUrl)+';'+(biosUrl?'window.EJS_biosUrl='+val(biosUrl)+';':'')+
     'window.EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";window.EJS_startOnLoaded=true;'+
     'window.EJS_color="#00d4ff";window.EJS_backgroundColor="#050d20";'+
@@ -238,7 +239,7 @@ export function mountConsoleIndex(api) {
   });
   window.addEventListener('message',e=>{
     if(!currentFrame||e.source!==currentFrame.contentWindow||!e.data)return;
-    if(e.data.ugnLocalStage==='ready')$('#player-status').textContent='CORE LOADED · STARTING YOUR COPY';
+    if(e.data.ugnLocalStage==='ready')$('#player-status').textContent='CORE READY · CLICK INSIDE GAME WINDOW TO START YOUR COPY';
     if(e.data.ugnLocalStage==='started'){finishLocalBoot?.();$('#player-status').textContent='GAME RUNNING · LOCAL FILE';}
     if(e.data.ugnLocalError){finishLocalBoot?.();$('#player-status').textContent='LOCAL EMULATOR ERROR · '+String(e.data.ugnLocalError).slice(0,140);}
   });
