@@ -688,26 +688,61 @@ export function mountGalacticArchive(api) {
   $('#toggle-sound').onclick=toggleSound;
   function pointerNDC(event){const r=renderer.domElement.getBoundingClientRect();mouse.x=(event.clientX-r.left)/r.width*2-1;mouse.y=-((event.clientY-r.top)/r.height*2-1)}
   function intersects(event,objects){if(!renderer||!camera||!raycaster)return[];pointerNDC(event);raycaster.setFromCamera(mouse,camera);return raycaster.intersectObjects(objects,false)}
-  function onPointerDown(e){if(!renderer)return;lastPointer={x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY,moved:0};if(activeSector==='room'){
-    const hits=intersects(e,furnitureObjects);
-    if(hits.length&&hits[0].object.userData.furnitureId){const f=hits[0].object.parent;selectFurniture(f);dragFurniture=true;root.setPointerCapture(e.pointerId);return}
-  }
+  function onPointerDown(e){
+    if(!renderer)return;
+    lastPointer={x:e.clientX,y:e.clientY,px:e.clientX,py:e.clientY,moved:0};
+    if(activeSector==='room'){
+      const hits=intersects(e,furnitureObjects);
+      if(hits.length){
+        const obj=hits[0].object;
+        if(obj.userData.interact==='room-play'){root.setPointerCapture(e.pointerId);draggingCamera=false;dragFurniture=false;return}
+        if(obj.userData.furnitureId){
+          const furniture=obj.parent;
+          selectFurniture(furniture);
+          checkpoint();dragFurniture=true;
+          root.setPointerCapture(e.pointerId);return;
+        }
+      }
+    }
     draggingCamera=true;root.setPointerCapture(e.pointerId);
   }
   function onPointerMove(e){
     if(!lastPointer)return;
-    const dx=e.clientX-lastPointer.px,dy=e.clientY-lastPointer.py;lastPointer.moved+=Math.abs(dx)+Math.abs(dy);lastPointer.px=e.clientX;lastPointer.py=e.clientY;
+    const dx=e.clientX-lastPointer.px,dy=e.clientY-lastPointer.py;
+    lastPointer.moved+=Math.abs(dx)+Math.abs(dy);lastPointer.px=e.clientX;lastPointer.py=e.clientY;
     if(dragFurniture&&selectedFurniture&&roomFloor){
       pointerNDC(e);raycaster.setFromCamera(mouse,camera);
-      const plane=new THREE.Plane(new THREE.Vector3(0,1,0),0);const point=new THREE.Vector3();
-      if(raycaster.ray.intersectPlane(plane,point)){selectedFurniture.position.x=Math.max(-7.9,Math.min(7.9,point.x));selectedFurniture.position.z=Math.max(-7.5,Math.min(5.4,point.z));}
+      const plane=new THREE.Plane(new THREE.Vector3(0,1,0),0),point=new THREE.Vector3();
+      if(raycaster.ray.intersectPlane(plane,point)){
+        const snap=config.snap!==false?.5:0;
+        const clamp=(v,min,max)=>Math.max(min,Math.min(max,snap?Math.round(v/snap)*snap:v));
+        selectedFurniture.position.x=clamp(point.x,-8.5,8.5);
+        selectedFurniture.position.z=clamp(point.z,-9,6);
+        selectionHelper?.update?.();
+      }
       return;
     }
     if(draggingCamera){orbitYaw=Math.max(-1.25,Math.min(1.25,orbitYaw-dx*.005));orbitPitch=Math.max(-.34,Math.min(.42,orbitPitch+dy*.003))}
   }
   function onPointerUp(e){
-    if(dragFurniture&&selectedFurniture){const entry=config.furniture.find(f=>f.id===selectedFurniture.userData.furnitureId);if(entry){entry.x=selectedFurniture.position.x;entry.z=selectedFurniture.position.z;persist();}report('FURNITURE POSITION SAVED');}
-    else if(lastPointer&&lastPointer.moved<10){const hits=intersects(e,activeSector==='room'?furnitureObjects:activeSector==='exhibits'?museumObjects:activeSector==='shelves'?vaultObjects:archiveObjects);if(hits.length){const obj=hits[0].object;if(obj.userData.interact==='library')openShelf();else if(obj.userData.interact==='room')setSector('room',{fromIntro:true});else if(obj.userData.interact==='archive')setSector('archive',{fromIntro:true});else if(obj.userData.interact==='console')focusExhibit(obj.userData.consoleId);else if(obj.userData.interact==='vault'&&obj.userData.gameId)api.inspect(obj.userData.gameId);}}
+    if(dragFurniture&&selectedFurniture){
+      const entry=config.furniture.find(f=>f.id===selectedFurniture.userData.furnitureId);
+      if(entry){entry.x=selectedFurniture.position.x;entry.z=selectedFurniture.position.z;persist()}
+      if(lastPointer?.moved<7&&['crt','console','cabinet'].includes(entry?.type)){
+        if(entry.type==='cabinet')openShelf();
+        else openShelf();
+      }else report('FURNITURE POSITION SAVED');
+    }else if(lastPointer&&lastPointer.moved<10){
+      const hits=intersects(e,activeSector==='room'?furnitureObjects:activeSector==='exhibits'?museumObjects:activeSector==='shelves'?vaultObjects:archiveObjects);
+      if(hits.length){const obj=hits[0].object;
+        if(obj.userData.interact==='room-play')openShelf();
+        else if(obj.userData.interact==='library')openShelf();
+        else if(obj.userData.interact==='room')setSector('room',{fromIntro:true});
+        else if(obj.userData.interact==='archive')setSector('archive',{fromIntro:true});
+        else if(obj.userData.interact==='console')focusExhibit(obj.userData.consoleId);
+        else if(obj.userData.interact==='vault'&&obj.userData.gameId)api.inspect(obj.userData.gameId);
+      }
+    }
     lastPointer=null;draggingCamera=false;dragFurniture=false;
   }
   root.addEventListener('pointerdown',onPointerDown);
@@ -745,6 +780,7 @@ export function mountGalacticArchive(api) {
     if(activeSector==='archive'||activeSector==='exhibits'||activeSector==='shelves'){
       const planets=archiveGroup?.children.filter(x=>x.userData.spin);planets?.forEach(x=>x.rotation.y+=dt*.04);
     }else if(activeSector==='room'){roomGroup?.children.filter(x=>x.userData.spin).forEach(x=>x.rotation.y+=dt*.04);}
+    if(selectedFurniture&&selectionHelper&&activeSector==='room')selectionHelper.update();
     renderer.render(scene,camera);
     frameCount++;
     if(now-fpsStart>1250){$('#galactic-fps').textContent=Math.round(frameCount*1000/(now-fpsStart))+' FPS / '+config.graphics.toUpperCase();fpsStart=now;frameCount=0}
