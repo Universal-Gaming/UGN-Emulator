@@ -9,8 +9,8 @@ export function mountGalacticArchive(api) {
   const root=$('#galactic-stage'),world=$('.galactic-world');
   if (!root||!world) return;
   const panels=['#exhibit-panel','#holo-shelf','#room-panel'];
-  let THREE=null,renderer=null,scene=null,camera=null,archiveGroup=null,roomGroup=null;
-  let raycaster=null,mouse=null,archiveObjects=[],furnitureObjects=[],roomFloor=null;
+  let THREE=null,renderer=null,scene=null,camera=null,archiveGroup=null,museumGroup=null,vaultGroup=null,roomGroup=null;
+  let raycaster=null,mouse=null,archiveObjects=[],museumObjects=[],vaultObjects=[],furnitureObjects=[],roomFloor=null;
   let shelfFilterSystem=null,selectedFurniture=null,activeSector='intro',exhibitIndex=0,shelfIndex=0,shelfResults=[];
   let orbitYaw=0,orbitPitch=0,lastPointer=null,draggingCamera=false,dragFurniture=false;
   let userCameraZ=9, userCameraX=0, introStarted=0, introDuration=2800, warpActive=false;
@@ -228,6 +228,90 @@ export function mountGalacticArchive(api) {
     const amb=new THREE.AmbientLight(0xa8bddb,2.0);archiveGroup.add(amb);
     const lights=[[-4,5,5,0x00d4ff],[4,5,-4,0x927bff],[-4,5,-15,0x00d4ff],[4,5,-22,0x55ffae]];
     for(const [x,y,z,c] of lights){const p=new THREE.PointLight(c,75,21,1.6);p.position.set(x,y,z);archiveGroup.add(p);}
+  }
+
+  // THE CONSOLE MUSEUM: a separate circular observation atrium.
+  function buildMuseum(){
+    museumGroup=new THREE.Group();scene.add(museumGroup);museumGroup.visible=false;
+    const obsFloor=new THREE.Mesh(new THREE.CylinderGeometry(13.8,14.2,.42,72),material(0x2d3e64,.65,.3));obsFloor.position.y=-.30;museumGroup.add(obsFloor);
+    const center=new THREE.Mesh(new THREE.CylinderGeometry(3.05,3.4,.45,70),material(0x14283e,.85,.26));center.position.y=-.04;museumGroup.add(center);
+    for(const [r,h,c] of [[13.5,-.06,0x00d4ff],[12.3,-.04,0x9e76ff],[3.25,.28,0x5cfc76],[2.7,.3,0x2b98db]]){
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(r,.055,8,120),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.85}));
+      ring.rotation.x=Math.PI/2;ring.position.y=h;museumGroup.add(ring);
+    }
+    const overhead=new THREE.Mesh(new THREE.SphereGeometry(15.3,64,24,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0x14294c,side:THREE.BackSide,metalness:.7,roughness:.36,transparent:true,opacity:.88}));overhead.position.y=1.6;museumGroup.add(overhead);
+    const crown=new THREE.Mesh(new THREE.TorusGeometry(14.2,.22,8,120),material(0x487c9c,.7,.3));crown.rotation.x=Math.PI/2;crown.position.y=5.9;museumGroup.add(crown);
+    for(let k=0;k<12;k++){
+      const a=k/12*Math.PI*2;
+      const rib=new THREE.Mesh(new THREE.TorusGeometry(15.1,.07,7,64,Math.PI/2),glow(k%2?0x23c6ee:0x8976ff));
+      rib.rotation.z=Math.PI/2;rib.rotation.y=a;rib.position.y=1.6;rib.material.transparent=true;rib.material.opacity=.55;museumGroup.add(rib);
+      const tip=new THREE.PointLight(k%2?0x24e2d8:0x947cff,14,8,2);
+      tip.position.set(Math.sin(a)*10.3,2.5,Math.cos(a)*10.3);if(k%3===0)museumGroup.add(tip);
+    }
+    const centerHolo=new THREE.Mesh(new THREE.OctahedronGeometry(1.35,1),new THREE.MeshBasicMaterial({color:0x54cbe8,wireframe:true,transparent:true,opacity:.45}));centerHolo.position.set(0,3.1,0);centerHolo.name='museum-orb';museumGroup.add(centerHolo);
+    const innerHolo=new THREE.Mesh(new THREE.IcosahedronGeometry(.72,1),new THREE.MeshBasicMaterial({color:0x9278ff,wireframe:true,transparent:true,opacity:.48}));centerHolo.add(innerHolo);
+    const logo=sign('UGN // CONSOLE MUSEUM',5.1,.68);logo.position.set(0,5.2,-.5);museumGroup.add(logo);
+    const core=sign('SELECT A SYSTEM',3.25,.68);core.position.set(0,1.22,0);museumGroup.add(core);
+    for(let i=0;i<api.systems.length;i++){
+      const console=api.systems[i];const angle=(i/api.systems.length)*Math.PI*2+.45;
+      const x=Math.sin(angle)*9.0,z=Math.cos(angle)*9.0;
+      const podium=new THREE.Group();podium.position.set(x,0,z);podium.rotation.y=angle+Math.PI;museumGroup.add(podium);
+      const slab=new THREE.Mesh(new THREE.CylinderGeometry(1.25,1.45,.9,24),material(0x29445e,.72,.25));slab.position.y=.4;podium.add(slab);
+      const neon=new THREE.Mesh(new THREE.TorusGeometry(1.34,.045,7,46),glow(i%3===0?0x987bff:0x00d4ff));neon.rotation.x=Math.PI/2;neon.position.y=.84;podium.add(neon);
+      const model=createConsole(podium,console.id);model.position.y=1.56;model.scale.set(.73,.73,.73);
+      const tag=sign(console.short.toUpperCase(),2.0,.72);tag.position.set(0,2.88,0);podium.add(tag);
+      const plate=sign(String(console.year),1.1,.42);plate.position.set(0,.42,1.48);podium.add(plate);
+      const target=rect(2.7,3.2,2.7,new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));
+      target.position.y=1.72;target.userData.interact='console';target.userData.consoleId=console.id;
+      podium.add(target);museumObjects.push(target);
+      const line=new THREE.Mesh(new THREE.TorusGeometry(.96,.018,7,45),new THREE.MeshBasicMaterial({color:0x74e4f7,transparent:true,opacity:.32}));line.rotation.x=.4;line.position.set(0,1.95,0);podium.add(line);
+    }
+    addPlanet(museumGroup,18,6,-53,9);
+    buildStarfield(museumGroup,config.graphics==='low'?500:1700);
+    museumGroup.add(new THREE.AmbientLight(0xcedffc,2.4));
+    for(const [x,z,c] of [[0,8,0x00d4ff],[-8,0,0xb38aff],[8,0,0x67ffba],[0,-8,0x837dff]]){
+      const light=new THREE.PointLight(c,90,24,1.4);light.position.set(x,6.5,z);museumGroup.add(light);
+    }
+  }
+  // HOLOGRAPHIC VAULT: real 3D floating cartridges, not a conventional game-card grid.
+  function buildVault(){
+    vaultGroup=new THREE.Group();scene.add(vaultGroup);vaultGroup.visible=false;
+    const floor=new THREE.Mesh(new THREE.CylinderGeometry(13.2,14,.4,64),material(0x142b47,.78,.25));floor.position.y=-.3;vaultGroup.add(floor);
+    for(let r=2.2;r<=12;r+=2.3){
+      const glowRing=new THREE.Mesh(new THREE.TorusGeometry(r,.024,6,100),new THREE.MeshBasicMaterial({color:r<5?0x5cfc76:0x289bc2,transparent:true,opacity:r<5?.68:.3}));
+      glowRing.rotation.x=Math.PI/2;glowRing.position.y=.01;vaultGroup.add(glowRing);
+    }
+    const ceiling=new THREE.Mesh(new THREE.SphereGeometry(15,64,24,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0x171934,side:THREE.BackSide,metalness:.55,roughness:.35,transparent:true,opacity:.87}));ceiling.position.y=1.7;vaultGroup.add(ceiling);
+    for(let k=0;k<14;k++){
+      const a=k/14*Math.PI*2;
+      const beam=rect(.1,6.0,.13,glow(k%2?0x705be5:0x1888bd));beam.position.set(Math.sin(a)*12.4,3,Math.cos(a)*12.4);beam.rotation.y=-a;vaultGroup.add(beam);
+      const base=rect(2.4,1.25,.8,material(0x1e3054,.57,.34));base.position.set(Math.sin(a)*10.9,1.0,Math.cos(a)*10.9);base.rotation.y=a;vaultGroup.add(base);
+    }
+    const vaultSign=sign('UGN // HOLOGRAPHIC GAME ARCHIVE',6.0,.70);vaultSign.position.set(0,5.4,-4.5);vaultGroup.add(vaultSign);
+    for(let k=0;k<4;k++){
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(4.6+k*.48,.035,8,96),new THREE.MeshBasicMaterial({color:k%2?0x8f6df8:0x02c8db,transparent:true,opacity:.38}));
+      ring.rotation.set(Math.PI/2-.35,k*.13,k*.17);ring.position.set(0,2.65,0);vaultGroup.add(ring);
+    }
+    const scrollSign=sign('SELECT A GAME TO INSPECT',3.7,.65);scrollSign.position.set(0,1.03,-2.1);vaultGroup.add(scrollSign);
+    const platform=new THREE.Mesh(new THREE.CylinderGeometry(4.6,4.9,.3,64),material(0x12334c,.65,.3));platform.position.y=-.05;vaultGroup.add(platform);
+    for(let k=0;k<7;k++){
+      const caseGroup=new THREE.Group();caseGroup.position.set((k-3)*1.8,2.4,1.4-Math.abs(k-3)*.55);caseGroup.rotation.y=(k-3)*-.12;
+      vaultGroup.add(caseGroup);const caseMesh=rect(.91,1.52,.16,material(0x182d4b,.5,.3));caseGroup.add(caseMesh);
+      const cover=rect(.85,1.28,.02,glow(k%2?0x215aa7:0x1d8a95));cover.position.z=.1;caseGroup.add(cover);
+      const spine=rect(.08,1.48,.16,glow(k%2?0x9f75fb:0x3be2dc));spine.position.x=-.48;caseGroup.add(spine);
+      const tag=sign(['NES','SNES','N64','GAME BOY','GBA','GENESIS','PS1'][k],.82,.45);
+      tag.position.set(0,-.18,.118);caseGroup.add(tag);
+      const inner=sign(['THE CLASSICS','16-BIT','3D ERA','HANDHELD','PORTABLE','SEGA','CD ROM'][k],.80,.45);
+      inner.position.set(0,.37,.12);caseGroup.add(inner);
+      const hit=rect(1.12,1.7,.48,new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+      hit.userData.interact='vault';hit.userData.vaultIndex=k;caseGroup.add(hit);vaultObjects.push(hit);
+      caseGroup.userData.floatCase=k;
+    }
+    addPlanet(vaultGroup,0,8,-49,6);buildStarfield(vaultGroup,config.graphics==='low'?400:1150);
+    vaultGroup.add(new THREE.AmbientLight(0xc5d5ff,2.2));
+    for(const [x,z,c] of [[0,7,0x00d4ff],[7,-2,0x796aff],[-7,-2,0x73ffc6]]){
+      const light=new THREE.PointLight(c,75,19,1.5);light.position.set(x,6,z);vaultGroup.add(light);
+    }
   }
   function roomSurface(){
     const c=rooms[config.preset]||rooms.ugn;
