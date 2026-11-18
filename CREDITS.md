@@ -43,7 +43,7 @@ The console selection reflects the reference site's NES, Genesis, Game Gear, 32X
 | GBA | Celeste Classic GBA | JeffRuLz (port) / Maddy Thorson and Noel Berry (original) | Free/open-source port; see project terms — https://github.com/JeffRuLz/Celeste-Classic-GBA |
 | Genesis | Cave Story MD | andwn / Studio Pixel | MIT port, original game freeware — https://github.com/andwn/cave-story-md |
 | Genesis | Ultimate Tetris | Haroldo O. Pinheiro | Freeware/open source — https://haroldo-ok.itch.io/ultimate-tetris |
-| Genesis | Break An Egg | Studio Vetea | Freeware — https://buildbot.libretro.com/assets/cores/ |
+| Genesis | Break An Egg | Dr. Ludos | Copyrighted freeware; see [creator's release and redistribution discussion](https://drludos.itch.io/breakanegg) |
 | Atari 2600 | Sheep It Up! | Dr. Ludos | Freeware/open-source — https://drludos.itch.io/sheep-it-up |
 | Neo Geo Pocket | Asteroids neo | Steven MacDonald | MIT — https://github.com/underscore42/ngpc-asteroids-neo |
 
@@ -149,3 +149,12 @@ Each of the following Homebrew Hub entries has a `game.json` **game-specific lic
 | GBA | MeteoRain | Dr. Ludos | MIT | [Game and license metadata](https://github.com/gbadev-org/games/blob/master/entries/meteorain-gba-jam-2021/game.json) |
 
 Source binaries and original byte sizes for reproducible downloads are recorded in [`catalog/licensed-rom-expansion.json`](catalog/licensed-rom-expansion.json). The artwork in Dawn Will Come is subject to **CC BY 4.0 attribution to eishiya**, even though its code is MIT licensed. Games under GPL remain covered by their GPL obligations; authors' source repository links are available through the linked upstream metadata. `piuGBA Demo` is the original demo, not a promise of bundled licensed music charts beyond what its author published.
+
+### Public-hosting permission review
+
+* **Break An Egg** was developed by **Dr. Ludos**, not Studio Vetea. The creator's [official page](https://drludos.itch.io/breakanegg) says the freeware release is still copyrighted. Its comments document permission for a named **free, noncommercial** retro project, plus earlier general freeware sharing permissions with credit. That is **not blanket commercial redistribution authorization for UGN**.
+* **Nova the Squirrel** contains **CC BY-NC-SA** assets. Commercial monetization of its distributed artwork requires a different authorization or removal/replacement. See the upstream [project license](https://github.com/NovaSquirrel/NovaTheSquirrel).
+* **Deadeus** and other freeware titles must be checked individually; free-to-download is not automatically a sublicense to mirror on a commercial site.
+* Developer-hosted screenshots and GIFs in `app.js` are external source references used as game-specific imagery. Their respective owners retain the rights; UGN's original space-themed archive sleeves are used when external art is missing.
+
+These are disclosure/review notes, not proof of legal clearance for a public commercial service. Obtain creator permission or remove affected games before any monetized rollout.

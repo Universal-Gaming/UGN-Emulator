@@ -69,3 +69,7 @@ Read `CREDITS.md` and individual upstream licenses for all ROMs and screenshots 
 6. Check all packaging/artwork rights before public commercial hosting.
 
 There is no way to certify a game collection as mathematically bug-free; record verified platforms and known limitations clearly rather than claiming 100% compatibility.
+
+## Licensing checkpoint before monetization
+
+The current collection includes third-party freeware and art with **noncommercial conditions**, including Nova the Squirrel's CC BY-NC-SA assets. The Break An Egg developer also expressly describes his game as copyrighted freeware and has granted noncommercial sharing permission in a public discussion. Neither fact establishes blanket commercial redistribution permission for UGN. This build is technically deployable as a static site, but it is **not certified for monetized public distribution**. Preserve credits and creator links, and acquire explicit commercial permissions or remove affected titles before accepting paid hosting, sponsorships or advertising for the emulator. See CREDITS.md.
