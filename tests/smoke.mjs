@@ -24,7 +24,7 @@ try{
  const fatal=[];page.on('pageerror',e=>fatal.push(String(e)));
  await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('#game-grid .game-card').first().waitFor({timeout:15000});
- await page.waitForFunction(()=>Number(document.querySelector('#hero-games')?.textContent)===roms.length,null,{timeout:25000});
+ await page.waitForFunction(expected=>Number(document.querySelector('#hero-games')?.textContent)===expected,roms.length,{timeout:25000});
  assert.equal(Number(await page.locator('#hero-games').innerText()),roms.length);
  assert.equal(Number(await page.locator('#hero-systems').innerText()),10);
  assert.equal(await page.locator('#game-grid .game-card').count(),36,'First page shows 36 real titles');
