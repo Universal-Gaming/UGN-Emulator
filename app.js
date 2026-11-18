@@ -1,3 +1,4 @@
+import { attachBootOverlay } from './player-boot.js';
 /* UGN Emulator: real console emulation, licensed built-in titles and lawful local copies. */
 import {loadPersonalTitles,seedPersonalTitles,acceptedFormats,needsBios,coreNeedsIsolation} from './personal-catalog.js';
 const $=(s,r=document)=>r.querySelector(s);
@@ -241,9 +242,9 @@ dialog.addEventListener('close',()=>{
 });
 window.addEventListener('message',e=>{
  if(!frame||e.source!==frame.contentWindow)return;
- if(e.data?.ugnError)$('#player-status').textContent='EMULATOR ERROR: '+String(e.data.ugnError).slice(0,150);
+ if(e.data?.ugnError){finishHostedBoot?.();$('#player-status').textContent='EMULATOR ERROR: '+String(e.data.ugnError).slice(0,150)}
  if(e.data?.ugnEmuStage==='ready')$('#player-status').textContent='CORE READY — STARTING GAME';
- if(e.data?.ugnEmuStage==='started')$('#player-status').textContent='GAME RUNNING / '+String(document.querySelector('#player-title')?.textContent||'');
+ if(e.data?.ugnEmuStage==='started'){finishHostedBoot?.();$('#player-status').textContent='GAME RUNNING / '+String(document.querySelector('#player-title')?.textContent||'')};
 });
 async function validateROMS(){await Promise.all(games.map(async g=>{try{let res=await fetch('./'+g.file,{method:'HEAD',cache:'no-store'});installed[g.file]=res.ok&&Number(res.headers.get('content-length')||10000)>2000}catch{installed[g.file]=false}}));renderSystems();renderGames();renderHistory();changeSpot(0);window.__ugnArchiveRefresh?.();}
 renderPills();renderSystems();renderGames();renderHistory();validateROMS();
