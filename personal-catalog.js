@@ -85,3 +85,5 @@ export async function loadPersonalTitles(consoleId) {
   return promise;
 }
 export function builtinTitleCount(consoleId){return(seeds[consoleId]||[]).length;}
+
+export function seedPersonalTitles(){return Object.keys(seeds).flatMap(id=>(seeds[id]||[]).map(n=>game(id,n)));}
