@@ -8,6 +8,9 @@ on:
       - 'app.js'
       - 'galactic.js'
       - 'galactic.css'
+      - 'copy-library.js'
+      - 'game-index.css'
+      - 'catalog/**'
       - 'library.html'
       - 'roms/**'
       - 'tests/**'
@@ -32,6 +35,7 @@ jobs:
         run: |
           node --check app.js
           node --check galactic.js
+          node --check copy-library.js
           python3 - <<'PY'
           from pathlib import Path
           roms=[p for p in Path('roms').rglob('*') if p.is_file()]
@@ -56,6 +60,7 @@ jobs:
             smoke-intro.png
             smoke-shelf.png
             smoke-room.png
+            smoke-catalog.png
             smoke-desktop.png
             smoke-mobile.png
           if-no-files-found: ignore
