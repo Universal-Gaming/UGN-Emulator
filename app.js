@@ -1,4 +1,5 @@
 import { attachBootOverlay } from './player-boot.js';
+import { archiveArtwork, artworkImage, wireArtwork, setArtworkImage } from './artwork.js';
 /* UGN Emulator: real console emulation, licensed built-in titles and lawful local copies. */
 import {loadPersonalTitles,seedPersonalTitles,acceptedFormats,needsBios,coreNeedsIsolation} from './personal-catalog.js';
 const $=(s,r=document)=>r.querySelector(s);
@@ -123,7 +124,7 @@ const photo=s=>commons(s?.photo);
 function notify(message){let el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(notify.t);notify.t=setTimeout(()=>el.classList.remove('show'),3200)}
 function installedCount(id){return games.filter(g=>g.system===id&&installed[g.file]===true).length}
 function selectSystem(id){platform=id;visibleLimit=36;if(catalogMode!=='hosted')loadTitlesForPlatform(id);renderPills();renderGames();$('#library').scrollIntoView({behavior:'smooth'});notify('Viewing '+(system(id)?.name||'all systems'))}
-function changeSpot(i){spot=(i+systemCatalog.length)%systemCatalog.length;const s=systemCatalog[spot];$('#feature-index').textContent=String(spot+1).padStart(2,'0');$('#feature-position').textContent=String(spot+1).padStart(2,'0')+' / '+systemCatalog.length;$('#feature-era').textContent=s.year+' / '+s.maker.toUpperCase();$('#feature-title').textContent=s.name;$('#feature-description').textContent=s.about;$('#feature-count').textContent=installedCount(s.id)?installedCount(s.id)+' INSTALLED GAME'+(installedCount(s.id)===1?'':'S'):'NO INSTALLED GAMES YET';const img=$('#feature-image');img.alt='Authentic '+s.name+' console hardware';img.src=photo(s);img.onerror=()=>{img.onerror=null;img.removeAttribute('src');img.alt=s.name+' photo temporarily unavailable'};$('#feature-explore').onclick=()=>selectSystem(s.id)}
+function changeSpot(i){spot=(i+systemCatalog.length)%systemCatalog.length;const s=systemCatalog[spot];$('#feature-index').textContent=String(spot+1).padStart(2,'0');$('#feature-position').textContent=String(spot+1).padStart(2,'0')+' / '+systemCatalog.length;$('#feature-era').textContent=s.year+' / '+s.maker.toUpperCase();$('#feature-title').textContent=s.name;$('#feature-description').textContent=s.about;$('#feature-count').textContent=installedCount(s.id)?installedCount(s.id)+' INSTALLED GAME'+(installedCount(s.id)===1?'':'S'):'NO INSTALLED GAMES YET';const img=$('#feature-image');img.alt='Authentic '+s.name+' console hardware';img.src=photo(s);img.onerror=()=>{img.onerror=null;img.src=archiveArtwork(s.name,s.short);img.alt='UGN archive illustration for '+s.name};$('#feature-explore').onclick=()=>selectSystem(s.id)}
 $('#feature-prev').onclick=()=>changeSpot(spot-1);$('#feature-next').onclick=()=>changeSpot(spot+1);
 function renderSystems(){const list=systemCatalog.filter(s=>maker==='all'||s.maker===maker);
 $('#system-grid').innerHTML=list.map(s=>{const amount=installedCount(s.id);return '<button class="system-card '+(amount?'':'soon')+'" data-system="'+s.id+'"><span class="system-status">'+(amount?amount+' GAME'+(amount===1?'':'S'):'COMING SOON')+'</span><div class="system-img">'+imageMarkup(photo(s),s.name+' hardware','onerror="this.hidden=true;this.nextElementSibling.hidden=false"')+'<span class="system-noimage" hidden>'+escapes(s.short.slice(0,3))+'</span></div><div class="system-card-body"><div class="system-name">'+escapes(s.short)+'</div><div class="system-sub">'+s.maker.toUpperCase()+' / '+s.year+'</div></div></button>'}).join('');
@@ -190,10 +191,11 @@ function renderGames(){
  const visible=list.slice(0,visibleLimit);
  $('#game-grid').innerHTML=visible.map(g=>{
   const s=system(g.system),own=g.mode==='personal',ready=!own&&installed[g.file]===true;
-  const img=g.image||photo(s);
-  return '<article class="game-card '+(own?'personal-only':'')+'"><button data-inspect="'+escapes(g.id)+'" class="game-art" style="--art:var(--'+(g.color||'violet')+')" aria-label="Inspect '+escapes(g.name)+'"><span class="game-system">'+escapes(s.short)+'</span>'+imageMarkup(img,g.image?'Authentic artwork for '+g.name:s.name+' console hardware','onerror="this.hidden=true;this.nextElementSibling.hidden=false"')+'<span class="art-placeholder" hidden>'+escapes(s.short.slice(0,3))+'</span><span class="art-note">'+(g.image?'TITLE-SPECIFIC IMAGE':'AUTHENTIC CONSOLE PHOTO')+'</span></button><button class="game-favorite '+(memory.favorites.includes(g.id)?'saved':'')+'" data-fav="'+escapes(g.id)+'" aria-label="Toggle favorite for '+escapes(g.name)+'" aria-pressed="'+memory.favorites.includes(g.id)+'">♥</button><div class="game-info"><h3>'+escapes(g.name)+'</h3><div class="game-byline">'+escapes(g.creator)+' · '+escapes(g.year)+'</div><p class="game-description">'+escapes(g.desc)+'</p><div class="game-bottom"><span class="rom-state '+(ready?'':'checking')+'">'+(ready?'● ROM INSTALLED':own?'◈ PERSONAL COPY':'◌ VERIFYING')+'</span><button class="game-play" data-play="'+escapes(g.id)+'" '+(!ready&&!own?'disabled':'')+'>'+(ready?'PLAY NOW ↗':own?'USE MY COPY ↗':'CHECKING')+'</button></div><button class="game-view-details" data-inspect="'+escapes(g.id)+'">VIEW GAME DETAILS ◈</button></div></article>';
+  
+  return '<article class="game-card '+(own?'personal-only':'')+'"><button data-inspect="'+escapes(g.id)+'" class="game-art" style="--art:var(--'+(g.color||'violet')+')" aria-label="Inspect '+escapes(g.name)+'"><span class="game-system">'+escapes(s.short)+'</span>'+artworkImage(g.image,g.name,s.short)+'<span class="art-note">'+(g.image?'SOURCE ARTWORK · IF AVAILABLE':'UGN ARCHIVE COVER · NOT OFFICIAL ARTWORK')+'</span></button><button class="game-favorite '+(memory.favorites.includes(g.id)?'saved':'')+'" data-fav="'+escapes(g.id)+'" aria-label="Toggle favorite for '+escapes(g.name)+'" aria-pressed="'+memory.favorites.includes(g.id)+'">♥</button><div class="game-info"><h3>'+escapes(g.name)+'</h3><div class="game-byline">'+escapes(g.creator)+' · '+escapes(g.year)+'</div><p class="game-description">'+escapes(g.desc)+'</p><div class="game-bottom"><span class="rom-state '+(ready?'':'checking')+'">'+(ready?'● ROM INSTALLED':own?'◈ PERSONAL COPY':'◌ VERIFYING')+'</span><button class="game-play" data-play="'+escapes(g.id)+'" '+(!ready&&!own?'disabled':'')+'>'+(ready?'PLAY NOW ↗':own?'USE MY COPY ↗':'CHECKING')+'</button></div><button class="game-view-details" data-inspect="'+escapes(g.id)+'">VIEW GAME DETAILS ◈</button></div></article>';
  }).join('');
- $('#empty-state').hidden=!!list.length;
+ wireArtwork($('#game-grid'));
+  $('#empty-state').hidden=!!list.length;
  $('#load-more-games').hidden=visible.length>=list.length;
  $('#catalog-page-meta').textContent=visible.length+' OF '+list.length+' TITLES DISPLAYED';
  $('#hero-games').textContent=hostedCount;
@@ -234,9 +236,7 @@ function showDetails(id){
  $('#title-console').textContent=sys.name;
  $('#title-year').textContent=g.year;
  $('#title-creator').textContent=g.creator;
- const img=$('#title-art'),asset=g.image||photo(sys);img.hidden=false;img.alt=g.image?'Original title image for '+g.name:'Photo of '+sys.name+' console hardware';img.src=asset;
- img.onerror=()=>{img.onerror=null;img.hidden=true};
- $('#title-art-caption').textContent=g.image?'ACTUAL GAME COVER / SCREENSHOT':'AUTHENTIC CONSOLE HARDWARE';
+ setArtworkImage($('#title-art'),g.image,g.name,sys.short,$('#title-art-caption'));
  $('#title-boot').hidden=own||installed[g.file]!==true;
  $('#title-boot').onclick=()=>{titleDialog.close();launch(g.id)};
  $('#title-favorite').textContent=memory.favorites.includes(g.id)?'♥ FAVORITED':'♡ ADD FAVORITE';
