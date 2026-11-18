@@ -16,6 +16,8 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
  const accents={cyan:0x00d4ff,violet:0xa15cff,green:0x5cfc76,warm:0xffb973,white:0xe8edff};
  const wallColors={navy:0x142146,purple:0x31204e,gray:0x6b7185,dark:0x171729,cream:0xae9a8c};
  const floorColors={metal:0x172a40,wood:0x714f3d,carpet:0x37324f,tile:0x303c4e};
+ const roomLightColors={cozy:0xffba80,chill:0x61b5fa,neon:0xa35cff,deep:0x433d9b};
+ const themedTrim=(cfg)=>accents[cfg.lights]??0x00d4ff;
  const rand=n=>{const x=Math.sin(n*78.233)*43758.5453;return x-Math.floor(x)};
  let hitObjects=[];
  function makeTexture(kind,flavor=''){
@@ -26,6 +28,14 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      x.textAlign='center';x.fillStyle='#5cfc76';x.font='bold 80px monospace';x.fillText('UGN',256,246);
      x.fillStyle='#dcfbff';x.font='bold 26px monospace';x.fillText(flavor==='desk'?'SYSTEM READY':'SELECT A CONSOLE',256,292);
      for(let i=0;i<512;i+=5){x.fillStyle='#000d1e44';x.fillRect(0,i,512,2)}
+   }else if(kind==='wall'){
+     const pale=flavor==='cream'||flavor==='gray';x.fillStyle=pale?'#666e82':'#19203b';x.fillRect(0,0,512,512);
+     for(let i=0;i<512;i+=74){
+       x.fillStyle=i%148===0?'#080d1c24':'#7782bd12';x.fillRect(i,0,70,512);
+       x.strokeStyle=pale?'#0a142442':'#8b67b538';x.lineWidth=2;x.strokeRect(i+4,4,67,504);
+     }
+     for(let i=0;i<2600;i++){const xx=rand(i+110)*512,yy=rand(i+44)*512;
+       x.fillStyle='rgba(234,231,255,'+(.012+rand(i+21)*.032)+')';x.fillRect(xx,yy,2,2)}
    }else if(kind==='wood'){x.fillStyle='#6e473e';x.fillRect(0,0,512,512);
      for(let i=0;i<110;i++){let y=rand(i)*512;x.strokeStyle=i%2?'#2d16232b':'#cf936838';x.lineWidth=1+rand(i+4)*2;x.beginPath();x.moveTo(0,y);x.bezierCurveTo(180,y+rand(i+33)*5,380,y-3,512,y+1);x.stroke()}
    }else if(kind==='carpet'){
@@ -34,12 +44,28 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
        x.fillStyle='rgba('+v+','+(v-12)+','+(v+68)+',.22)';
        x.fillRect(rand(i*3+1)*512,rand(i*5+9)*512,1+rand(i+25)*3,1+rand(i+13)*3);
      }
+   }else if(kind==='metal'){
+     x.fillStyle='#1b2638';x.fillRect(0,0,512,512);
+     for(let y=0;y<512;y+=128){for(let xx=0;xx<512;xx+=128){
+       x.fillStyle='#2b3b4c';x.fillRect(xx+3,y+3,122,122);
+       x.strokeStyle='#516677';x.lineWidth=2;x.strokeRect(xx+6,y+6,116,116);
+       x.fillStyle='#00cde83c';x.fillRect(xx+10,y+10,5,5);x.fillRect(xx+112,y+112,5,5);
+     }}
+     const light=x.createLinearGradient(0,0,512,512);light.addColorStop(0,'#7bb5e111');light.addColorStop(1,'#00001100');x.fillStyle=light;x.fillRect(0,0,512,512);
    }else if(kind==='rug'){x.fillStyle='#332751';x.fillRect(0,0,512,512);
      for(let j=0;j<7;j++){x.strokeStyle=j%2?'#09bfeea8':'#b773ffa8';x.lineWidth=8-j*.6;x.strokeRect(20+j*14,20+j*14,472-j*28,472-j*28)}
      let g=x.createRadialGradient(256,256,2,256,256,165);g.addColorStop(0,'#b36cfa');g.addColorStop(.4,'#195da7');g.addColorStop(1,'#101832');x.fillStyle=g;x.beginPath();x.arc(256,256,162,0,Math.PI*2);x.fill();
    }else if(kind==='duvet'){x.fillStyle='#17294d';x.fillRect(0,0,512,512);
      for(let i=-160;i<690;i+=115){x.save();x.translate(i,0);x.rotate(.5);x.fillStyle='#a052e1';x.fillRect(0,-160,44,800);x.fillStyle='#00d4ff';x.fillRect(53,-160,14,800);x.restore()}
      for(let i=0;i<30;i++){x.fillStyle=i%2?'#6ff9fb':'#fab1fc';x.fillRect(rand(i)*512,rand(i+100)*512,6,6)}
+   }else if(kind==='gamecover'){
+     let g=x.createLinearGradient(0,0,512,512);g.addColorStop(0,['#163e65','#5a267c','#3d603e','#7c2949'][Number(flavor)%4||0]);
+     g.addColorStop(1,'#080f26');x.fillStyle=g;x.fillRect(0,0,512,512);
+     x.lineWidth=10;x.strokeStyle='#b5dcfa';x.strokeRect(17,17,478,478);
+     for(let i=0;i<11;i++){x.strokeStyle=i%2?'#77f4ef66':'#bc76f566';x.lineWidth=3;x.beginPath();
+       x.ellipse(256,257,92+i*10,33+i*11,i*.11,0,Math.PI*2);x.stroke()}
+     x.fillStyle='#d8fff6';x.textAlign='center';x.font='bold 83px monospace';x.fillText(['UGN','COSMOS','STAR','NOVA'][Number(flavor)%4||0],256,291);
+     x.font='bold 25px monospace';x.fillStyle='#a8daeb';x.fillText('ORIGINAL COLLECTION',256,458);
    }else if(kind==='poster'){const g=x.createLinearGradient(0,0,512,512);g.addColorStop(0,'#19165b');g.addColorStop(.45,'#792e98');g.addColorStop(1,'#041f42');x.fillStyle=g;x.fillRect(0,0,512,512);
      for(let i=0;i<90;i++){x.fillStyle='#f4d3ff88';x.fillRect(rand(i)*512,rand(i+31)*512,2,2)}
      x.strokeStyle='#35eeff';x.lineWidth=9;x.beginPath();x.ellipse(260,255,144,57,-.45,0,Math.PI*2);x.stroke();
@@ -100,6 +126,12 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      cb(2.81,.13,.79,0,4.12,-.12,top);cb(2.73,4.06,.13,0,2.08,-.51,wood);
      for(let i=0;i<5;i++){const y=.24+i*.79;cb(2.70,.10,.78,0,y,-.08,top);
        const row=new THREE.Group();add(g,row,0,y+.09,.06);caseShelf(row,cfg,i+Number(entry.id)%11);
+       // A few genuine 3D collectible cases face out on the shelf, using original UGN cover art.
+       const covers=cfg.clutter==='packed'?2:cfg.clutter==='curated'?1:0;
+       for(let j=0;j<covers;j++){
+         const coverMat=new THREE.MeshStandardMaterial({map:makeTexture('gamecover',String(i+j)),roughness:.46,metalness:.12});
+         const caseObj=cb(.34,.55,.075,-.93+j*1.85,y+.39,.19,coverMat);caseObj.rotation.y=j?.12:-.1;
+       }
        strip(g,2.5,.019,.03,0,y+.13,.34,i%2?0xa55bff:0x00d4ff);}
      T('GAME COLLECTION',2.45,0,4.30,.26);
    }else if(entry.type==='cabinet'){
@@ -132,6 +164,18 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      cb(1.74,1.13,.12,0,1.92,-.77,black);
      add(g,new THREE.Mesh(new THREE.PlaneGeometry(1.57,.97),new THREE.MeshBasicMaterial({map:makeTexture('screen','desk'),toneMapped:false})),0,1.92,-.704);
      cb(.16,.44,.15,0,1.33,-.75,iron);cb(1.0,.06,.38,0,1.19,.42,black);
+     // Transparent floating editor screen above the gaming desk, like the reference photo.
+     const holoframe=cb(2.6,1.28,.038,.72,2.59,-.62,G(0x16c4ff,.18));
+     holoframe.rotation.y=-.12;
+     const holoArt=new THREE.Mesh(new THREE.PlaneGeometry(2.25,1.02),
+       new THREE.MeshBasicMaterial({map:makeTexture('screen','desk'),transparent:true,opacity:.79,side:THREE.DoubleSide,depthWrite:false}));
+     holoArt.position.set(.72,2.59,-.578);holoArt.rotation.y=-.12;g.add(holoArt);
+     holoArt.userData.roomAnimation='hologram';
+     strip(g,2.55,.026,.05,.72,3.24,-.58,0x00d4ff);
+     strip(g,2.55,.026,.05,.72,1.96,-.58,0x9b61ff);
+     const deskHit=cb(2.5,1.16,.08,.72,2.59,-.46,
+       new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));
+     deskHit.userData.interact='room-play';hitObjects.push(deskHit);
      for(let i=0;i<13;i++)cb(.055,.013,.10,-.41+i*.067,1.23,.40,i%3?iron:em);
      cyl(g,.07,.10,.75,-1.48,1.56,-.50,iron);cyl(g,.40,.28,.23,-1.48,2.02,-.50,M(0x9d90b8,.2,.65));
      ball(g,.16,-1.48,1.89,-.50,L(0xffd29a,1));ball(g,.10,.95,1.18,.38,black);
@@ -167,7 +211,7 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
    }else if(entry.type==='lava'){
      w=.8;h=1.4;d=.8;
      cyl(g,.24,.30,.15,0,.15,0,iron);cyl(g,.19,.25,.80,0,.62,0,G(0xad5eff,.41));
-     for(let i=0;i<5;i++)ball(g,.083+(i%3)*.021,(rand(i)-.5)*.2,.31+i*.14,0,L(i%2?0xff83d6:0xb363ff,.67));
+     for(let i=0;i<5;i++){const blob=ball(g,.083+(i%3)*.021,(rand(i)-.5)*.2,.31+i*.14,0,L(i%2?0xff83d6:0xb363ff,.67));blob.userData.roomAnimation='lava';blob.userData.lavaPhase=i*1.26;blob.userData.lavaBase=blob.position.y;}
      cyl(g,.22,.22,.14,0,1.07,0,iron);
    }else if(entry.type==='plant'){
      w=1.25;h=2.8;d=1.25;
@@ -178,6 +222,33 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      cb(1.96,2.25,.12,0,1.48,0,top);
      add(g,new THREE.Mesh(new THREE.PlaneGeometry(1.8,2.06),new THREE.MeshBasicMaterial({map:makeTexture('poster',Number(entry.id)%2?'retro':''),toneMapped:false})),0,1.48,.07);
      strip(g,1.96,.04,.06,0,2.64,.07,0xa65fff);strip(g,1.96,.04,.06,0,.31,.07,0x00d4ff);
+   }else if(entry.type==='controller'){
+     w=1.15;h=.6;d=.82;
+     const body=cb(1.12,.21,.53,0,.23,0,black);
+     for(const x of [-.47,.47]){const grip=cb(.24,.3,.65,x,.18,.13,plastic);grip.rotation.y=x>0?-.2:.2}
+     cb(.37,.055,.105,-.29,.365,0,iron);cb(.12,.055,.33,-.29,.365,0,iron);
+     for(const [x,z,col] of [[.18,.04,0x5cfc76],[.34,.14,0x9168ff],[.34,-.08,0xff97b6],[.49,.02,0x00d4ff]])
+       cyl(g,.05,.05,.038,x,.365,z,L(col,.58));
+     for(const x of [-.08,.09])cyl(g,.035,.035,.03,x,.365,.04,edge);
+   }else if(entry.type==='holo'){
+     w=2.0;h=2.8;d=1.3;
+     cb(1.75,.17,.9,0,.70,0,iron);
+     cb(.28,.75,.25,0,.35,0,iron);
+     const glass=cb(1.65,1.42,.035,0,1.65,-.11,G(0x07e6ff,.17));glass.rotation.y=-.12;
+     const panel=add(g,new THREE.Mesh(new THREE.PlaneGeometry(1.42,1.20),
+       new THREE.MeshBasicMaterial({map:makeTexture('screen','desk'),transparent:true,opacity:.82,side:THREE.DoubleSide})),0,1.65,-.07);
+     panel.userData.roomAnimation='hologram';
+     strip(g,1.72,.06,.08,0,2.43,-.05,neon);
+     const holoHit=cb(1.7,1.35,.09,0,1.65,.05,
+       new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));
+     holoHit.userData.interact='room-play';hitObjects.push(holoHit);
+   }else if(entry.type==='neonsign'){
+     w=2.8;h=2.1;d=.2;
+     cb(2.8,1.55,.12,0,1.5,0,black);
+     cb(2.62,1.4,.04,0,1.5,.09,G(0x875bff,.22));
+     const ugn=add(g,sign('UGN / RETRO',2.5,.90),0,1.68,.13);ugn.userData.roomAnimation='hologram';
+     strip(g,2.74,.055,.06,0,2.29,.14,neon);
+     strip(g,2.74,.055,.06,0,.72,.14,0xa05dff);
    }else if(entry.type==='figure'){
      w=.9;h=1.4;d=.9;
      cyl(g,.23,.2,.56,0,.43,0,M(0x5e68a8,.4,.38));
@@ -222,11 +293,26 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
  function build(config){
    const room=new THREE.Group();room.name='UGN / Photo-Match Gaming Room';hitObjects=[];
    const wc=wallColors[config.walls]??wallColors.navy,fc=floorColors[config.floor]??floorColors.metal;
-   const floorMat=['wood','carpet'].includes(config.floor)?new THREE.MeshStandardMaterial({map:makeTexture(config.floor),roughness:config.floor==='carpet'?.97:.65,metalness:.035}):M(fc,.28,.6);
+   const floorMat=['wood','carpet','metal'].includes(config.floor)?
+     new THREE.MeshStandardMaterial({map:makeTexture(config.floor),roughness:config.floor==='carpet'?.97:.49,metalness:config.floor==='metal'?.55:.035}):M(fc,.28,.6);
    const ground=B(room,19,.18,19,0,-.14,-.9,floorMat);
-   B(room,.28,7.65,19,-9.5,3.8,-.9,M(wc,.14,.74));
-   B(room,.28,7.65,19,9.5,3.8,-.9,M(wc,.14,.74));
-   B(room,19,7.65,.28,0,3.8,-10.25,M(wc,.14,.74));
+   const wallMat=new THREE.MeshStandardMaterial({color:wc,map:makeTexture('wall',config.walls),roughness:.88,metalness:.08});
+   B(room,.28,7.65,19,-9.5,3.8,-.9,wallMat);
+   B(room,.28,7.65,19,9.5,3.8,-.9,wallMat);
+   B(room,19,7.65,.28,0,3.8,-10.25,wallMat);
+   // Architectural framing, skirting and layered illumination make this a lived-in station cabin.
+   for(const xx of [-9.18,9.18]){
+     for(let z=-9.5;z<=7.5;z+=2.2){
+       B(room,.15,6.85,.07,xx,3.45,z,M(0x364760,.47,.41));
+     }
+     strip(room,.06,.07,17.9,xx,.18,-.9,0x01bde8);
+   }
+   for(const z of [-9.89,-6.12,-2.31,1.5,5.31]){
+     strip(room,18.0,.045,.08,0,6.80,z,z===-9.89?0x00d4ff:0x7b57dd);
+   }
+   const baseTrim=M(0x3c3a58,.35,.32);
+   B(room,18.6,.26,.18,0,.13,-10.05,baseTrim);
+   for(const xx of [-9.33,9.33])B(room,.18,.25,18.6,xx,.13,-.85,baseTrim);
    for(const x of [-9.2,9.2])B(room,.32,.26,19,x,7.59,-.9,M(0x182037,.54,.3));
    for(const z of [-10.1,8.3])B(room,19,.26,.35,0,7.59,z,M(0x182037,.54,.3));
    const ceiling=new THREE.Mesh(new THREE.TorusGeometry(3.15,.1,9,80),L(0x9d54ff,.75));ceiling.rotation.x=Math.PI/2;add(room,ceiling,0,7.43,-1.65);
@@ -239,7 +325,16 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
    const ambient=new THREE.AmbientLight(0xc4c7ed,config.atmosphere==='deep'?1.05:1.8);room.add(ambient);
    const lights=[[-4.0,5.7,-3.0,accent,config.atmosphere==='deep'?35:65],[4,5,1,0xb86aff,45],[5,3,-4,0xffc596,config.atmosphere==='cozy'?55:24]];
    lights.forEach(([x,y,z,c,intensity])=>{const p=new THREE.PointLight(c,intensity,21,1.5);p.position.set(x,y,z);room.add(p)});
+   // Underfloor walkway guides the camera toward the console cabinet and panoramic window.
+   for(const xx of [-1.3,1.3])strip(room,.065,.019,12.8,xx,-.043,-.8,0x00b8e6);
    for(const z of [-8,-2,4]){const rib=new THREE.Mesh(new THREE.TorusGeometry(9.15,.05,7,46,Math.PI),M(0x456484,.50,.3));add(room,rib,0,-1,z)}
+   // Ceiling light panels and a suspended UGN luminous controller emblem.
+   const disc=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.15,.07,48),G(0x0ad3ff,.13));
+   add(room,disc,0,7.42,-1.65);
+   for(const x of [-6,6])for(const z of [-7,2]){
+     const p=B(room,1.1,.045,.49,x,7.43,z,L(config.atmosphere==='cozy'?0xffb974:0x75dbfb,.65));
+     p.userData.roomAnimation='ceiling';
+   }
    return {group:room,floor:ground,hits:hitObjects};
  }
  return {build,makeFurniture:furniture,hits:()=>hitObjects};
