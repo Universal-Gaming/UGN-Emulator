@@ -6,6 +6,7 @@ on:
       - 'index.html'
       - 'styles.css'
       - 'app.js'
+      - 'artwork.js'
       - 'galactic.js'
       - 'galactic.css'
       - 'room-studio.js'
@@ -26,7 +27,7 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,6 +37,8 @@ jobs:
         shell: bash
         run: |
           node --check app.js
+          node --check artwork.js
+          node --check copy-library.js
           node --check galactic.js
           node --check room-studio.js
           node --check copy-library.js
@@ -43,9 +46,11 @@ jobs:
           from pathlib import Path
           import json
           roms=[p for p in Path('roms').rglob('*') if p.is_file()]
+          hosted=json.loads(Path('catalog/hosted.json').read_text(encoding='utf-8'))
+          assert sorted((x['path'],x['bytes']) for x in hosted['games'])==sorted((str(p),p.stat().st_size) for p in roms), 'Manifest path/size mismatch'
           additions=json.loads(Path('catalog/licensed-rom-expansion.json').read_text())
           expected=62+len(additions)
-          assert len(roms) in (62,expected), f'Expected initial 62 or full {expected} ROMs; found {len(roms)}'
+          assert len(roms)==expected, f'Expected {expected} ROMs; found {len(roms)}'
           if len(roms)==expected:
             for record in additions:
               p=Path(record['path'])
@@ -60,6 +65,8 @@ jobs:
           PY
       - run: npm install --no-save playwright@1.56.1
       - run: npx playwright install --with-deps chromium
+      - name: Artwork coverage, broken-link fallback and mobile visual check
+        run: node tests/artwork.mjs
       - name: Interactive buttons and navigation regression
         run: node tests/controls.mjs
       - name: Browser end-to-end smoke
