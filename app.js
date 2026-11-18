@@ -2,12 +2,12 @@
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const games=[
 {id:'nebula',name:'Nebula Defender',type:'action',icon:'✦',glow:'#1efad3',desc:'Defend the sector from incoming cosmic threats.',help:'← → move • SPACE fire. Survive the waves.'},
-{id:'snake',name:'Cosmic Serpent',type:'arcade',icon:'〰',glow:'#61ff8e',desc:'Gobble star shards and grow across the grid.',help:'Arrow keys to steer. Avoid your tail and the walls.'},
-{id:'pong',name:'Orbit Pong',type:'arcade',icon:'◉',glow:'#29d6ff',desc:'Classic paddle duels against a clever AI.',help:'↑ ↓ or W S move your paddle. First to 7 wins.'},
-{id:'breakout',name:'Prism Breaker',type:'arcade',icon:'▤',glow:'#a581ff',desc:'Shatter glowing cosmic crystals with your energy ball.',help:'← → move paddle • SPACE launch.'},
+{id:'snake',name:'Cosmic Serpent',type:'retro',icon:'〰',glow:'#61ff8e',desc:'Gobble star shards and grow across the grid.',help:'Arrow keys to steer. Avoid your tail and the walls.'},
+{id:'pong',name:'Orbit Pong',type:'retro',icon:'◉',glow:'#29d6ff',desc:'Classic paddle duels against a clever AI.',help:'↑ ↓ or W S move your paddle. First to 7 wins.'},
+{id:'breakout',name:'Prism Breaker',type:'retro',icon:'▤',glow:'#a581ff',desc:'Shatter glowing cosmic crystals with your energy ball.',help:'← → move paddle • SPACE launch.'},
 {id:'dodge',name:'Meteor Run',type:'action',icon:'☄',glow:'#ff9a72',desc:'Pilot between falling asteroids as speed increases.',help:'← → move. Avoid the meteors.'},
 {id:'memory',name:'Signal Match',type:'puzzle',icon:'◇',glow:'#e89aff',desc:'Decode and match the hidden pairs of star signals.',help:'Click two tiles to reveal and match their signals.'},
-{id:'reaction',name:'Hyper Reflex',type:'arcade',icon:'⚡',glow:'#faff75',desc:'Tap targets before they fade into the void.',help:'Click or tap the glowing circles. Missed targets cost lives.'},
+{id:'reaction',name:'Hyper Reflex',type:'retro',icon:'⚡',glow:'#faff75',desc:'Tap targets before they fade into the void.',help:'Click or tap the glowing circles. Missed targets cost lives.'},
 {id:'lander',name:'Lunar Descent',type:'chill',icon:'☾',glow:'#8fd7ff',desc:'Land a spacecraft safely on the alien moon.',help:'← → rotate • ↑ or SPACE thrust • land slowly and upright.'}
 ];
 const systemData=[
