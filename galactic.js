@@ -35,9 +35,9 @@ export function mountGalacticArchive(api) {
       ['crt',-4.20,-5.80,0],['cabinet',.30,-6.65,0],
       ['shelf',2.80,-7.9,0],['desk',6.65,-6.15,0],['chair',6.45,-3.92,Math.PI],
       ['bed',6.55,3.12,0],['sofa',-6.5,4.22,0],['table',-4.3,3.52,0],
-      ['rug',-3.6,3.15,0],['plant',-8.10,-9.04,0],['lava',-2.25,-4.70,0],
+      ['rug',-3.6,3.15,0],['plant',-8.10,-9.04,0],['lava',-2.25,-4.70,0,.90],
       ['poster',-8.85,-.2,Math.PI/2],['lamp',8.3,1.0,0],['console',-4.3,-3.22,0],
-      ['figure',2.7,-5.1,0],['snacks',-3.65,3.32,0]
+      ['figure',2.7,-5.1,0,.92],['snacks',-3.65,3.32,0,1.08]
     ],
     retro80:[
       ['shelf',-8.3,-6,Math.PI/2],['shelf',-8.3,-2.7,Math.PI/2],
@@ -79,8 +79,8 @@ export function mountGalacticArchive(api) {
       ['table',-3.1,3.15,0],['lava',1.5,-4.5,0],['poster',-8.9,0,Math.PI/2]
     ]
   };
-  const makePresetLayout=id=>(LAYOUT_BLUEPRINTS[id]||LAYOUT_BLUEPRINTS.photo).map(([type,x,z,rot],i)=>({
-    id:1000+Object.keys(LAYOUT_BLUEPRINTS).indexOf(id)*100+i,type,x,z,rot
+  const makePresetLayout=id=>(LAYOUT_BLUEPRINTS[id]||LAYOUT_BLUEPRINTS.photo).map(([type,x,z,rot,y],i)=>({
+    id:1000+Object.keys(LAYOUT_BLUEPRINTS).indexOf(id)*100+i,type,x,z,rot,y:Number(y)||0
   }));
   const DEFAULT={preset:'photo',...PRESET_LOOKS.photo,graphics:'balanced',
     displayConsoles:['nes','snes','n64','psx'],snap:true,roomVersion:2,layouts:{},furniture:makePresetLayout('photo')};
@@ -640,7 +640,7 @@ export function mountGalacticArchive(api) {
       const clean=o.furniture.map((f,i)=>{
         if(!SUPPORTED_FURNITURE.has(f.type))throw Error('Unsupported object');
         const pos=(n,min,max)=>Math.max(min,Math.min(max,Number.isFinite(Number(n))?Number(n):0));
-        return {id:100000+i,type:f.type,x:pos(f.x,-8.6,8.6),z:pos(f.z,-9,6),rot:pos(f.rot,-Math.PI*16,Math.PI*16)};
+        return {id:100000+i,type:f.type,x:pos(f.x,-8.6,8.6),z:pos(f.z,-9,6),y:pos(f.y,0,4),rot:pos(f.rot,-Math.PI*16,Math.PI*16)};
       });
       checkpoint();
       const valid=(id,value,fallback)=>[...$('#'+id).options].some(op=>op.value===value)?value:fallback;
