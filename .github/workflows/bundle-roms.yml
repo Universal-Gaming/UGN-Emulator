@@ -1,0 +1,72 @@
+name: Bundle licensed console ROMs
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/bundle-roms.yml"
+permissions:
+  contents: write
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download properly licensed homebrew ROMs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p roms/nes roms/gb roms/gbc roms/gba roms/genesis
+          grab() {
+            echo "Fetching $2"
+            curl --fail --location --retry 3 --retry-delay 2 --silent --show-error "$1" --output "$2"
+            test -s "$2"
+          }
+          # Source: mxmgorin/oxgbc. Each title retains its own licence (CREDITS.md).
+          source='https://raw.githubusercontent.com/mxmgorin/oxgbc/main/crates/web/assets'
+          grab "$source/tobudx.gb" "roms/gb/tobudx.gb"
+          grab "$source/libbet.gb" "roms/gb/libbet.gb"
+          grab "$source/ucity.gbc" "roms/gbc/ucity.gbc"
+          grab "$source/geometrix.gbc" "roms/gbc/geometrix.gbc"
+          # Source: mmuszkow/2048-nes, Unlicense.
+          grab "https://raw.githubusercontent.com/mmuszkow/2048-nes/master/2048.nes" "roms/nes/2048.nes"
+          # Source: mike42/8bit-table-tennis, MIT licence.
+          grab "https://github.com/mike42/8bit-table-tennis/releases/download/v1.0/table_tennis_v1.0.nes" "roms/nes/table-tennis.nes"
+          # Source: benoror/gbadev, MIT; original GBA homebrew builds.
+          gba='https://raw.githubusercontent.com/benoror/gbadev/master/ROMS'
+          grab "$gba/cebelix.gba" "roms/gba/cebelix.gba"
+          grab "$gba/dezgex.gba" "roms/gba/dezgex.gba"
+          grab "$gba/mystic_q.gba" "roms/gba/mystic-q.gba"
+          grab "$gba/pik_roll.gba" "roms/gba/pik-roll.gba"
+          # Source: monteslu/retro-homebrew-games, MIT; built release build-26.
+          md='https://github.com/monteslu/retro-homebrew-games/releases/download/build-26'
+          grab "$md/tank-battle.bin" "roms/genesis/tank-battle.bin"
+          grab "$md/battle-4tris.bin" "roms/genesis/battle-4tris.bin"
+          grab "$md/space-shooter.bin" "roms/genesis/space-shooter.bin"
+          # Validate Nintendo NES header and expected file sizes.
+          python3 - <<'PY'
+          from pathlib import Path
+          files=list(Path('roms').rglob('*'))
+          roms=[p for p in files if p.is_file()]
+          assert len(roms)==13, f'Expected 13 ROM files, got {len(roms)}'
+          for p in roms:
+              assert p.stat().st_size>8000, f'Undersized ROM {p}'
+              data=p.read_bytes()
+              assert not data.startswith(b'<!DOCTYPE') and not data.startswith(b'<html'),f'HTML error instead of ROM: {p}'
+              if p.suffix=='.nes': assert data[:4]==b'NES\x1a',f'Invalid NES ROM: {p}'
+              if p.suffix in ('.gb','.gbc'): assert len(data)>=0x150, f'Invalid GB ROM: {p}'
+              print(p,p.stat().st_size,'bytes')
+          PY
+      - name: Commit redistributable ROMs into this repository
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add roms
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Bundle 13 licensed console homebrew ROMs"
+            git push
+          fi
