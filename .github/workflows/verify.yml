@@ -6,6 +6,9 @@ on:
       - 'index.html'
       - 'styles.css'
       - 'app.js'
+      - 'galactic.js'
+      - 'galactic.css'
+      - 'library.html'
       - 'roms/**'
       - 'tests/**'
       - '.github/workflows/verify.yml'
@@ -25,6 +28,7 @@ jobs:
         shell: bash
         run: |
           node --check app.js
+          node --check galactic.js
           python3 - <<'PY'
           from pathlib import Path
           roms=[p for p in Path('roms').rglob('*') if p.is_file()]
