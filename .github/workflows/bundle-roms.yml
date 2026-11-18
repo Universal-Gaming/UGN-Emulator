@@ -63,7 +63,7 @@ jobs:
           grab "$free/sheep-it-up.a26" "roms/atari2600/sheep-it-up.a26"
           grab "$free/asteroids-neo.ngp" "roms/ngp/asteroids-neo.ngp"
           # NES Homebrew Hub entries with explicit GPL/zlib/FSFAP redistribution licenses.
-          nesdb='https://raw.githubusercontent.com/nesdev-org/homebrew-db/main/entries'
+          nesdb='https://raw.githubusercontent.com/nesdev-org/homebrew-db/master/entries'
           grab "$nesdb/croom/croom.nes" "roms/nes/concentration-room.nes"
           grab "$nesdb/rhde/rhde.nes" "roms/nes/rhde-furniture-fight.nes"
           grab "$nesdb/thwaite/thwaite128.nes" "roms/nes/thwaite.nes"
