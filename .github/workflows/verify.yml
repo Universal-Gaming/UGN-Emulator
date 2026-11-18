@@ -32,7 +32,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           roms=[p for p in Path('roms').rglob('*') if p.is_file()]
-          assert len(roms)==27, f'Expected 27 ROMs; found {len(roms)}'
+          assert len(roms)==31, f'Expected 31 ROMs; found {len(roms)}'
           for p in roms:
             b=p.read_bytes()
             assert len(b)>=4096, f'Undersized ROM {p}'
