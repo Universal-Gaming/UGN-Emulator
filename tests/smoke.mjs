@@ -12,14 +12,14 @@ const roms=[];
 for(const dir of readdirSync('roms',{withFileTypes:true}).filter(x=>x.isDirectory()))for(const f of readdirSync(path.join('roms',dir.name)))roms.push('roms/'+dir.name+'/'+f);
 assert.equal(roms.length,31,'Expect 31 homebrew ROMs');
 for(const f of roms)assert.ok(existsSync(f),'Missing '+f);
-const server=spawn('python3',['-m','http.server','8000','--bind','131.0.0.1'],{stdio:'ignore'});
+const server=spawn('python3',['-m','http.server','8000','--bind','127.0.0.1'],{stdio:'ignore'});
 await new Promise(r=>setTimeout(r,1300));
 let browser;
 try{
  browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
  const page=await browser.newPage({viewport:{width:1440,height:900}});
  const fatal=[];page.on('pageerror',e=>fatal.push(String(e)));
- await page.goto('http://131.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('#game-grid .game-card').first().waitFor({timeout:15000});
  await page.waitForFunction(()=>document.querySelector('#hero-games').textContent!=='—',{timeout:20000});
  assert.equal(Number(await page.locator('#hero-games').innerText()),31);
