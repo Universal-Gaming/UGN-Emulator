@@ -8,6 +8,8 @@ on:
       - 'app.js'
       - 'galactic.js'
       - 'galactic.css'
+      - 'room-studio.js'
+      - 'visual-world.css'
       - 'copy-library.js'
       - 'game-index.css'
       - 'catalog/**'
@@ -35,6 +37,7 @@ jobs:
         run: |
           node --check app.js
           node --check galactic.js
+          node --check room-studio.js
           node --check copy-library.js
           python3 - <<'PY'
           from pathlib import Path
