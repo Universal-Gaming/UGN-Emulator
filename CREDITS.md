@@ -25,7 +25,7 @@ The site integrates the independent open-source [EmulatorJS](https://github.com/
 
 ## Scope
 
-The console selection reflects the reference site's NES, Genesis, Game Gear, 32X, Sega CD, Saturn, Game Boy/Color, GBA, DS, Neo Geo, Neo Geo Pocket, SNES, N64, PlayStation 1, Atari 2600, and Flash collections. **Only systems with built-in games are launchable**. Unlicensed commercial ROMs, BIOS images, and user-ROM upload or import interfaces are not provided.
+The console selection reflects the reference site's NES, Genesis, Game Gear, 32X, Sega CD, Saturn, Game Boy/Color, GBA, DS, Neo Geo, Neo Geo Pocket, SNES, N64, PlayStation 1, Atari 2600, and Flash collections. **Only systems with built-in games are launchable**. Unlicensed commercial ROMs and BIOS images are not provided. The optional browser-only "Use My Copy" selector supports locally owned compatible files without uploading them to UGN.
 
 
 ## Additional console ROMs added to the 27-title collection
@@ -123,3 +123,29 @@ For every title below, its **individual Homebrew Hub metadata** explicitly ident
 License references and copyright attribution remain the original authors'. MIT licenses require retention of applicable copyright/permission notices; GPL titles require access to corresponding source. See each linked original game entry and follow its own upstream source links and notices. For older freeware entries with no explicit permission to redistribute, UGN continues to use the **Use My Copy** loader rather than bundling a ROM.
 
 **Important:** The catalog includes games with similar genre mechanics to historical commercial games, but no Nintendo, Sega, or Sony commercial cartridge dump has been added in this batch.
+
+## November 18, 2026: Additional 17 explicitly licensed console games
+
+Each of the following Homebrew Hub entries has a `game.json` **game-specific license field**, a declared playable compiled console binary, and a repository-hosted ROM checked against its original byte length. Those claims were inspected individually; the Homebrew Hub database license alone is not permission to redistribute a game. Attribution is retained here and in the source manifest. The author's original code and rights notices remain authoritative.
+
+| System | Title | Creator | Declared ROM/game license | Upstream game metadata |
+|---|---|---|---|---|
+| GB | Madpews Battlegrounds | madpew | Unlicense | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/madpews-battlegrounds/game.json) |
+| GB | JP | Graham Coulby (IonicLimb) | MIT | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/jp/game.json) |
+| GBC | Namihey | TeamKNOx | MIT | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/gunpey/game.json) |
+| GBC | Deep Scan | TeamKNOx | MIT | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/deep-scan/game.json) |
+| GB | Renegade Rush | quinnp | MIT | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/renegade-rush/game.json) |
+| GB | Dawn Will Come | eishiya | MIT code / CC BY 4.0 art | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/dawn-will-come/game.json) |
+| GBC | Airaki | furrtek | GPL-3.0-or-later | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/airaki/game.json) |
+| GB | Corrib75 | gearfo | GPL-3.0 | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/corrib75/game.json) |
+| GB | Game (Boy) of Life | StudioGuma | GPL-3.0-or-later | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/game_boy_of_life/game.json) |
+| GB | Max Pirate Extra Boom | Lemmy Hawkins | MIT | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/maxpirateeb/game.json) |
+| GB | Pelmanism | TeamKNOx | MIT | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/gbccardgame/game.json) |
+| GB | PostBot | Tobias Rojahn | MIT | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/postbot/game.json) |
+| GBC | GBHack | statico | MIT | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/gbhack/game.json) |
+| GB | GB Corp. | Dr. Ludos | MIT | [Game and license metadata](https://github.com/gbdev/database/blob/master/entries/gb-corp/game.json) |
+| GBA | piuGBA Demo | Afska | MIT | [Game and license metadata](https://github.com/gbadev-org/games/blob/master/entries/piugba/game.json) |
+| GBA | GRIMLIGHT: The Hollow Bell | retroromrunner | MIT | [Game and license metadata](https://github.com/gbadev-org/games/blob/master/entries/grimlight/game.json) |
+| GBA | MeteoRain | Dr. Ludos | MIT | [Game and license metadata](https://github.com/gbadev-org/games/blob/master/entries/meteorain-gba-jam-2021/game.json) |
+
+Source binaries and original byte sizes for reproducible downloads are recorded in [`catalog/licensed-rom-expansion.json`](catalog/licensed-rom-expansion.json). The artwork in Dawn Will Come is subject to **CC BY 4.0 attribution to eishiya**, even though its code is MIT licensed. Games under GPL remain covered by their GPL obligations; authors' source repository links are available through the linked upstream metadata. `piuGBA Demo` is the original demo, not a promise of bundled licensed music charts beyond what its author published.

@@ -24,6 +24,24 @@ const systemCatalog=[
 ];
 const C=(id,file,name,genre,creator,year,desc,color='cyan',image='')=>({id:file,file,name,genre,creator,year,desc,system:id,color,image});
 const games=[
+// 17 additional author-licensed, authentic console ROMs; provenances in catalog/licensed-rom-expansion.json and CREDITS.md.
+C("gb","roms/gb/madpews-battlegrounds.gb","Madpews Battlegrounds","Action","madpew",2021,"A cat-versus-cat backyard battle, compiled for the original Game Boy.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/madpews-battlegrounds/title.png"),
+C("gb","roms/gb/jp.gb","JP","Platformer","Graham Coulby (IonicLimb)",2021,"A fast, pick-up-and-play jumping platform game for Game Boy.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/jp/jp-screenshot-1.bmp"),
+C("gbc","roms/gbc/namihey.gb","Namihey","Puzzle","TeamKNOx",2000,"An original line-connecting puzzle game built for Game Boy Color.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/gunpey/namihey-0.png"),
+C("gbc","roms/gbc/deep-scan.gb","Deep Scan","Action","TeamKNOx",2000,"Pilot a submarine in authentic Game Boy Color homebrew.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/deep-scan/dscan-0.png"),
+C("gb","roms/gb/renegade-rush.gb","Renegade Rush","Action","quinnp",2021,"An energetic Game Boy competition homebrew cartridge.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/renegade-rush/1.png"),
+C("gb","roms/gb/dawn-will-come.gb","Dawn Will Come","Adventure","eishiya",2021,"An atmospheric Game Boy adventure with attributed original artwork.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/dawn-will-come/JOo2Kj.png"),
+C("gbc","roms/gbc/airaki.gb","Airaki","RPG Puzzle","furrtek",2010,"A real Game Boy Color RPG-puzzle homebrew release.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/airaki/screenshot.png"),
+C("gb","roms/gb/corrib75.gb","Corrib75","Adventure","gearfo",2021,"An original Game Boy game from the homebrew competition scene.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/corrib75/hF1TSm.png"),
+C("gb","roms/gb/game-boy-of-life.gb","Game (Boy) of Life","Simulation","StudioGuma",2020,"Conway's Game of Life simulated on actual Game Boy hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/game_boy_of_life/cover_image.png"),
+C("gb","roms/gb/max-pirate-extra-boom.gb","Max Pirate Extra Boom","Action","Lemmy Hawkins",2019,"Fight zombies with your anchor and cannon in the enhanced pirate homebrew.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/maxpirateeb/cover.png"),
+C("gb","roms/gb/pelmanism.gb","Pelmanism","Card Puzzle","TeamKNOx",2000,"A classic concentration and card-matching game for Game Boy.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/gbccardgame/pelmanism-0.png"),
+C("gb","roms/gb/postbot.gb","PostBot","Puzzle","Tobias Rojahn",2021,"A puzzle adventure developed for original Game Boy hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/postbot/screenshot1.bmp"),
+C("gbc","roms/gbc/gbhack.gbc","GBHack","Roguelike","statico",2020,"Explore procedurally generated dungeon floors in a color handheld roguelike.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/gbhack/cover.png"),
+C("gb","roms/gb/gb-corp.gb","GB Corp.","Puzzle Adventure","Dr. Ludos",2021,"An original Game Boy competition release by Dr. Ludos.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/gb-corp/RlyOn7.gif"),
+C("gba","roms/gba/piugba-demo.gba","piuGBA Demo","Rhythm","Afska",2024,"A rhythm-game demonstration running on a genuine Game Boy Advance core.","violet","https://raw.githubusercontent.com/gbadev-org/games/master/entries/piugba/cover.gif"),
+C("gba","roms/gba/grimlight.gba","GRIMLIGHT: The Hollow Bell","Gothic Puzzle","retroromrunner",2025,"A gothic turn-based puzzle game built for the Game Boy Advance.","cyan","https://raw.githubusercontent.com/gbadev-org/games/master/entries/grimlight/title.png"),
+C("gba","roms/gba/meteorain.gba","MeteoRain","Action","Dr. Ludos",2021,"Original meteor-shower gameplay on Game Boy Advance.","lime","https://raw.githubusercontent.com/gbadev-org/games/master/entries/meteorain-gba-jam-2021/cover.gif"),
 // More licensed original GB/GBC cartridge games; see CREDITS.md
 C("gb","roms/gb/crystal-lake.gb","Crystal Lake","Puzzle Action","VHVS","—","An original puzzle action homebrew game compiled for Game Boy hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/crystal-lake/crystallake-1.png"),
 C("gb","roms/gb/shock-lobster.gb","Shock Lobster","Action","tbsp","—","An original action homebrew game compiled for Game Boy hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/shock-lobster/sh.png"),

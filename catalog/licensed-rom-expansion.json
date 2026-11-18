@@ -1,0 +1,172 @@
+[
+  {
+    "path": "roms/gb/madpews-battlegrounds.gb",
+    "title": "Madpews Battlegrounds",
+    "console": "gb",
+    "creator": "madpew",
+    "license": "Unlicense",
+    "expected_bytes": 32768,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/madpews-battlegrounds/battlegrounds.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/madpews-battlegrounds/game.json"
+  },
+  {
+    "path": "roms/gb/jp.gb",
+    "title": "JP",
+    "console": "gb",
+    "creator": "Graham Coulby (IonicLimb)",
+    "license": "MIT",
+    "expected_bytes": 65536,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/jp/jp.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/jp/game.json"
+  },
+  {
+    "path": "roms/gbc/namihey.gb",
+    "title": "Namihey",
+    "console": "gbc",
+    "creator": "TeamKNOx",
+    "license": "MIT",
+    "expected_bytes": 65536,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/gunpey/namihey.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/gunpey/game.json"
+  },
+  {
+    "path": "roms/gbc/deep-scan.gb",
+    "title": "Deep Scan",
+    "console": "gbc",
+    "creator": "TeamKNOx",
+    "license": "MIT",
+    "expected_bytes": 32768,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/deep-scan/dscan.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/deep-scan/game.json"
+  },
+  {
+    "path": "roms/gb/renegade-rush.gb",
+    "title": "Renegade Rush",
+    "console": "gb",
+    "creator": "quinnp",
+    "license": "MIT",
+    "expected_bytes": 65536,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/renegade-rush/RenegadeRush.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/renegade-rush/game.json"
+  },
+  {
+    "path": "roms/gb/dawn-will-come.gb",
+    "title": "Dawn Will Come",
+    "console": "gb",
+    "creator": "eishiya",
+    "license": "MIT code / CC BY 4.0 art",
+    "expected_bytes": 2097152,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/dawn-will-come/DawnWillCome.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/dawn-will-come/game.json"
+  },
+  {
+    "path": "roms/gbc/airaki.gb",
+    "title": "Airaki",
+    "console": "gbc",
+    "creator": "furrtek",
+    "license": "GPL-3.0-or-later",
+    "expected_bytes": 32768,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/airaki/airaki.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/airaki/game.json"
+  },
+  {
+    "path": "roms/gb/corrib75.gb",
+    "title": "Corrib75",
+    "console": "gb",
+    "creator": "gearfo",
+    "license": "GPL-3.0",
+    "expected_bytes": 131072,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/corrib75/corrib75.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/corrib75/game.json"
+  },
+  {
+    "path": "roms/gb/game-boy-of-life.gb",
+    "title": "Game (Boy) of Life",
+    "console": "gb",
+    "creator": "StudioGuma",
+    "license": "GPL-3.0-or-later",
+    "expected_bytes": 32768,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/game_boy_of_life/life.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/game_boy_of_life/game.json"
+  },
+  {
+    "path": "roms/gb/max-pirate-extra-boom.gb",
+    "title": "Max Pirate Extra Boom",
+    "console": "gb",
+    "creator": "Lemmy Hawkins",
+    "license": "MIT",
+    "expected_bytes": 65536,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/maxpirateeb/maxpirateeb.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/maxpirateeb/game.json"
+  },
+  {
+    "path": "roms/gb/pelmanism.gb",
+    "title": "Pelmanism",
+    "console": "gb",
+    "creator": "TeamKNOx",
+    "license": "MIT",
+    "expected_bytes": 32768,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/gbccardgame/pelmanism.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/gbccardgame/game.json"
+  },
+  {
+    "path": "roms/gb/postbot.gb",
+    "title": "PostBot",
+    "console": "gb",
+    "creator": "Tobias Rojahn",
+    "license": "MIT",
+    "expected_bytes": 65536,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/postbot/PostBot.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/postbot/game.json"
+  },
+  {
+    "path": "roms/gbc/gbhack.gbc",
+    "title": "GBHack",
+    "console": "gbc",
+    "creator": "statico",
+    "license": "MIT",
+    "expected_bytes": 262144,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/gbhack/gbhack.gbc",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/gbhack/game.json"
+  },
+  {
+    "path": "roms/gb/gb-corp.gb",
+    "title": "GB Corp.",
+    "console": "gb",
+    "creator": "Dr. Ludos",
+    "license": "MIT",
+    "expected_bytes": 32768,
+    "source": "https://raw.githubusercontent.com/gbdev/database/master/entries/gb-corp/gbcorp.gb",
+    "license_metadata": "https://github.com/gbdev/database/blob/master/entries/gb-corp/game.json"
+  },
+  {
+    "path": "roms/gba/piugba-demo.gba",
+    "title": "piuGBA Demo",
+    "console": "gba",
+    "creator": "Afska",
+    "license": "MIT",
+    "expected_bytes": 6614656,
+    "source": "https://raw.githubusercontent.com/gbadev-org/games/master/entries/piugba/piuGBA_v1.10.0_demo.gba",
+    "license_metadata": "https://github.com/gbadev-org/games/blob/master/entries/piugba/game.json"
+  },
+  {
+    "path": "roms/gba/grimlight.gba",
+    "title": "GRIMLIGHT: The Hollow Bell",
+    "console": "gba",
+    "creator": "retroromrunner",
+    "license": "MIT",
+    "expected_bytes": 51716,
+    "source": "https://raw.githubusercontent.com/gbadev-org/games/master/entries/grimlight/grimlight-v14.gba",
+    "license_metadata": "https://github.com/gbadev-org/games/blob/master/entries/grimlight/game.json"
+  },
+  {
+    "path": "roms/gba/meteorain.gba",
+    "title": "MeteoRain",
+    "console": "gba",
+    "creator": "Dr. Ludos",
+    "license": "MIT",
+    "expected_bytes": 1710503,
+    "source": "https://raw.githubusercontent.com/gbadev-org/games/master/entries/meteorain-gba-jam-2021/MeteoRain.gba",
+    "license_metadata": "https://github.com/gbadev-org/games/blob/master/entries/meteorain-gba-jam-2021/game.json"
+  }
+]

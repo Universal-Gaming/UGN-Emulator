@@ -108,12 +108,37 @@ jobs:
           grab "$gbdb/bit_bang/bit_bang.gb" "roms/gb/bit_bang.gb"
           grab "$gbdb/sushi-nights/SushiNights.gb" "roms/gb/sushi-nights.gb"
           grab "$gbdb/porklike-gb/porklike.gb" "roms/gb/porklike-gb.gb"
+          # Author-licensed releases from the original Homebrew Hub release records.
+          # Source links, expected binary sizes, creators, and exact license declarations are in the JSON manifest.
+          python3 - <<'PY'
+          # This manifest contains only ROMs whose upstream game.json expressly states a redistributable license.
+          import json
+          import subprocess
+          from pathlib import Path
+          from urllib.parse import urlsplit
+          games=json.loads(Path("catalog/licensed-rom-expansion.json").read_text(encoding="utf-8"))
+          assert len(games)==17, "Unexpected licensed-game manifest size"
+          for g in games:
+              url=g["source"]
+              dest=Path(g["path"])
+              assert urlsplit(url).hostname=="raw.githubusercontent.com", url
+              assert dest.parts[0]=="roms" and ".." not in dest.parts, dest
+              dest.parent.mkdir(parents=True,exist_ok=True)
+              print("Fetching licensed:",g["title"],"->",dest,flush=True)
+              subprocess.run(["curl","--fail","--location","--retry","3","--retry-delay","2","--silent","--show-error",url,"--output",str(dest)],check=True)
+              content=dest.read_bytes()
+              assert len(content)==g["expected_bytes"], f"Unexpected size for {dest}: {len(content)}"
+              assert len(content)>=0x150 and not content[:100].lower().lstrip().startswith(b"<html"), f"Not a ROM: {dest}"
+          print("Verified",len(games),"new licensed console ROM downloads")
+          PY
           # Validate Nintendo NES header and expected file sizes.
           python3 - <<'PY'
           from pathlib import Path
+          import json
           files=list(Path('roms').rglob('*'))
           roms=[p for p in files if p.is_file()]
-          assert len(roms)==62, f'Expected 62 ROM files, got {len(roms)}'
+          expected=62+len(json.loads(Path('catalog/licensed-rom-expansion.json').read_text()))
+          assert len(roms)==expected, f'Expected {expected} ROM files, got {len(roms)}'
           for p in roms:
               assert p.stat().st_size >= (4096 if p.suffix=='.a26' else 8000), f'Undersized ROM {p}'
               data=p.read_bytes()

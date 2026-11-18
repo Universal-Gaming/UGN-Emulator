@@ -41,8 +41,15 @@ jobs:
           node --check copy-library.js
           python3 - <<'PY'
           from pathlib import Path
+          import json
           roms=[p for p in Path('roms').rglob('*') if p.is_file()]
-          assert len(roms)==62, f'Expected 62 ROMs; found {len(roms)}'
+          additions=json.loads(Path('catalog/licensed-rom-expansion.json').read_text())
+          expected=62+len(additions)
+          assert len(roms) in (62,expected), f'Expected initial 62 or full {expected} ROMs; found {len(roms)}'
+          if len(roms)==expected:
+            for record in additions:
+              p=Path(record['path'])
+              assert p.exists() and p.stat().st_size==record['expected_bytes'],f'Licensed ROM absent or corrupt: {p}'
           for p in roms:
             b=p.read_bytes()
             assert len(b)>=4096, f'Undersized ROM {p}'

@@ -10,7 +10,10 @@ assert.doesNotMatch(index,/Nebula Defender|Cosmic Serpent|Prism Breaker|Orbit Po
 assert.match(js,/cdn\.emulatorjs\.org/);
 const roms=[];
 for(const dir of readdirSync('roms',{withFileTypes:true}).filter(x=>x.isDirectory()))for(const f of readdirSync(path.join('roms',dir.name)))roms.push('roms/'+dir.name+'/'+f);
-assert.equal(roms.length,62,'Expect 62 homebrew ROMs');
+const additional=JSON.parse(readFileSync('catalog/licensed-rom-expansion.json','utf8'));
+assert.equal(additional.length,17,'Expect seventeen rights-documented expansion titles');
+assert.ok([62,62+additional.length].includes(roms.length),'Expect baseline or fully bundled homebrew ROM set');
+for(const record of additional)assert.ok(js.includes(record.path),'Missing catalog game-card mapping: '+record.path);
 for(const f of roms)assert.ok(existsSync(f),'Missing '+f);
 const server=spawn('python3',['-m','http.server','8000','--bind','127.0.0.1'],{stdio:'ignore'});
 await new Promise(r=>setTimeout(r,1300));
@@ -21,12 +24,12 @@ try{
  const fatal=[];page.on('pageerror',e=>fatal.push(String(e)));
  await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('#game-grid .game-card').first().waitFor({timeout:15000});
- await page.waitForFunction(()=>Number(document.querySelector('#hero-games')?.textContent)===62,null,{timeout:25000});
- assert.equal(Number(await page.locator('#hero-games').innerText()),62);
+ await page.waitForFunction(()=>Number(document.querySelector('#hero-games')?.textContent)===roms.length,null,{timeout:25000});
+ assert.equal(Number(await page.locator('#hero-games').innerText()),roms.length);
  assert.equal(Number(await page.locator('#hero-systems').innerText()),10);
  assert.equal(await page.locator('#game-grid .game-card').count(),36,'First page shows 36 real titles');
  await page.locator('#load-more-games').click();
- assert.equal(await page.locator('#game-grid .game-card').count(),62,'Load More displays entire 62-game collection');
+ assert.equal(await page.locator('#game-grid .game-card').count(),roms.length,'Load More displays the entire bundled game collection');
  await page.locator('#game-search').fill('Celeste');
  assert.equal(await page.locator('#game-grid .game-card').count(),1);
  await page.locator('#game-search').fill('');
@@ -161,5 +164,5 @@ try{
  await page.screenshot({path:'smoke-mobile.png',fullPage:true});
  const unexpected=fatal.filter(msg=>!msg.includes('Wake Lock permission request denied'));
  assert.equal(unexpected.length,0,'Uncaught application JS exceptions: '+unexpected.join('; '));
- console.log('PASS: 41K title index + local-file browser emulation; 62 real ROMs, ten installed systems, 3D starship, holographic library, editable room, search, launcher and responsive layouts');
+ console.log('PASS: 41K title index + local-file browser emulation; '+roms.length+' real ROMs, ten installed systems, 3D starship, holographic library, editable room, search, launcher and responsive layouts');
 }finally{if(browser)await browser.close();server.kill();}

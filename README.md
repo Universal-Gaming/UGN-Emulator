@@ -7,7 +7,7 @@ A premium, interactive, 3D browser console-emulation experience for **Universal 
 ## Current catalog — two ways to play
 
 - **41,408 console title / edition entries**, generated from **16 console categories** in the [Libretro Database](https://github.com/libretro/libretro-database). This is a searchable title index, **not 41,408 hosted games**.
-- **62 hosted console homebrew ROMs** that can launch without a visitor supplying files, across ten system categories.
+- **62 existing hosted homebrew ROMs** plus **17 additional author-licensed console releases** in the new reproducible bundling manifest. After the automated ROM bundle completes, the installed catalog reaches **79 genuine ROMs** across ten system categories.
 - **Use My Copy:** select a title in the larger index, then choose a locally held ROM or disc image. Files are passed to an EmulatorJS core using browser `blob:` object URLs, not uploaded to UGN; BIOS file selection is available where needed. Some systems and formats require additional BIOS data, compatible disc layouts and capable devices. The catalog does not confer game distribution rights.
 - **Original artwork from the user** is included as optimized WebP files in `assets/`. It provides the starship entrance backdrop, museum/room concepts, and console boot visuals. These are cinematic photographs, while interactive navigation uses actual Three.js geometry.
 - Authentic box art is requested from the external Libretro thumbnail service when it has a matching entry; image availability and third-party rights vary by title.
@@ -76,3 +76,9 @@ Original developer credits, exact ROM source paths, and licenses are recorded in
 ## November 2026: 62-game console collection
 
 The repository now includes 62 verified-on-disk ROM binaries: 10 NES, 2 SNES, 1 Nintendo 64, 26 Game Boy, 8 Game Boy Color, 6 GBA, 1 Nintendo DS, 6 Sega Genesis/Mega Drive, 1 Atari 2600, and 1 Neo Geo Pocket. All are original-console binaries; none are browser JavaScript arcade remakes. Licensing is documented individually in [CREDITS.md](CREDITS.md). The broader 41,408-title catalog remains a metadata-only discovery and bring-your-own-copy library. **File presence is not a claim that every title has completed individual visual, audio, controller, and save-state compatibility testing.**
+
+## November 18, 2026: Seventeen more licensed real-console releases
+
+This update introduces **17 additional authentic cartridge binaries** (10 original Game Boy, 4 Game Boy Color, 3 Game Boy Advance) and takes the intended Play Now collection from 62 to **79**. The games' names are distinct from the separate 41,408-entry bring-your-own-copy index. Sources, individual author names, declared licenses and expected ROM sizes are listed in [`catalog/licensed-rom-expansion.json`](catalog/licensed-rom-expansion.json) and [CREDITS.md](CREDITS.md). The GitHub Actions ROM bundler fetches and validates the binaries, then commits them. A game is only shown as installed after its ROM file is present. An installed ROM is not a claim of end-to-end gameplay verification on all devices.
+
+The full title index includes commercial releases as **metadata only**. UGN does not mirror their copyrighted ROMs or BIOS files; visitors can select their own compatible, lawfully obtained local copies where the emulator core supports them.
