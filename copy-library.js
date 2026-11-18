@@ -30,7 +30,7 @@ export function mountConsoleIndex(api) {
   const titlesBySystem=Object.fromEntries(api.systems.map(s=>[s.id,s.name]));
   const systemById=id=>api.systems.find(s=>s.id===id);
   const allSystemLabel=id=>titlesBySystem[id]||id;
-  const clean=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;'}[c]));
+  const clean=s=>String(s??'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const normalize=s=>String(s||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
   const accept={
     nes:'.nes,.unif,.unf,.zip',snes:'.sfc,.smc,.fig,.zip',n64:'.n64,.z64,.v64,.zip',
