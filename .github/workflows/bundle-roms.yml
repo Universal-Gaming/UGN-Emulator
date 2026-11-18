@@ -146,6 +146,8 @@ jobs:
               if p.suffix=='.nes': assert data[:4]==b'NES\x1a',f'Invalid NES ROM: {p}'
               if p.suffix in ('.gb','.gbc'): assert len(data)>=0x150, f'Invalid GB ROM: {p}'
               print(p,p.stat().st_size,'bytes')
+          manifest={'schema':1,'description':'Game files physically shipped in the static site; checked by CI.','games':[{'path':str(p).replace('\\','/'),'bytes':p.stat().st_size} for p in sorted(roms)]}
+          Path('catalog/hosted.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
           PY
 
       - name: Commit redistributable ROMs into this repository
@@ -153,7 +155,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add roms
+          git add roms catalog/hosted.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
