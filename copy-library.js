@@ -10,6 +10,23 @@ export function mountConsoleIndex(api) {
   let manifest=null,active='nes',term='',region='all',page=0,results=[],loading=false;
   let selected=null,rom=null,bios=null,currentFrame=null,activeUrls=[],currentListKey=0,finishLocalBoot=null;
   const PAGE_SIZE=30;
+  const prefsKey='ugn-emulator-my-copy-history-v1';
+  let prefs={favorites:[],recent:[]};
+  try{const p=JSON.parse(localStorage.getItem(prefsKey)||'{}');if(Array.isArray(p.favorites)&&Array.isArray(p.recent))prefs=p;}catch{}
+  const prefId=e=>e.system+'::'+e.title;
+  const savePrefs=()=>{try{localStorage.setItem(prefsKey,JSON.stringify(prefs))}catch{}};
+  function renderOwnedCollection(){
+    const node=$('#owned-recent-list');if(!node)return;
+    const favs=prefs.favorites.slice(0,10).map(s=>{const sep=s.indexOf('::');return {system:s.slice(0,sep),title:s.slice(sep+2),tag:'♥ FAVORITE'}});
+    const recent=prefs.recent.slice(0,10).filter(e=>!prefs.favorites.includes(prefId(e))).map(e=>({...e,tag:'◈ RECENT'}));
+    const list=[...favs,...recent].slice(0,16);
+    node.innerHTML=list.length?list.map(e=>'<button class="owned-recent" data-owned="'+clean(e.system)+'::'+clean(e.title)+'" title="Launch using your own file"><small>'+clean(e.tag)+'</small>'+clean(e.title)+' <span>↗</span></button>').join(''):'<span class="owned-empty">Your saved titles appear here after you add favorites or play your own copy.</span>';
+    $('[data-owned]',node).forEach(btn=>btn.onclick=()=>{
+      const raw=btn.dataset.owned||'',i=raw.indexOf('::');
+      if(i<0)return;showCopy({system:raw.slice(0,i),title:raw.slice(i+2),region:'',key:'owned'});
+    });
+  }
+
   const titlesBySystem=Object.fromEntries(api.systems.map(s=>[s.id,s.name]));
   const systemById=id=>api.systems.find(s=>s.id===id);
   const allSystemLabel=id=>titlesBySystem[id]||id;
@@ -105,6 +122,7 @@ export function mountConsoleIndex(api) {
     $('#index-grid').innerHTML=shown.map(g=>{
       const host=hostedFor(g),isHost=!!host,art=covers(g);
       return '<article class="index-card" data-entry="'+clean(g.key)+'"><div class="index-cover">'+
+        '<button class="index-card-favorite '+(prefs.favorites.includes(prefId(g))?'active':'')+'" data-index-fav="'+clean(g.key)+'" aria-label="Toggle favorite for '+clean(g.title)+'" aria-pressed="'+prefs.favorites.includes(prefId(g))+'">♥</button>'+
         '<img loading="lazy" decoding="async" src="'+clean(art)+'" alt="Box artwork for '+clean(g.title)+'" onerror="this.hidden=true;this.nextElementSibling.hidden=false">'+
         '<span class="index-placeholder" hidden>'+clean(systemById(g.system)?.short||'UGN')+'</span>'+
         '<span class="index-cover-label">'+clean(systemById(g.system)?.short||g.system)+'</span>'+
@@ -114,7 +132,12 @@ export function mountConsoleIndex(api) {
         '<div class="index-card-action"><span class="'+(isHost?'ready':'')+'">'+(isHost?'● HOSTED':'◈ YOUR COPY')+'</span>'+
         '<button data-copy="'+clean(g.key)+'">'+(isHost?'PLAY NOW':'USE MY COPY')+' ↗</button></div></div></article>';
     }).join('');
-    $$('[data-copy]').forEach(b=>b.addEventListener('click',()=>{
+    $('[data-index-fav]').forEach(b=>b.addEventListener('click',()=>{
+      const entry=shown.find(x=>x.key===b.dataset.indexFav);if(!entry)return;
+      const id=prefId(entry);prefs.favorites=prefs.favorites.includes(id)?prefs.favorites.filter(v=>v!==id):[...prefs.favorites,id];
+      savePrefs();renderPage();renderOwnedCollection();
+    }));
+    $('[data-copy]').forEach(b=>b.addEventListener('click',()=>{
       const entry=shown.find(x=>x.key===b.dataset.copy);
       if(!entry)return;
       const hosted=hostedFor(entry);
@@ -191,6 +214,8 @@ export function mountConsoleIndex(api) {
     const error=validateFile(rom,selected.system);
     if(error){fileStatus(error,'error');return;}
     const entry=selected,gameFile=rom,biosFile=bios;
+    prefs.recent=[{system:entry.system,title:entry.title,lastOpened:Date.now()},...prefs.recent.filter(x=>prefId(x)!==prefId(entry))].slice(0,30);
+    savePrefs();renderOwnedCollection();
     // Object URLs refer to the user's own file in memory; these bytes are never sent to UGN.
     activeUrls.forEach(url=>URL.revokeObjectURL(url));activeUrls=[];
     const gameUrl=URL.createObjectURL(gameFile);activeUrls.push(gameUrl);
@@ -257,6 +282,7 @@ export function mountConsoleIndex(api) {
     const systemId=manifest?.systems.some(s=>s.id===id)?id:'nes';
     showCopy({system:systemId,title:'My '+(systemById(systemId)?.name||'Console')+' Game',region:'',key:'custom-'+systemId});
   }
+  renderOwnedCollection();
   init();
   return {gotoSystem,openCustom,showCopy,counts:()=>manifest?.total||0};
 }
