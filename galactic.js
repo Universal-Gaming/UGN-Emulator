@@ -62,10 +62,24 @@ export function mountGalacticArchive(api) {
     const cloud=new THREE.Points(geometry,new THREE.PointsMaterial({color:0xb5e4ff,size:.12,sizeAttenuation:true,transparent:true,opacity:.82}));cloud.name='starfield';parent.add(cloud);return cloud;
   }
   function addPlanet(parent,x,y,z,size){
-    const mat=new THREE.MeshStandardMaterial({color:0x356fae,metalness:.1,roughness:.8});
-    const planet=new THREE.Mesh(new THREE.SphereGeometry(size,50,40),mat);planet.position.set(x,y,z);parent.add(planet);
-    const haze=new THREE.Mesh(new THREE.SphereGeometry(size*1.09,45,35),new THREE.MeshBasicMaterial({color:0x1aa5c0,transparent:true,opacity:.08,side:THREE.BackSide}));planet.add(haze);
-    const orbit=new THREE.Mesh(new THREE.TorusGeometry(size*1.85,.014,8,130),new THREE.MeshBasicMaterial({color:0x7db4e3,transparent:true,opacity:.4}));orbit.rotation.x=1.1;planet.add(orbit);
+    // Procedurally generated gas giant: original cosmic environment, not a game or console image.
+    const tex=document.createElement('canvas');tex.width=512;tex.height=256;const g=tex.getContext('2d');
+    for(let y=0;y<256;y++){
+      const wave=Math.sin(y*.095)*.5+Math.sin(y*.27)*.18+Math.sin(y*.031)*.37;
+      const depth=Math.cos((y/256-.5)*Math.PI);
+      const r=Math.round(26+54*(wave+.95)/2+28*depth);
+      const green=Math.round(79+78*(wave+1)/2+22*depth);
+      const blue=Math.round(132+90*(wave+1)/2+30*depth);
+      g.fillStyle='rgb('+r+','+green+','+blue+')';g.fillRect(0,y,512,1);
+    }
+    for(let i=0;i<800;i++){const y=Math.random()*256;g.fillStyle=i%2?'#ffffff09':'#0b1f4a12';g.fillRect(Math.random()*512,y,Math.random()*140,Math.random()*3+1);}
+    const canvasTexture=new THREE.CanvasTexture(tex);canvasTexture.colorSpace=THREE.SRGBColorSpace;
+    const planet=new THREE.Mesh(new THREE.SphereGeometry(size,64,48),new THREE.MeshBasicMaterial({map:canvasTexture}));
+    planet.position.set(x,y,z);parent.add(planet);
+    const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(size*1.10,56,42),new THREE.MeshBasicMaterial({color:0x55c6fb,side:THREE.BackSide,transparent:true,opacity:.11,blending:THREE.AdditiveBlending,depthWrite:false}));
+    planet.add(atmosphere);
+    const orbit=new THREE.Mesh(new THREE.TorusGeometry(size*1.62,.045,10,144),new THREE.MeshBasicMaterial({color:0x78c5ed,transparent:true,opacity:.45,blending:THREE.AdditiveBlending}));
+    orbit.rotation.x=1.18;orbit.rotation.y=.4;planet.add(orbit);
     planet.userData.spin=true;return planet;
   }
   function createConsole(group,id){
@@ -117,6 +131,14 @@ export function mountGalacticArchive(api) {
       const cross=rect(19,.35,.55,material(0x233953,.6,.45));cross.position.set(0,6.9,z);archiveGroup.add(cross);
       trimBox(archiveGroup,6.4,.065,.2,0,6.68,z,0x0b85b6);
     }
+    // The curved luminescent ribs turn the linear corridor into a purposeful starship hangar.
+    for(let z=-21;z<=13;z+=6.4){
+      const archGeo=new THREE.TorusGeometry(8.9,.085,8,56,Math.PI);
+      const arch=new THREE.Mesh(archGeo,new THREE.MeshBasicMaterial({color:0x1c5c83}));
+      arch.position.set(0,-1.25,z);archiveGroup.add(arch);
+      const innerArch=new THREE.Mesh(new THREE.TorusGeometry(8.55,.027,7,56,Math.PI),new THREE.MeshBasicMaterial({color:0x08a3c2}));
+      innerArch.position.set(0,-1.22,z+.13);archiveGroup.add(innerArch);
+    }
     for(const side of [-1,1]) {
       const wall=rect(.28,6.5,42,material(0x10213c,.56,.43));wall.position.set(side*10,3.25,-5);archiveGroup.add(wall);
       for(let z=-21;z<=13;z+=4.0){
@@ -157,9 +179,9 @@ export function mountGalacticArchive(api) {
       group.add(hit);archiveObjects.push(hit);
       const emblem=rect(.08,.62,1.6,glow(0x04b2bc));emblem.position.set(-1.5,1.02,0);group.add(emblem);
     }
-    const amb=new THREE.AmbientLight(0x98accd,1.1);archiveGroup.add(amb);
+    const amb=new THREE.AmbientLight(0xa8bddb,2.0);archiveGroup.add(amb);
     const lights=[[-4,5,5,0x00d4ff],[4,5,-4,0x927bff],[-4,5,-15,0x00d4ff],[4,5,-22,0x55ffae]];
-    for(const [x,y,z,c] of lights){const p=new THREE.PointLight(c,36,16,2);p.position.set(x,y,z);archiveGroup.add(p);}
+    for(const [x,y,z,c] of lights){const p=new THREE.PointLight(c,75,21,1.6);p.position.set(x,y,z);archiveGroup.add(p);}
   }
   function roomSurface(){
     const c=rooms[config.preset]||rooms.ugn;
@@ -329,7 +351,7 @@ export function mountGalacticArchive(api) {
   $('#open-display-settings').onclick=()=>$('#quality-panel').hidden=!$('#quality-panel').hidden;
   $('#close-display-settings').onclick=()=>$('#quality-panel').hidden=true;
   $('#graphics-preset').onchange=e=>{config.graphics=e.target.value;persist();applyQuality();report('GRAPHICS PRESET: '+config.graphics.toUpperCase())};
-  function applyQuality(){if(!renderer)return;const d=Math.min(devicePixelRatio||1,{low:1,balanced:1.5,high:1.9,ultra:2.3}[config.graphics]||1.5);renderer.setPixelRatio(d);renderer.setSize(root.clientWidth,root.clientHeight,false);renderer.shadowMap.enabled=config.graphics==='ultra';}
+  function applyQuality(){if(!renderer)return;const d=Math.min(devicePixelRatio||1,{low:.85,balanced:1.1,high:1.5,ultra:2}[config.graphics]||1.1);renderer.setPixelRatio(d);renderer.setSize(root.clientWidth,root.clientHeight,false);renderer.shadowMap.enabled=config.graphics==='ultra';}
   function toggleSound(){
     ambientOn=!ambientOn;
     const b=$('#toggle-sound');b.textContent=ambientOn?'♪ AUDIO ON':'♪ AUDIO OFF';
@@ -410,7 +432,7 @@ export function mountGalacticArchive(api) {
       scene=new THREE.Scene();scene.background=new THREE.Color(0x030816);
       camera=new THREE.PerspectiveCamera(67,Math.max(1,root.clientWidth)/Math.max(1,root.clientHeight),.15,180);camera.position.set(0,2.3,9);camera.lookAt(0,2,-15);
       renderer=new THREE.WebGLRenderer({antialias:config.graphics!=='low',powerPreference:'high-performance',alpha:false});
-      renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
+      renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.48;
       root.append(renderer.domElement);
       const fallback=$('.galactic-fallback');if(fallback)fallback.style.display='none';
       raycaster=new THREE.Raycaster();mouse=new THREE.Vector2(0,0);
