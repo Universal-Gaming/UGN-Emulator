@@ -73,3 +73,9 @@ There is no way to certify a game collection as mathematically bug-free; record 
 ## Licensing checkpoint before monetization
 
 The current collection includes third-party freeware and art with **noncommercial conditions**, including Nova the Squirrel's CC BY-NC-SA assets. The Break An Egg developer also expressly describes his game as copyrighted freeware and has granted noncommercial sharing permission in a public discussion. Neither fact establishes blanket commercial redistribution permission for UGN. This build is technically deployable as a static site, but it is **not certified for monetized public distribution**. Preserve credits and creator links, and acquire explicit commercial permissions or remove affected titles before accepting paid hosting, sponsorships or advertising for the emulator. See CREDITS.md.
+
+## Release ZIP for uploading to hosting
+
+The [Build Production Hosting ZIP](.github/workflows/hosting-release.yml) GitHub Actions workflow packages the entire static product (HTML, JavaScript, CSS, real assets, ROMs, game catalog, original artwork fallback logic, and credits) into `UGN-Emulator-Hosting.zip`. It verifies the 79-ROM manifest, every local HTML asset, ZIP integrity and inclusion of all expected files, and writes `RELEASE-SHA256.txt` inside the archive. Download the workflow artifact, unzip into your HTTPS web root, and point Nginx to `index.html`. Never serve the `.github`, `tests/`, or `scripts/` development files as part of this ZIP; the release builder intentionally excludes them.
+
+The archive is a technical deployment package, **not a claim of commercial licensing clearance for every third-party game or screenshot**.

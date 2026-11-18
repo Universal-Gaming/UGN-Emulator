@@ -1,0 +1,36 @@
+name: Build Production Hosting ZIP
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - '*.js'
+      - '*.css'
+      - '*.svg'
+      - 'roms/**'
+      - 'assets/**'
+      - 'catalog/**'
+      - 'licenses/**'
+      - 'scripts/build_release.py'
+      - '.github/workflows/hosting-release.yml'
+concurrency:
+  group: ugn-hosting-package-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble and verify exact static hosting files
+        run: python3 scripts/build_release.py
+      - name: Upload ready-to-host ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: UGN-Emulator-Hosting-ZIP
+          path: UGN-Emulator-Hosting.zip
+          if-no-files-found: error
+          retention-days: 90
