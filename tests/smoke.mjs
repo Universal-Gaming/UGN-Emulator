@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process';
 import path from 'node:path';
 const index=readFileSync('index.html','utf8'),js=readFileSync('app.js','utf8');
 assert.match(index,/<title>UGN Emulator/);
-assert.doesNotMatch(index,/type=["']file["']|id=["']rom-file["']/i);
+assert.match(index,/id=["']copy-rom-file["']/i,'Support private use-your-own-copy console playback');
 assert.doesNotMatch(index,/Nebula Defender|Cosmic Serpent|Prism Breaker|Orbit Pong/i);
 assert.match(js,/cdn\.emulatorjs\.org/);
 const roms=[];
@@ -61,10 +61,32 @@ try{
  catch (e) {console.warn('Actual game startup not confirmed:',await page.locator('#player-status').textContent());throw e;}
  await page.locator('#player-close').click();
  assert.equal(await page.locator('#game-dialog[open]').count(),0);
+ // Massive console catalog is metadata only; ROM files for unhosted games stay local.
+ await page.waitForFunction(()=>document.querySelector('#full-index-total')?.textContent?.match(/[0-9,]{4,}/),null,{timeout:20000});
+ const indexTotal=Number((await page.locator('#full-index-total').innerText()).replaceAll(',',''));
+ assert.ok(indexTotal>40000,'Expect >40,000 console title/edition entries, got '+indexTotal);
+ await page.locator('#index-console').selectOption('nes');
+ await page.locator('#index-query').fill('Super Mario Bros.');
+ await page.locator('#index-grid .index-card').first().waitFor({timeout:15000});
+ await page.locator('#index-grid [data-copy]').first().click();
+ await page.locator('#my-copy-dialog[open]').waitFor({timeout:10000});
+ await page.locator('#copy-rom-file').setInputFiles('roms/nes/2048.nes');
+ assert.equal(await page.locator('#copy-launch').isEnabled(),true);
+ await page.locator('#copy-launch').click();
+ await page.locator('#game-dialog[open]').waitFor({timeout:10000});
+ const localSource=await page.locator('#player-viewport iframe').getAttribute('srcdoc');
+ assert.match(localSource,/blob:/,'The game file must load locally from an object URL');
+ assert.match(localSource,/EJS_core/);
+ try{
+   await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:45000});
+ } catch(e) {console.warn('Local-file emulator boot failed: '+await page.locator('#player-status').textContent());throw e;}
+ await page.locator('#player-close').click();
+ assert.equal(await page.locator('#game-dialog[open]').count(),0);
+ await page.screenshot({path:'smoke-catalog.png',fullPage:false});
  await page.screenshot({path:'smoke-desktop.png',fullPage:true});
  await page.setViewportSize({width:390,height:844});
  await page.screenshot({path:'smoke-mobile.png',fullPage:true});
  const unexpected=fatal.filter(msg=>!msg.includes('Wake Lock permission request denied'));
  assert.equal(unexpected.length,0,'Uncaught application JS exceptions: '+unexpected.join('; '));
- console.log('PASS: 31 real ROMs, nine installed systems, 3D starship, holographic library, editable room, search, launcher and responsive layouts');
+ console.log('PASS: 41K title index + local-file browser emulation; 31 real ROMs, nine installed systems, 3D starship, holographic library, editable room, search, launcher and responsive layouts');
 }finally{if(browser)await browser.close();server.kill();}
