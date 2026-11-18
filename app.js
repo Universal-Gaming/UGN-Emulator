@@ -22,8 +22,18 @@ const systemCatalog=[
 {id:'ngp',name:'Neo Geo Pocket',short:'NEO GEO POCKET',maker:'Other',year:1998,photo:'NeoGeo-Pocket-Color.jpg',about:'SNK’s cult-favorite portable gaming hardware.',core:'ngp'},
 {id:'neogeo',name:'Neo Geo',short:'NEO GEO',maker:'Other',year:1990,photo:'Neo-Geo-AES-Console-Set.jpg',about:'Legendary premium home-console hardware from SNK.',core:'arcade'}
 ];
-const C=(id,file,name,genre,creator,year,desc,color='cyan',image='')=>({id,file,name,genre,creator,year,desc,system:id,color,image});
+const C=(id,file,name,genre,creator,year,desc,color='cyan',image='')=>({id:file,file,name,genre,creator,year,desc,system:id,color,image});
 const games=[
+// Rights-checked homebrew expansions: exact binary names and original creator sources in CREDITS.md.
+C('nes','roms/nes/cybercoaster.nes','Cybercoaster','Action Platformer','Fizzer & noby',2025,'A new NES homebrew with an original side-scrolling course, licensed CC BY 4.0.','violet','https://raw.githubusercontent.com/nesdev-org/homebrew-db/master/entries/cybercoaster/cybercoaster_000.png'),
+C('gb','roms/gb/2048gb.gb','2048gb','Puzzle','Sanqui',2014,'Open-source 2048-inspired Game Boy cartridge software, released under the zlib license.','cyan','https://raw.githubusercontent.com/gbdev/database/master/entries/2048gb/1.png'),
+C('gb','roms/gb/airplanz.gb','AIRPLANZ','Strategy','NotImplementedLife',2020,'An original battleship-style strategy game for Game Boy, distributed under GPLv3.','lime','https://raw.githubusercontent.com/gbdev/database/master/entries/airplanz/screenshot.png'),
+C('gb','roms/gb/lost-in-translation.gb','Lost in Translation','Puzzle','All You Can Execute',2016,'A genuine open-source Game Boy puzzle homebrew released into the public domain.','violet','https://raw.githubusercontent.com/gbdev/database/master/entries/lost-in-translation/lost-in-translation.png'),
+C('gb','roms/gb/adjustris.gb','Adjustris','Puzzle','Dave VanEe',2011,'An independently developed Game Boy falling-block puzzle title, released under CC0.','cyan','https://raw.githubusercontent.com/gbdev/database/master/entries/adjustris/20110402_adjustris.png'),
+C('gb','roms/gb/dusky-dungeon.gb','Dusky Dungeon','Dungeon Crawler','Jan Klečka',2021,'Explore a dark retro dungeon in authentic Game Boy homebrew; MIT code and CC BY artwork.','violet','https://raw.githubusercontent.com/gbdev/database/master/entries/dusky-dungeon/cover.gif'),
+C('gbc','roms/gbc/a-slime-travel.gbc','A Slime Travel','Platformer','Dribble Studios',2022,'A true Game Boy Color slime-platforming adventure distributed under the zlib license.','lime','https://raw.githubusercontent.com/gbdev/database/master/entries/a-slime-travel/aslimetravel0.png'),
+C('gba','roms/gba/apotris.gba','Apotris','Puzzle','akouzoukos',2022,'A full-featured original homebrew falling-block game for Game Boy Advance, licensed GPLv3.','cyan','https://raw.githubusercontent.com/gbadev-org/games/master/entries/apotris/demo3.png'),
+C('nds','roms/nds/lunar-runner.nds','Lunar Runner','Action','Fulldive',2024,'A real open-source Nintendo DS homebrew game distributed as an .nds cartridge binary under the MIT license.','violet','https://raw.githubusercontent.com/fulldiveVR/FullRoid.Games/master/repository/nds/lunarrunner.png'),
 C('nes','roms/nes/2048.nes','2048 NES','Puzzle','mmuszkow',2014,'The number-combining puzzle, compiled for the original Nintendo Entertainment System.','cyan','https://raw.githubusercontent.com/mmuszkow/2048-nes/master/screen0.png'),
 C('nes','roms/nes/table-tennis.nes','8-Bit Table Tennis','Sports','mike42',2021,'An authentic table tennis homebrew made for the NES.','lime'),
 C('nes','roms/nes/nova-the-squirrel.nes','Nova the Squirrel','Platformer','NovaSquirrel',2018,'Copy enemy powers and explore a full-length 8-bit adventure.','violet'),
