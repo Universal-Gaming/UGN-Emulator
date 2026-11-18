@@ -7,8 +7,8 @@ A premium, interactive, 3D browser console-emulation experience for **Universal 
 ## Current catalog — two ways to play
 
 - **41,408 console title / edition entries**, generated from **16 console categories** in the [Libretro Database](https://github.com/libretro/libretro-database). This is a searchable title index, **not 41,408 hosted games**.
-- **31 hosted console homebrew ROMs** that can launch without a visitor supplying files, across nine system categories.
-- **Use My Copy:** select a title in the larger index, then choose a locally held ROM or disc image. Files are passed to an EmulatorJS core using browser `blob:` object URLs, not uploaded to UGN; BIOS file selection is available where needed. Some systems and formats require additional BIOS data, compatible disc layouts and capable devices.
+- **40 hosted console homebrew ROMs** that can launch without a visitor supplying files, across ten system categories.
+- **Use My Copy:** select a title in the larger index, then choose a locally held ROM or disc image. Files are passed to an EmulatorJS core using browser `blob:` object URLs, not uploaded to UGN; BIOS file selection is available where needed. Some systems and formats require additional BIOS data, compatible disc layouts and capable devices. The catalog does not confer game distribution rights.
 - **Original artwork from the user** is included as optimized WebP files in `assets/`. It provides the starship entrance backdrop, museum/room concepts, and console boot visuals. These are cinematic photographs, while interactive navigation uses actual Three.js geometry.
 - Authentic box art is requested from the external Libretro thumbnail service when it has a matching entry; image availability and third-party rights vary by title.
 - All 16 categories appear in the museum, with a playable homebrew collection and a much broader local-copy title index.
@@ -64,3 +64,11 @@ The 41,408-entry name and region database is adapted from [libretro/libretro-dat
 ## Testing
 
 GitHub Actions runs a real Chromium smoke suite covering the 3D experience, room editing, hosted ROMs, title search, and file-input emulation startup. Automated tests cannot guarantee that every cataloged game or BIOS file works on every device.
+
+## November 18, 2026: Licensed Library Expansion
+
+Nine independently published homebrew console titles were added, bringing the repository to **40 actual compiled console ROMs**. The new entries cover NES, Game Boy, Game Boy Color, Game Boy Advance, and the project's first preinstalled **Nintendo DS** ROM. All launch through real console-emulation cores. The expansion is separate from the 41,408-entry bring-your-own-game title index, which remains metadata only.
+
+The game card ID bug was corrected: every installed game now uses a unique, stable identifier based on its ROM path. Previously, all games belonging to a console could share an identifier and accidentally launch the first ROM for that system. The automated browser tests now check this behavior.
+
+Original developer credits, exact ROM source paths, and licenses are recorded in [CREDITS.md](CREDITS.md). Files are obtained through the repository's reproducible [ROM bundling workflow](.github/workflows/bundle-roms.yml); no commercial cartridge backups are bundled.
