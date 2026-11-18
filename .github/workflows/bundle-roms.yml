@@ -68,12 +68,28 @@ jobs:
           grab "$nesdb/rhde/rhde.nes" "roms/nes/rhde-furniture-fight.nes"
           grab "$nesdb/thwaite/thwaite128.nes" "roms/nes/thwaite.nes"
           grab "$nesdb/zap-ruder/ruder.nes" "roms/nes/zap-ruder.nes"
+          # Additional original ROMs with developer-granted open-source redistribution rights.
+          # NES Homebrew Hub, CC BY 4.0, Fizzer & noby.
+          grab "$nesdb/cybercoaster/cybercoaster.nes" "roms/nes/cybercoaster.nes"
+          # Homebrew Hub Game Boy source database; see title-by-title licenses in CREDITS.md.
+          gbdb='https://raw.githubusercontent.com/gbdev/database/master/entries'
+          grab "$gbdb/2048gb/2048.gb" "roms/gb/2048gb.gb"
+          grab "$gbdb/airplanz/AIRPLANZ.gb" "roms/gb/airplanz.gb"
+          grab "$gbdb/lost-in-translation/lost-in-translation.gb" "roms/gb/lost-in-translation.gb"
+          grab "$gbdb/adjustris/adjustris.gb" "roms/gb/adjustris.gb"
+          grab "$gbdb/dusky-dungeon/DuskyDungeon-0.1.0.gb" "roms/gb/dusky-dungeon.gb"
+          grab "$gbdb/a-slime-travel/aslimetravel.gbc" "roms/gbc/a-slime-travel.gbc"
+          # Original GPL-3.0 GBA homebrew, author akouzoukos.
+          grab "https://raw.githubusercontent.com/gbadev-org/games/master/entries/apotris/Apotris.gba" "roms/gba/apotris.gba"
+          # MIT-licensed Nintendo DS homebrew and project: fulldiveVR/FullRoid.Games.
+          mkdir -p roms/nds
+          grab "https://raw.githubusercontent.com/fulldiveVR/FullRoid.Games/master/repository/nds/lunarrunner.nds" "roms/nds/lunar-runner.nds"
           # Validate Nintendo NES header and expected file sizes.
           python3 - <<'PY'
           from pathlib import Path
           files=list(Path('roms').rglob('*'))
           roms=[p for p in files if p.is_file()]
-          assert len(roms)==31, f'Expected 31 ROM files, got {len(roms)}'
+          assert len(roms)==40, f'Expected 40 ROM files, got {len(roms)}'
           for p in roms:
               assert p.stat().st_size >= (4096 if p.suffix=='.a26' else 8000), f'Undersized ROM {p}'
               data=p.read_bytes()
