@@ -21,7 +21,7 @@ export function mountConsoleIndex(api) {
     const recent=prefs.recent.slice(0,10).filter(e=>!prefs.favorites.includes(prefId(e))).map(e=>({...e,tag:'◈ RECENT'}));
     const list=[...favs,...recent].slice(0,16);
     node.innerHTML=list.length?list.map(e=>'<button class="owned-recent" data-owned="'+clean(e.system)+'::'+clean(e.title)+'" title="Launch using your own file"><small>'+clean(e.tag)+'</small>'+clean(e.title)+' <span>↗</span></button>').join(''):'<span class="owned-empty">Your saved titles appear here after you add favorites or play your own copy.</span>';
-    $('[data-owned]',node).forEach(btn=>btn.onclick=()=>{
+    node.querySelectorAll('[data-owned]').forEach(btn=>btn.onclick=()=>{
       const raw=btn.dataset.owned||'',i=raw.indexOf('::');
       if(i<0)return;showCopy({system:raw.slice(0,i),title:raw.slice(i+2),region:'',key:'owned'});
     });
