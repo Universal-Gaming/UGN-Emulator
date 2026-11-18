@@ -457,7 +457,12 @@ export function mountGalacticArchive(api) {
   $('#close-room').onclick=()=>{setSector('archive')};
   $('#return-archive').onclick=()=>{setSector('archive')};$('#room-play-game').onclick=()=>openShelf();
   $('#enter-room')?.addEventListener('click',()=>setSector('room'));
-  $$('[data-sector]').forEach(b=>b.onclick=()=>setSector(b.dataset.sector,{fromIntro:true}));
+  $('[data-sector]').forEach(b=>b.onclick=()=>setSector(b.dataset.sector,{fromIntro:true}));
+  $('[data-space]').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelector('#home')?.scrollIntoView({behavior:'smooth'});
+    const sector=b.dataset.space;
+    setSector(sector,{fromIntro:true});
+  }));
   $('#quick-library').onclick=()=>{$('.world-intro').classList.add('hidden');openShelf()};
   function enter(){const ui=$('#world-intro');ui.classList.add('hidden');world.classList.add('world-active');$('#world-cinematic').hidden=false;warpActive=true;introStarted=performance.now();if(!camera){finishIntro();return}userCameraZ=9;movingTo={z:9,x:0};camera.position.set(0,2.3,24);setTimeout(finishIntro,introDuration);}
   function finishIntro(){if(!warpActive)return;warpActive=false;$('#world-cinematic').hidden=true;setSector('archive',{fromIntro:true});report('WELCOME TO THE GALACTIC ARCHIVE / CONSOLES AWAIT');}
