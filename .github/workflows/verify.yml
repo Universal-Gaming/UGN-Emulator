@@ -13,6 +13,9 @@ on:
       - 'tests/**'
       - '.github/workflows/verify.yml'
   workflow_dispatch:
+concurrency:
+  group: ugn-emulator-verify-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
