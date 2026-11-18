@@ -160,19 +160,91 @@ $('#reset-filters').onclick=()=>{platform='all';search='';favoritesOnly=false;$(
 $('#export-history').onclick=()=>{const blob=new Blob([JSON.stringify(memory,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ugn-emulator-history.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500)};
 $('#nav-toggle').onclick=()=>{const nav=$('.primary-nav');nav.classList.toggle('open');$('#nav-toggle').setAttribute('aria-expanded',String(nav.classList.contains('open')))};
 $$('.primary-nav a').forEach(a=>a.onclick=()=>{$('.primary-nav').classList.remove('open');$('#nav-toggle').setAttribute('aria-expanded','false')});
-const dialog=$('#game-dialog'),viewport=$('#player-viewport');let frame=null;
-async function launch(id){const g=games.find(g=>g.id===id);if(!g)return;if(installed[g.file]!==true){notify('This ROM is not installed');return}
-try{const res=await fetch('./'+g.file,{method:'HEAD'});if(!res.ok)throw Error('ROM not found')}catch{notify('This ROM cannot be reached right now');return}
-const s=system(g.system);$('#player-title').textContent=g.name;$('#player-system').textContent=s.name.toUpperCase()+' / GENUINE CONSOLE EMULATION';$('#player-status').textContent='LOADING '+s.short+' EMULATOR';viewport.replaceChildren();frame=document.createElement('iframe');frame.title='UGN Emulator — '+g.name;frame.allow='autoplay; fullscreen; gamepad';frame.setAttribute('allowfullscreen','');frame.setAttribute('referrerpolicy','no-referrer');viewport.append(frame);
-const rom=new URL('./'+g.file,location.href).href;
-const safe=v=>JSON.stringify(v).replace(/</g,'\\u003c');
-frame.srcdoc='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="background:#030816;margin:0;color:#fff"><div id="game" style="height:100dvh;width:100vw"></div><script>window.EJS_player="#game";window.EJS_core='+safe(s.core)+';window.EJS_gameUrl='+safe(rom)+';window.EJS_gameName='+safe(g.name)+';window.EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";window.EJS_startOnLoaded=true;window.EJS_color="#00d4ff";window.EJS_backgroundColor="#040b1b";window.EJS_Buttons={playPause:true,restart:true,mute:true,settings:true,fullscreen:true,saveState:true,loadState:true};window.EJS_ready=function(){parent.postMessage({ugnEmuStage:"ready"},"*")};window.EJS_onGameStart=function(){parent.postMessage({ugnEmuStage:"started"},"*")};window.addEventListener("error",function(e){parent.postMessage({ugnError:e.message},"*")});<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script></body></html>';
-memory.played[g.id]=(memory.played[g.id]||0)+1;memory.recent=[g.id,...memory.recent.filter(x=>x!==g.id)].slice(0,8);save();renderHistory();dialog.showModal();
+
+const dialog=$('#game-dialog'),titleDialog=$('#title-dialog'),viewport=$('#player-viewport');
+let frame=null,detailGame=null,localGameObjectUrls=[];
+function showDetails(id){
+ const g=allTitles.find(x=>x.id===id);if(!g)return;
+ detailGame=g;const own=g.mode==='personal',sys=system(g.system);
+ $('#title-platform').textContent=sys.maker.toUpperCase()+' / '+sys.short;
+ $('#title-status').textContent=own?'◈ YOUR OWN COPY REQUIRED':installed[g.file]===true?'● INSTALLED AT UGN':'◌ CHECKING ROM';
+ $('#title-status').style.color=own?'#edc38c':'#5cfc76';
+ $('#title-name').textContent=g.name;
+ $('#title-description').textContent=g.desc;
+ $('#title-console').textContent=sys.name;
+ $('#title-year').textContent=g.year;
+ $('#title-creator').textContent=g.creator;
+ const img=$('#title-art'),asset=g.image||photo(sys);img.hidden=false;img.alt=g.image?'Original title image for '+g.name:'Photo of '+sys.name+' console hardware';img.src=asset;
+ img.onerror=()=>{img.onerror=null;img.hidden=true};
+ $('#title-art-caption').textContent=g.image?'ACTUAL GAME COVER / SCREENSHOT':'AUTHENTIC CONSOLE HARDWARE';
+ $('#title-boot').hidden=own||installed[g.file]!==true;
+ $('#title-boot').onclick=()=>{titleDialog.close();launch(g.id)};
+ $('#title-favorite').textContent=memory.favorites.includes(g.id)?'♥ FAVORITED':'♡ ADD FAVORITE';
+ $('#title-favorite').onclick=()=>{
+  memory.favorites=memory.favorites.includes(g.id)?memory.favorites.filter(x=>x!==g.id):[...memory.favorites,g.id];
+  save();renderGames();renderHistory();$('#title-favorite').textContent=memory.favorites.includes(g.id)?'♥ FAVORITED':'♡ ADD FAVORITE';
+ };
+ $('#own-copy-heading').textContent=own?'PLAY THIS TITLE WITH YOUR OWN COPY':'PREFER YOUR OWN ROM FILE?';
+ const ext=acceptedFormats[g.system]||'.zip';
+ const isDisc=['psx','segaCD','segaSaturn'].includes(g.system);
+ $('#own-copy-ext').textContent='Choose a '+sys.name+' game file in a compatible format: '+ext.replaceAll(',',', ')+(isDisc?'. For multi-track disc games, a single .chd or correctly packaged disc image works best.':'');
+ $('#own-copy-explainer').textContent=own?'UGN does not supply '+g.name+' or its commercial ROM. To play it here, choose a lawful compatible copy from your device. It stays entirely within this browser session.':'If you prefer to use a copy you lawfully possess, choose your own local file below. UGN never uploads or stores your file.';
+ $('#own-copy-file').value='';$('#own-copy-file').accept=ext;
+ $('#own-copy-bios').value='';$('#own-copy-bios-group').hidden=!needsBios.has(g.system);
+ $('#own-copy-boot').disabled=true;
+ const messages=[];
+ if(needsBios.has(g.system))messages.push('This system commonly requires a BIOS from hardware you own. Select it separately if needed.');
+ if(coreNeedsIsolation.has(g.system))messages.push('This system may require browser security headers that GitHub Pages does not provide. Playback is experimental.');
+ if(isDisc)messages.push('Disc images may consume substantial memory; individual .cue files without their track data will not work.');
+ messages.push('No copyrighted ROM or BIOS downloads are supplied. File selection is local, not a server upload.');
+ $('#own-copy-caution').textContent=messages.join(' ');
+ $('#own-copy-file').onchange=()=>{$('#own-copy-boot').disabled=!$('#own-copy-file').files?.length};
+ $('#own-copy-boot').onclick=()=>{
+  const file=$('#own-copy-file').files?.[0],bios=$('#own-copy-bios').files?.[0];if(!file){notify('Select your own game file first');return}
+  const suffix='.'+file.name.split('.').pop().toLowerCase();
+  if(!ext.split(',').includes(suffix)){notify('Wrong file format for '+sys.short+'. Expected: '+ext);return}
+  titleDialog.close();launch(g.id,{file,bios});
+ };
+ if(!titleDialog.open)titleDialog.showModal();
+}
+$('#title-close').onclick=()=>titleDialog.close();
+async function launch(id,options={}){
+ const g=allTitles.find(g=>g.id===id);if(!g)return;
+ const usesOwn=!!options.file;
+ if(g.mode==='personal'&&!usesOwn){showDetails(id);return}
+ if(!usesOwn&&installed[g.file]!==true){notify('This game ROM is not installed');return}
+ if(!usesOwn){
+  try{const res=await fetch('./'+g.file,{method:'HEAD'});if(!res.ok)throw Error('ROM not found')}catch{notify('The game ROM could not be reached');return}
+ }
+ const sys=system(g.system);
+ $('#player-title').textContent=g.name;
+ $('#player-system').textContent=sys.name.toUpperCase()+' / '+(usesOwn?'YOUR PRIVATE GAME FILE':'HOSTED AUTHENTIC ROM');
+ $('#player-status').textContent='LOADING '+sys.short+' EMULATOR';
+ viewport.replaceChildren();
+ frame=document.createElement('iframe');frame.title='UGN Emulator — '+g.name;frame.allow='autoplay; fullscreen; gamepad';
+ frame.setAttribute('allowfullscreen','');frame.setAttribute('referrerpolicy','no-referrer');viewport.append(frame);
+ const rom=usesOwn?URL.createObjectURL(options.file):new URL('./'+g.file,location.href).href;
+ const bios=options.bios?URL.createObjectURL(options.bios):null;
+ if(usesOwn)localGameObjectUrls.push(rom);if(bios)localGameObjectUrls.push(bios);
+ const safe=v=>JSON.stringify(v).replace(/</g,'\\u003c');
+ const biosCode=bios?'window.EJS_biosUrl='+safe(bios)+';':'';
+ frame.srcdoc='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="background:#030816;margin:0;color:#fff"><div id="game" style="height:100dvh;width:100vw"></div><script>window.EJS_player="#game";window.EJS_core='+safe(sys.core)+';window.EJS_gameUrl='+safe(rom)+';window.EJS_gameName='+safe(g.name)+';'+biosCode+'window.EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";window.EJS_startOnLoaded=true;window.EJS_color="#00d4ff";window.EJS_backgroundColor="#040b1b";window.EJS_Buttons={playPause:true,restart:true,mute:true,settings:true,fullscreen:true,saveState:true,loadState:true};window.EJS_ready=function(){parent.postMessage({ugnEmuStage:"ready"},"*")};window.EJS_onGameStart=function(){parent.postMessage({ugnEmuStage:"started"},"*")};window.addEventListener("error",function(e){parent.postMessage({ugnError:e.message},"*")});<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script></body></html>';
+ memory.played[g.id]=(memory.played[g.id]||0)+1;memory.recent=[g.id,...memory.recent.filter(x=>x!==g.id)].slice(0,8);
+ save();renderHistory();if(titleDialog.open)titleDialog.close();if(!dialog.open)dialog.showModal();
 }
 $('#player-close').onclick=()=>dialog.close();
 $('#player-fullscreen').onclick=()=>{if(!document.fullscreenElement)dialog.requestFullscreen?.().catch(()=>notify('Fullscreen is unavailable'));else document.exitFullscreen?.()};
-dialog.addEventListener('close',()=>{viewport.replaceChildren();frame=null});
-window.addEventListener('message',e=>{if(!frame||e.source!==frame.contentWindow)return;if(e.data?.ugnError)$('#player-status').textContent='EMULATOR ERROR: '+String(e.data.ugnError).slice(0,150);if(e.data?.ugnEmuStage==='ready')$('#player-status').textContent='CORE READY — STARTING GAME';if(e.data?.ugnEmuStage==='started')$('#player-status').textContent='GAME RUNNING / '+String(document.querySelector('#player-title')?.textContent||'')});
+dialog.addEventListener('close',()=>{
+ viewport.replaceChildren();frame=null;
+ for(const url of localGameObjectUrls)URL.revokeObjectURL(url);
+ localGameObjectUrls=[];
+});
+window.addEventListener('message',e=>{
+ if(!frame||e.source!==frame.contentWindow)return;
+ if(e.data?.ugnError)$('#player-status').textContent='EMULATOR ERROR: '+String(e.data.ugnError).slice(0,150);
+ if(e.data?.ugnEmuStage==='ready')$('#player-status').textContent='CORE READY — STARTING GAME';
+ if(e.data?.ugnEmuStage==='started')$('#player-status').textContent='GAME RUNNING / '+String(document.querySelector('#player-title')?.textContent||'');
+});
 async function validateROMS(){await Promise.all(games.map(async g=>{try{let res=await fetch('./'+g.file,{method:'HEAD',cache:'no-store'});installed[g.file]=res.ok&&Number(res.headers.get('content-length')||10000)>2000}catch{installed[g.file]=false}}));renderSystems();renderGames();renderHistory();changeSpot(0);window.__ugnArchiveRefresh?.();}
 renderPills();renderSystems();renderGames();renderHistory();validateROMS();
 /* Galactic Archive: the starship world is the primary UI. The classic console grid remains an accessibility fallback. */
