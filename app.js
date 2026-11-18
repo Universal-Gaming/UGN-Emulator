@@ -77,21 +77,81 @@ $('#system-grid').innerHTML=list.map(s=>{const amount=installedCount(s.id);retur
 $$('[data-system]').forEach(b=>b.onclick=()=>{const id=b.dataset.system;const i=systemCatalog.findIndex(s=>s.id===id);changeSpot(i);if(installedCount(id))selectSystem(id);else notify(system(id).name+' — no licensed games installed yet')});
 }
 $$('.sys-filter').forEach(b=>b.onclick=()=>{maker=b.dataset.maker;$$('.sys-filter').forEach(x=>x.classList.toggle('active',x===b));renderSystems()});
-function renderPills(){const options=[['all','ALL GAMES'],...systemCatalog.filter(s=>games.some(g=>g.system===s.id)).map(s=>[s.id,s.short])];$('#platform-pills').innerHTML=options.map(([id,label])=>'<button data-platform="'+escapes(id)+'" class="'+(id===platform?'active':'')+'">'+escapes(label)+'</button>').join('');$$('[data-platform]').forEach(b=>b.onclick=()=>{platform=b.dataset.platform;renderPills();renderGames()})}
+
+const safeTitleKey=(g)=>g.system+"|"+g.name.toLowerCase().replace(/[^a-z0-9]+/g,"");
+async function loadTitlesForPlatform(id){
+ if(id==="all"||externalLoaded.has(id))return;
+ externalLoaded.add(id);
+ $('#catalog-status').textContent="LOADING TITLE METADATA / "+(system(id)?.short||id);
+ try{
+  const titles=await loadPersonalTitles(id);
+  const existing=new Set(allTitles.filter(g=>g.mode==='personal').map(safeTitleKey));
+  for(const t of titles){const key=safeTitleKey(t);if(!existing.has(key)){allTitles.push(t);existing.add(key)}else{const old=allTitles.find(x=>x.mode==='personal'&&safeTitleKey(x)===key);if(old&&t.image&&!old.image)old.image=t.image}}
+  $('#catalog-status').textContent=titles.length+" TITLES INDEXED / "+(system(id)?.short||id);
+ }catch(e){externalLoaded.delete(id);console.warn("Personal title index could not be loaded",e);$('#catalog-status').textContent="USING OFFLINE TITLE SELECTION";}
+ renderPills();renderGames();window.__ugnArchiveRefresh?.();
+}
+function setCatalogMode(mode){
+ catalogMode=mode;visibleLimit=36;
+ for(const [value,id] of [['hosted','view-hosted'],['personal','view-personal'],['all','view-everything']]){
+  const b=$('#'+id);b.classList.toggle('active',value===mode);b.setAttribute('aria-pressed',String(value===mode));
+ }
+ $('#catalog-notice').textContent=mode==='hosted'
+  ?'Every Play Now title is a compiled console ROM installed in this repository. No file upload needed.'
+  :mode==='personal'
+    ?'Browse real console titles. Select a title, inspect its platform and image, then load a lawful copy locally on your device. No commercial ROM files are hosted or linked.'
+    :'Installed homebrew and personal-copy titles appear together. Gold labels mean you must provide your own legally acquired game file.';
+ if(mode!=='hosted'&&platform!=='all')loadTitlesForPlatform(platform);
+ renderPills();renderGames();
+}
+$('#view-hosted').onclick=()=>setCatalogMode('hosted');
+$('#view-personal').onclick=()=>setCatalogMode('personal');
+$('#view-everything').onclick=()=>setCatalogMode('all');
+$('#load-more-games').onclick=()=>{visibleLimit+=36;renderGames()};
+function renderPills(){
+ const options=[['all','ALL SYSTEMS'],...systemCatalog.map(s=>[s.id,s.short])];
+ $('#platform-pills').innerHTML=options.map(([id,label])=>'<button data-platform="'+escapes(id)+'" class="'+(id===platform?'active':'')+'">'+escapes(label)+'</button>').join('');
+ $$('[data-platform]').forEach(b=>b.onclick=()=>{
+  platform=b.dataset.platform;visibleLimit=36;
+  if(catalogMode!=='hosted'&&platform!=='all')loadTitlesForPlatform(platform);
+  renderPills();renderGames();
+ });
+}
 function renderGames(){
-let list=games.filter(g=>installed[g.file]!==false&&(!favoritesOnly||memory.favorites.includes(g.id))&&(platform==='all'||g.system===platform)&&(g.name+' '+g.creator+' '+g.genre+' '+system(g.system)?.name).toLowerCase().includes(search));
-if(sort==='az')list.sort((a,b)=>a.name.localeCompare(b.name));
-if(sort==='year')list.sort((a,b)=>b.year-a.year);
-if(sort==='system')list.sort((a,b)=>system(a.system).name.localeCompare(system(b.system).name));
-$('#library-count').textContent=games.filter(g=>installed[g.file]===true).length+' VERIFIED ROMS / '+games.length+' IN CATALOG';
-$('#game-grid').innerHTML=list.map(g=>{const s=system(g.system),isReady=installed[g.file]===true;return '<article class="game-card"><div class="game-art" style="--art:var(--'+g.color+')"><span class="game-system">'+escapes(s.short)+'</span><button class="game-favorite '+(memory.favorites.includes(g.id)?'saved':'')+'" data-fav="'+g.id+'" aria-label="Toggle favorite for '+escapes(g.name)+'" aria-pressed="'+memory.favorites.includes(g.id)+'">♥</button>'+imageMarkup(g.image||photo(s),g.image?'Gameplay screenshot of '+g.name:s.name+' console hardware','onerror="this.hidden=true;this.nextElementSibling.hidden=false"')+'<div class="art-placeholder" hidden>'+escapes(s.short.slice(0,3))+'</div><span class="art-note">'+(g.image?'GAME SCREENSHOT':'AUTHENTIC CONSOLE PHOTO')+'</span></div><div class="game-info"><h3>'+escapes(g.name)+'</h3><div class="game-byline">'+escapes(g.creator)+' · '+g.year+'</div><p class="game-description">'+escapes(g.desc)+'</p><div class="game-bottom"><span class="rom-state '+(isReady?'':'checking')+'">'+(isReady?'● INSTALLED':'◌ VERIFYING')+'</span><button class="game-play" data-play="'+g.id+'" '+(!isReady?'disabled':'')+'>PLAY NOW ↗</button></div></div></article>'}).join('');
-$('#empty-state').hidden=list.length!==0;$('#hero-games').textContent=games.filter(g=>installed[g.file]===true).length;$('#hero-systems').textContent=systemCatalog.filter(s=>installedCount(s.id)>0).length;
-$$('[data-fav]').forEach(b=>b.onclick=()=>{const id=b.dataset.fav;memory.favorites=memory.favorites.includes(id)?memory.favorites.filter(x=>x!==id):[...memory.favorites,id];save();renderGames();renderHistory()});
-$$('[data-play]').forEach(b=>b.onclick=()=>launch(b.dataset.play));
+ const hostedCount=games.filter(g=>installed[g.file]===true).length;
+ let list=allTitles.filter(g=>{
+  const own=g.mode==='personal';
+  if(!own&&installed[g.file]===false)return false;
+  if(catalogMode==='hosted'&&own)return false;
+  if(catalogMode==='personal'&&!own)return false;
+  if(catalogMode==='all'&&own&&games.some(h=>h.system===g.system&&safeTitleKey(h)===safeTitleKey(g)))return false;
+  if(favoritesOnly&&!memory.favorites.includes(g.id))return false;
+  if(platform!=='all'&&g.system!==platform)return false;
+  return(g.name+' '+g.creator+' '+g.genre+' '+(system(g.system)?.name||'')).toLowerCase().includes(search);
+ });
+ if(sort==='az')list.sort((a,b)=>a.name.localeCompare(b.name));
+ if(sort==='year')list.sort((a,b)=>(Number(b.year)||0)-(Number(a.year)||0));
+ if(sort==='system')list.sort((a,b)=>(system(a.system)?.name||'').localeCompare(system(b.system)?.name||''));
+ $('#library-count').textContent=hostedCount+' INSTALLED ROMS · '+(catalogMode==='hosted'?'PLAYABLE LIBRARY':list.length+' LISTED TITLES');
+ $('#catalog-status').textContent=catalogMode==='hosted'?hostedCount+' GAMES INSTALLED':(platform==='all'?'SELECT A CONSOLE FOR MORE TITLES':externalLoaded.has(platform)?list.length+' TITLE MATCHES':'CLASSIC TITLE DISCOVERY');
+ const visible=list.slice(0,visibleLimit);
+ $('#game-grid').innerHTML=visible.map(g=>{
+  const s=system(g.system),own=g.mode==='personal',ready=!own&&installed[g.file]===true;
+  const img=g.image||photo(s);
+  return '<article class="game-card '+(own?'personal-only':'')+'"><button data-inspect="'+escapes(g.id)+'" class="game-art" style="--art:var(--'+(g.color||'violet')+')" aria-label="Inspect '+escapes(g.name)+'"><span class="game-system">'+escapes(s.short)+'</span>'+imageMarkup(img,g.image?'Authentic artwork for '+g.name:s.name+' console hardware','onerror="this.hidden=true;this.nextElementSibling.hidden=false"')+'<span class="art-placeholder" hidden>'+escapes(s.short.slice(0,3))+'</span><span class="art-note">'+(g.image?'TITLE-SPECIFIC IMAGE':'AUTHENTIC CONSOLE PHOTO')+'</span></button><button class="game-favorite '+(memory.favorites.includes(g.id)?'saved':'')+'" data-fav="'+escapes(g.id)+'" aria-label="Toggle favorite for '+escapes(g.name)+'" aria-pressed="'+memory.favorites.includes(g.id)+'">♥</button><div class="game-info"><h3>'+escapes(g.name)+'</h3><div class="game-byline">'+escapes(g.creator)+' · '+escapes(g.year)+'</div><p class="game-description">'+escapes(g.desc)+'</p><div class="game-bottom"><span class="rom-state '+(ready?'':'checking')+'">'+(ready?'● ROM INSTALLED':own?'◈ PERSONAL COPY':'◌ VERIFYING')+'</span><button class="game-play" data-play="'+escapes(g.id)+'" '+(!ready&&!own?'disabled':'')+'>'+(ready?'PLAY NOW ↗':own?'USE MY COPY ↗':'CHECKING')+'</button></div><button class="game-view-details" data-inspect="'+escapes(g.id)+'">VIEW GAME DETAILS ◈</button></div></article>';
+ }).join('');
+ $('#empty-state').hidden=!!list.length;
+ $('#load-more-games').hidden=visible.length>=list.length;
+ $('#catalog-page-meta').textContent=visible.length+' OF '+list.length+' TITLES DISPLAYED';
+ $('#hero-games').textContent=hostedCount;
+ $('#hero-systems').textContent=systemCatalog.filter(s=>installedCount(s.id)>0).length;
+ $$('[data-fav]').forEach(b=>b.onclick=()=>{const id=b.dataset.fav;memory.favorites=memory.favorites.includes(id)?memory.favorites.filter(x=>x!==id):[...memory.favorites,id];save();renderGames();renderHistory()});
+ $$('[data-inspect]').forEach(b=>b.onclick=()=>showDetails(b.dataset.inspect));
+ $$('[data-play]').forEach(b=>b.onclick=()=>{const g=allTitles.find(x=>x.id===b.dataset.play);if(g?.mode==='personal')showDetails(g.id);else launch(b.dataset.play)});
 }
 function renderHistory(){const played=Object.keys(memory.played);$('#stat-played').textContent=played.length;$('#stat-favorites').textContent=memory.favorites.length;$('#stat-consoles').textContent=new Set(played.map(id=>games.find(g=>g.id===id)?.system).filter(Boolean)).size;
-$('#recent-list').innerHTML=memory.recent.length?memory.recent.map(id=>{const g=games.find(x=>x.id===id);return g?'<button data-recent="'+escapes(id)+'">'+escapes(system(g.system).short)+' / '+escapes(g.name)+'</button>':''}).join(''):'<span style="color:#93a7c3">Your console journey starts with the first game you launch.</span>';
-$$('[data-recent]').forEach(b=>b.onclick=()=>launch(b.dataset.recent));
+$('#recent-list').innerHTML=memory.recent.length?memory.recent.map(id=>{const g=allTitles.find(x=>x.id===id);return g?'<button data-recent="'+escapes(id)+'">'+escapes(system(g.system).short)+' / '+escapes(g.name)+'</button>':''}).join(''):'<span style="color:#93a7c3">Your console journey starts with the first game you launch.</span>';
+$('[data-recent]').forEach(b=>b.onclick=()=>{const g=allTitles.find(x=>x.id===b.dataset.recent);if(g?.mode==='personal')showDetails(g.id);else launch(b.dataset.recent)});
 }
 $('#game-search').oninput=e=>{search=e.target.value.toLowerCase().trim();renderGames()};
 $('#game-sort').onchange=e=>{sort=e.target.value;renderGames()};
