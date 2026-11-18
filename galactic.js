@@ -492,7 +492,18 @@ export function mountGalacticArchive(api) {
   $('#close-room').onclick=()=>{setSector('archive')};
   $('#return-archive').onclick=()=>{setSector('archive')};$('#room-play-game').onclick=()=>openShelf();
   $('#enter-room')?.addEventListener('click',()=>setSector('room'));
-  $$('[data-sector]').forEach(b=>b.onclick=()=>setSector(b.dataset.sector,{fromIntro:true}));
+  const closeMobileNavigation=()=>{
+    const nav=document.querySelector('.primary-nav'),toggle=document.querySelector('#nav-toggle');
+    nav?.classList.remove('open');toggle?.setAttribute('aria-expanded','false');
+  };
+  $('[data-sector]').forEach(b=>b.onclick=()=>setSector(b.dataset.sector,{fromIntro:true}));
+  // Header sector buttons must work exactly like the deck controls, including before
+  // the cinematic intro has been played and on compact/mobile navigation.
+  $('[data-nav-sector]').forEach(b=>b.addEventListener('click',()=>{
+    setSector(b.dataset.navSector,{fromIntro:true});
+    document.querySelector('#home')?.scrollIntoView({behavior:'smooth',block:'start'});
+    closeMobileNavigation();
+  }));
   $$('[data-space]').forEach(b=>b.addEventListener('click',()=>{
     document.querySelector('#home')?.scrollIntoView({behavior:'smooth'});
     const sector=b.dataset.space;
