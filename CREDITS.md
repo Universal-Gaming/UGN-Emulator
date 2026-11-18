@@ -69,3 +69,24 @@ These four games are copied from the [NES Homebrew Hub](https://github.com/nesde
 | Zap Ruder | Damian Yerrick | zlib | [zap-ruder](https://github.com/nesdev-org/homebrew-db/tree/master/entries/zap-ruder) |
 
 Upstream GPL source and corresponding terms remain available via the linked original projects; license obligations remain applicable to redistributed builds.
+
+## Licensed homebrew expansion — 31 to 40 ROMs (November 18, 2026)
+
+The following are **actual compiled console ROMs**, obtained from developers' original projects or Homebrew Hub entries carrying explicit game license declarations. All redistribution terms remain in force.
+
+| Console | Game | Developer | Game license | ROM source and source project |
+|---|---|---|---|---|
+| NES | Cybercoaster | Fizzer & noby | Creative Commons Attribution 4.0 | [NES Homebrew Hub](https://github.com/nesdev-org/homebrew-db/tree/master/entries/cybercoaster) |
+| Game Boy | 2048gb | Sanqui | zlib | [GB Homebrew Hub](https://github.com/gbdev/database/tree/master/entries/2048gb), [author's source](https://github.com/Sanqui/2048-gb) |
+| Game Boy | AIRPLANZ | NotImplementedLife | GPL-3.0-only | [GB Homebrew Hub](https://github.com/gbdev/database/tree/master/entries/airplanz), [author's source](https://github.com/NotImplementedLife/AIRPLANZ) |
+| Game Boy | Lost in Translation | All You Can Execute | Public-domain dedication | [GB Homebrew Hub](https://github.com/gbdev/database/tree/master/entries/lost-in-translation), [author's license](https://github.com/AYCEdemo/LostInTranslation/blob/main/LICENSE) |
+| Game Boy | Adjustris | Dave VanEe | CC0 1.0 | [GB Homebrew Hub](https://github.com/gbdev/database/tree/master/entries/adjustris), [author's source](https://github.com/tbsp/Adjustris) |
+| Game Boy | Dusky Dungeon (0.1.0) | Jan Klečka | MIT source code; CC BY 4.0 art | [GB Homebrew Hub](https://github.com/gbdev/database/tree/master/entries/dusky-dungeon), [author's MIT and CC BY licenses](https://github.com/inverted-hat/duskyDungeon) |
+| Game Boy Color | A Slime Travel | Dribble Studios | zlib | [GB Homebrew Hub](https://github.com/gbdev/database/tree/master/entries/a-slime-travel) |
+| Game Boy Advance | Apotris | akouzoukos | GPL-3.0 | [GBA Homebrew Hub](https://github.com/gbadev-org/games/tree/master/entries/apotris), [developer's corresponding source](https://gitea.com/akouzoukos/apotris) |
+| Nintendo DS | Lunar Runner | Fulldive | MIT | [Original open-source homebrew project](https://github.com/fulldiveVR/FullRoid.Games/tree/master/repository/nds), [MIT license](https://github.com/fulldiveVR/FullRoid.Games/blob/master/LICENSE) |
+
+Cybercoaster's author credit and CC BY 4.0 terms apply to its game data and any accompanying screenshots. Dusky Dungeon artwork requires CC BY attribution to Jan Klečka and other credited contributors as detailed by its original project's license and asset credits. Preserve the applicable GPL notices and access to the GPL source projects for AIRPLANZ and Apotris.
+
+**No rights inference:** Merely appearing on GitHub, Internet Archive, or Homebrew Hub is not treated as permission to redistribute. Games with no explicit release permission were not added to the built-in collection. The separate 41,408-title catalog is a bring-your-own-copy index, not a ROM download list.
+
