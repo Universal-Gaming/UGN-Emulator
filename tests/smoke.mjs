@@ -21,7 +21,7 @@ try{
  const fatal=[];page.on('pageerror',e=>fatal.push(String(e)));
  await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('#game-grid .game-card').first().waitFor({timeout:15000});
- await page.waitForFunction(()=>document.querySelector('#hero-games').textContent!=='—',{timeout:20000});
+ await page.waitForFunction(()=>Number(document.querySelector('#hero-games')?.textContent)===31,null,{timeout:25000});
  assert.equal(Number(await page.locator('#hero-games').innerText()),31);
  assert.equal(Number(await page.locator('#hero-systems').innerText()),9);
  assert.equal(await page.locator('#game-grid .game-card').count(),31);
