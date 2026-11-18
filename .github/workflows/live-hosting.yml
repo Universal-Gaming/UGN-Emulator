@@ -1,0 +1,33 @@
+name: Audit Live GitHub Pages Hosting
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/live-hosting.mjs'
+      - '.github/workflows/live-hosting.yml'
+concurrency:
+  group: ugn-live-hosting-audit-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  live-site:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Allow Pages deployment to propagate
+        run: sleep 25
+      - name: Verify actual HTTPS site and all published game URLs
+        run: node tests/live-hosting.mjs
+      - name: Attach live deployment audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-ugn-hosting-audit
+          path: live-hosting-audit.json
+          if-no-files-found: warn
