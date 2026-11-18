@@ -699,7 +699,7 @@ export function mountGalacticArchive(api) {
       const hits=intersects(e,furnitureObjects);
       if(hits.length){
         const obj=hits[0].object;
-        if(obj.userData.interact==='room-play'){root.setPointerCapture(e.pointerId);draggingCamera=false;dragFurniture=false;return}
+        if(obj.userData.interact==='room-play'||obj.userData.interact==='room-console'){root.setPointerCapture(e.pointerId);draggingCamera=false;dragFurniture=false;return}
         if(obj.userData.furnitureId){
           const furniture=obj.parent;
           selectFurniture(furniture);
@@ -740,6 +740,7 @@ export function mountGalacticArchive(api) {
       const hits=intersects(e,activeSector==='room'?furnitureObjects:activeSector==='exhibits'?museumObjects:activeSector==='shelves'?vaultObjects:archiveObjects);
       if(hits.length){const obj=hits[0].object;
         if(obj.userData.interact==='room-play')openShelf();
+        else if(obj.userData.interact==='room-console')focusExhibit(obj.userData.consoleId);
         else if(obj.userData.interact==='library')openShelf();
         else if(obj.userData.interact==='room')setSector('room',{fromIntro:true});
         else if(obj.userData.interact==='archive')setSector('archive',{fromIntro:true});
