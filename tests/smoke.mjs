@@ -31,6 +31,24 @@ try{
  await page.locator('[data-platform=nes]').click();
  assert.equal(await page.locator('#game-grid .game-card').count(),5);
  await page.locator('[data-platform=all]').click();
+ // The starship is the primary experience, not a static marketing hero.
+ await page.locator('#galactic-stage').waitFor({timeout:10000});
+ await page.locator('#enter-archive').click();
+ await page.locator('#skip-cinematic').click();
+ await page.locator('[data-sector="shelves"]').click();
+ await page.locator('#holo-shelf:not([hidden])').waitFor();
+ assert.ok((await page.locator('#holo-selected-name').innerText()).length>0);
+ await page.locator('#holo-next').click();
+ await page.locator('[data-sector="room"]').click();
+ await page.locator('#room-panel:not([hidden])').waitFor();
+ await page.locator('#room-preset').selectOption('bedroom90');
+ await page.locator('[data-furniture="crt"]').click();
+ assert.equal(await page.locator('#room-walls').inputValue(),'purple');
+ const roomSave=await page.evaluate(()=>JSON.parse(localStorage.getItem('ugn-galactic-room-v1')));
+ assert.equal(roomSave.preset,'bedroom90');
+ assert.equal(roomSave.furniture.length,5);
+ await page.locator('[data-sector="archive"]').click();
+ await page.locator('#exhibit-panel').evaluate(el=>el.hidden=true);
  await page.locator('#game-grid [data-play]').first().click();
  await page.locator('#game-dialog[open]').waitFor({timeout:10000});
  assert.equal(await page.locator('#player-viewport iframe').count(),1);
@@ -42,5 +60,5 @@ try{
  await page.setViewportSize({width:390,height:844});
  await page.screenshot({path:'smoke-mobile.png',fullPage:true});
  assert.equal(fatal.length,0,'Uncaught JS exceptions: '+fatal.join('; '));
- console.log('PASS: 27 ROMs, nine system categories, search, filters, launcher, modal, desktop/mobile renders');
+ console.log('PASS: 27 real ROMs, nine installed systems, 3D starship, holographic library, editable room, search, launcher and responsive layouts');
 }finally{if(browser)await browser.close();server.kill();}
