@@ -32,7 +32,7 @@ try {
   // Test actual failed HTTP image handling without depending on an external image host.
   await page.evaluate(async()=>{
     const {setArtworkImage}=await import('./artwork.js');
-    const img=document.createElement('img');img.id='failed-cover-test';
+    const img=document.createElement('img');img.id='failed-cover-test';img.style.cssText='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none';
     document.body.append(img);
     setArtworkImage(img,'./__missing__/image-cover.png','Known Image Probe','NES');
   });
