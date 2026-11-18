@@ -37,7 +37,8 @@ export function mountGalacticArchive(api) {
       ['bed',6.55,3.12,0],['sofa',-6.5,4.22,0],['table',-4.3,3.52,0],
       ['rug',-3.6,3.15,0],['plant',-8.10,-9.04,0],['lava',-2.25,-4.70,0,.90],
       ['poster',-8.85,-.2,Math.PI/2],['lamp',8.3,1.0,0],['console',-4.3,-3.22,0],
-      ['figure',2.7,-5.1,0,.92],['snacks',-3.65,3.32,0,1.08]
+      ['figure',2.7,-5.1,0,.92],['snacks',-3.65,3.32,0,1.08],
+      ['holo',3.7,-2.0,.21],['neonsign',-8.9,3.8,Math.PI/2]
     ],
     retro80:[
       ['shelf',-8.3,-6,Math.PI/2],['shelf',-8.3,-2.7,Math.PI/2],
@@ -82,7 +83,7 @@ export function mountGalacticArchive(api) {
   const makePresetLayout=id=>(LAYOUT_BLUEPRINTS[id]||LAYOUT_BLUEPRINTS.photo).map(([type,x,z,rot,y],i)=>({
     id:1000+Object.keys(LAYOUT_BLUEPRINTS).indexOf(id)*100+i,type,x,z,rot,y:Number(y)||0
   }));
-  const DEFAULT={preset:'photo',...PRESET_LOOKS.photo,graphics:'balanced',
+  const DEFAULT={preset:'photo',...PRESET_LOOKS.photo,graphics:'balanced',roomEffects:true,
     displayConsoles:['nes','snes','n64','psx'],snap:true,roomVersion:2,layouts:{},furniture:makePresetLayout('photo')};
   let config;
   try{
@@ -501,13 +502,14 @@ export function mountGalacticArchive(api) {
   function finishIntro(){if(!warpActive)return;warpActive=false;$('#world-cinematic').hidden=true;setSector('archive',{fromIntro:true});report('WELCOME TO THE GALACTIC ARCHIVE / CONSOLES AWAIT');}
   $('#enter-archive').onclick=enter;$('#skip-cinematic').onclick=finishIntro;
   /* Photo-accurate room editor: styles, window views, furniture, featured systems and backups. */
-  const SUPPORTED_FURNITURE=new Set(['crt','stand','console','cabinet','shelf','bed','desk','chair','sofa','table','rug','lamp','lava','plant','poster','figure','snacks','controller']);
+  const SUPPORTED_FURNITURE=new Set(['crt','stand','console','cabinet','shelf','bed','desk','chair','sofa','table','rug','lamp','lava','plant','poster','figure','snacks','controller','holo','neonsign']);
   let selectionHelper=null;
   function updateRoomControls(){
     const fields={'room-preset':'preset','room-walls':'walls','room-floor':'floor','room-lights':'lights',
       'room-window':'window','room-atmosphere':'atmosphere','room-clutter':'clutter'};
     for(const [id,key] of Object.entries(fields)){const el=$('#'+id);if(el&&[...el.options].some(o=>o.value===config[key]))el.value=config[key]}
     $('#room-snap').checked=config.snap!==false;
+    const effects=$('#room-effects');if(effects)effects.checked=config.roomEffects!==false;
     for(let i=0;i<4;i++){$('#room-display-'+i).value=config.displayConsoles?.[i]||['nes','snes','n64','psx'][i]}
     $('#furniture-selected').textContent=selectedFurniture?selectedFurniture.userData.furnitureType.toUpperCase():'NONE';
     $('#room-object-count').textContent=config.furniture.length+' PLACED';
@@ -531,6 +533,7 @@ export function mountGalacticArchive(api) {
     report('LOADED '+newPreset.toUpperCase()+' / '+config.furniture.length+' FURNISHINGS');
   };
   $('#room-snap').onchange=e=>{checkpoint();config.snap=e.target.checked;persist();report(config.snap?'GRID SNAPPING ENABLED':'FREE PLACEMENT ENABLED')};
+  const effects=$('#room-effects');if(effects)effects.onchange=e=>{checkpoint();config.roomEffects=e.target.checked;persist();report(config.roomEffects?'ATMOSPHERIC EFFECTS ENABLED':'ATMOSPHERIC EFFECTS PAUSED')};
   for(let i=0;i<4;i++)$('#room-display-'+i).onchange=e=>{
     checkpoint();config.displayConsoles[i]=e.target.value;persist();buildRoom();updateRoomControls();report('FEATURED CONSOLE DISPLAY UPDATED');
   };
@@ -629,7 +632,7 @@ export function mountGalacticArchive(api) {
   $('#room-export').onclick=()=>download('UGN-Galactic-Room-'+config.preset+'.json',
     new Blob([JSON.stringify({format:'ugn-room-v2',exportedAt:new Date().toISOString(),
       preset:config.preset,walls:config.walls,floor:config.floor,lights:config.lights,window:config.window,
-      atmosphere:config.atmosphere,clutter:config.clutter,snap:config.snap,
+      atmosphere:config.atmosphere,clutter:config.clutter,snap:config.snap,roomEffects:config.roomEffects,
       displayConsoles:config.displayConsoles,furniture:config.furniture},null,2)],{type:'application/json'}));
   $('#room-import-button').onclick=()=>$('#room-import-file').click();
   $('#room-import-file').onchange=async e=>{
@@ -651,7 +654,7 @@ export function mountGalacticArchive(api) {
       config.window=valid('room-window',o.window,'earth');
       config.atmosphere=valid('room-atmosphere',o.atmosphere,'neon');
       config.clutter=valid('room-clutter',o.clutter,'packed');
-      config.snap=o.snap!==false;
+      config.snap=o.snap!==false;config.roomEffects=o.roomEffects!==false;
       config.displayConsoles=Array.from({length:4},(_,i)=>api.systems.find(s=>s.id===o.displayConsoles?.[i])?.id||['nes','snes','n64','psx'][i]);
       persist();buildRoom();updateRoomControls();report('ROOM LAYOUT IMPORTED LOCALLY');
     }catch{report('INVALID OR UNSUPPORTED ROOM LAYOUT')}
@@ -718,7 +721,7 @@ export function mountGalacticArchive(api) {
       pointerNDC(e);raycaster.setFromCamera(mouse,camera);
       const plane=new THREE.Plane(new THREE.Vector3(0,1,0),0),point=new THREE.Vector3();
       if(raycaster.ray.intersectPlane(plane,point)){
-        const snap=config.snap!==false?.5:0;
+        const snap=config.snap!==false ? .5 : 0;
         const clamp=(v,min,max)=>Math.max(min,Math.min(max,snap?Math.round(v/snap)*snap:v));
         selectedFurniture.position.x=clamp(point.x,-8.5,8.5);
         selectedFurniture.position.z=clamp(point.z,-9,6);
@@ -784,7 +787,22 @@ export function mountGalacticArchive(api) {
     else if(activeSector!=='intro')updateCamera(dt);
     if(activeSector==='archive'||activeSector==='exhibits'||activeSector==='shelves'){
       const planets=archiveGroup?.children.filter(x=>x.userData.spin);planets?.forEach(x=>x.rotation.y+=dt*.04);
-    }else if(activeSector==='room'){roomGroup?.children.filter(x=>x.userData.spin).forEach(x=>x.rotation.y+=dt*.04);}
+    }else if(activeSector==='room'){
+      roomGroup?.children.filter(x=>x.userData.spin).forEach(x=>x.rotation.y+=dt*.04);
+      if(config.roomEffects!==false&&config.graphics!=='low'){
+        // Low-amplitude environmental animation, limited to tagged objects in the visible room.
+        const t=now*.001;
+        roomGroup?.traverse(o=>{
+          if(o.userData?.roomAnimation==='lava'){
+            o.position.y=(o.userData.lavaBase||.3)+Math.sin(t*.82+(o.userData.lavaPhase||0))*.085;
+          }else if(o.userData?.roomAnimation==='hologram'){
+            if('opacity' in (o.material||{}))o.material.opacity=.75+.1*Math.sin(t*1.4);
+          }else if(o.userData?.roomAnimation==='ceiling'){
+            if(o.material?.emissiveIntensity!==undefined)o.material.emissiveIntensity=.5+.12*Math.sin(t*.32);
+          }
+        });
+      }
+    }
     if(selectedFurniture&&selectionHelper&&activeSector==='room')selectionHelper.update();
     renderer.render(scene,camera);
     frameCount++;
