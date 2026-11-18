@@ -104,28 +104,23 @@ $('#player-close').onclick=()=>dialog.close();
 $('#player-fullscreen').onclick=()=>{if(!document.fullscreenElement)dialog.requestFullscreen?.().catch(()=>notify('Fullscreen is unavailable'));else document.exitFullscreen?.()};
 dialog.addEventListener('close',()=>{viewport.replaceChildren();frame=null});
 window.addEventListener('message',e=>{if(!frame||e.source!==frame.contentWindow)return;if(e.data?.ugnError)$('#player-status').textContent='EMULATOR ERROR: '+String(e.data.ugnError).slice(0,150)});
-async function validateROMS(){await Promise.all(games.map(async g=>{try{let res=await fetch('./'+g.file,{method:'HEAD',cache:'no-store'});installed[g.file]=res.ok&&Number(res.headers.get('content-length')||10000)>2000}catch{installed[g.file]=false}}));renderSystems();renderGames();renderHistory();changeSpot(0);}
+async function validateROMS(){await Promise.all(games.map(async g=>{try{let res=await fetch('./'+g.file,{method:'HEAD',cache:'no-store'});installed[g.file]=res.ok&&Number(res.headers.get('content-length')||10000)>2000}catch{installed[g.file]=false}}));renderSystems();renderGames();renderHistory();changeSpot(0);window.__ugnArchiveRefresh?.();}
 renderPills();renderSystems();renderGames();renderHistory();validateROMS();
-/* Three.js showroom. Hardware shapes are original 3D scenery; photographs below represent actual consoles. */
-function init3D(){
-const box=$('#cosmos');const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-import('https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js').then(THREE=>{
-const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(55,Math.max(box.clientWidth,1)/Math.max(box.clientHeight,1),.1,100);camera.position.set(0,2.4,12);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.75));renderer.setSize(box.clientWidth,box.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;box.appendChild(renderer.domElement);
-scene.add(new THREE.AmbientLight(0x6186b7,1.8));const light=new THREE.PointLight(0x00d4ff,55,26);light.position.set(5,7,5);scene.add(light);const pink=new THREE.PointLight(0x8951ff,44,30);pink.position.set(-6,3,-4);scene.add(pink);
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(80,80),new THREE.MeshStandardMaterial({color:0x060d21,roughness:.3,metalness:.75}));floor.rotation.x=-Math.PI/2;floor.position.y=-2.0;scene.add(floor);
-const grid=new THREE.GridHelper(46,36,0x25899f,0x144465);grid.position.y=-1.97;grid.material.transparent=true;grid.material.opacity=.31;scene.add(grid);
-const starsGeo=new THREE.BufferGeometry(),points=new Float32Array(1400*3);for(let i=0;i<1400;i++){points[i*3]=(Math.random()-.5)*90;points[i*3+1]=(Math.random()-.5)*45;points[i*3+2]=(Math.random()-.5)*85}starsGeo.setAttribute('position',new THREE.BufferAttribute(points,3));const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({color:0xa3d7ff,size:.06,transparent:true,opacity:.75,sizeAttenuation:true}));scene.add(stars);
-const group=new THREE.Group();scene.add(group);group.position.set(3.2,-.65,-1.6);
-const plinth=new THREE.Mesh(new THREE.CylinderGeometry(3.4,3.8,.55,80),new THREE.MeshStandardMaterial({color:0x0d2841,metalness:.8,roughness:.25}));plinth.position.y=-.75;group.add(plinth);
-const ringMat=new THREE.MeshBasicMaterial({color:0x00d4ff,transparent:true,opacity:.55});for(let i=0;i<3;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(3.6+i*.32,.012,8,110),ringMat.clone());ring.rotation.x=Math.PI/2;ring.position.y=-.45+i*.08;group.add(ring)}
-const objects=[];const palette=[0x60fbc0,0x64b8ff,0x9c7cff,0xe9a6c6];
-for(let i=0;i<4;i++){const a=(i/4)*Math.PI*2-.15;const arm=new THREE.Group();arm.position.set(Math.sin(a)*2.35,.25,Math.cos(a)*2.35);arm.rotation.y=a;const metal=new THREE.MeshStandardMaterial({color:0x1b2d4b,metalness:.78,roughness:.27});const top=new THREE.Mesh(new THREE.BoxGeometry(1.5,.2,1.2),metal);top.position.y=-.2;arm.add(top);const body=new THREE.Mesh(new THREE.BoxGeometry(1.25,.85,.92),new THREE.MeshStandardMaterial({color:0x344768,metalness:.55,roughness:.3}));body.position.y=.35;arm.add(body);const slot=new THREE.Mesh(new THREE.BoxGeometry(.72,.08,.04),new THREE.MeshBasicMaterial({color:palette[i]}));slot.position.set(0,.38,.49);arm.add(slot);const pad=new THREE.Mesh(new THREE.BoxGeometry(.72,.16,.4),new THREE.MeshStandardMaterial({color:0x17233d,metalness:.55}));pad.position.set(0,-.45,1);arm.add(pad);const btn=new THREE.Mesh(new THREE.SphereGeometry(.12,18,10),new THREE.MeshBasicMaterial({color:palette[i]}));btn.position.set(.3,-.32,1.24);arm.add(btn);group.add(arm);objects.push(arm)}
-const halo=new THREE.Mesh(new THREE.TorusGeometry(5.2,.027,12,140),new THREE.MeshBasicMaterial({color:0x7458f5,transparent:true,opacity:.35}));halo.rotation.set(.28,.4,.32);halo.position.set(0,.7,-1);group.add(halo);
-let tx=0,ty=0,rx=0,ry=0;const mouse=e=>{tx=((e.clientX/innerWidth)-.5)*.65;ty=((e.clientY/innerHeight)-.5)*.25};window.addEventListener('pointermove',mouse,{passive:true});const resize=()=>{const w=Math.max(box.clientWidth,1),h=Math.max(box.clientHeight,1);renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()};window.addEventListener('resize',resize);
-let active=true;const obs=new IntersectionObserver(entries=>{active=entries[0]?.isIntersecting??true},{threshold:.01});obs.observe(box);
-let t=0;function frame3d(){requestAnimationFrame(frame3d);if(!active)return;if(!reduced)t+=.005;rx+=(tx-rx)*.025;ry+=(ty-ry)*.025;group.rotation.y=t+rx;group.rotation.x=ry;halo.rotation.z=t*.35;objects.forEach((o,i)=>{o.position.y=.2+Math.sin(t*2+i)*.13});renderer.render(scene,camera)}frame3d();
-}).catch(()=>{ /* CSS fallback remains visible if CDN or WebGL unavailable */ });
+/* Galactic Archive: the starship world is the primary UI. The classic console grid remains an accessibility fallback. */
+if(document.querySelector('#galactic-stage')){
+  import('./galactic.js').then(module=>{
+    module.mountGalacticArchive({
+      systems:systemCatalog,
+      games,
+      installed,
+      launch,
+      photo,
+      notify,
+      selectSystem
+    });
+    window.__ugnArchiveRefresh?.();
+  }).catch(err=>{
+    console.error('Galactic Archive could not start',err);
+    notify('3D world temporarily unavailable — open the classic library below');
+  });
 }
-init3D();
-let throttled=false;addEventListener('pointermove',e=>{if(throttled)return;throttled=true;requestAnimationFrame(()=>{const glow=$('#cursor-glow');glow.style.left=e.clientX+'px';glow.style.top=e.clientY+'px';throttled=false})},{passive:true});
