@@ -152,7 +152,7 @@ function renderGames(){
 }
 function renderHistory(){const played=Object.keys(memory.played);$('#stat-played').textContent=played.length;$('#stat-favorites').textContent=memory.favorites.length;$('#stat-consoles').textContent=new Set(played.map(id=>games.find(g=>g.id===id)?.system).filter(Boolean)).size;
 $('#recent-list').innerHTML=memory.recent.length?memory.recent.map(id=>{const g=allTitles.find(x=>x.id===id);return g?'<button data-recent="'+escapes(id)+'">'+escapes(system(g.system).short)+' / '+escapes(g.name)+'</button>':''}).join(''):'<span style="color:#93a7c3">Your console journey starts with the first game you launch.</span>';
-$('[data-recent]').forEach(b=>b.onclick=()=>{const g=allTitles.find(x=>x.id===b.dataset.recent);if(g?.mode==='personal')showDetails(g.id);else launch(b.dataset.recent)});
+$$('[data-recent]').forEach(b=>b.onclick=()=>{const g=allTitles.find(x=>x.id===b.dataset.recent);if(g?.mode==='personal')showDetails(g.id);else launch(b.dataset.recent)});
 }
 $('#game-search').oninput=e=>{search=e.target.value.toLowerCase().trim();renderGames()};
 $('#game-sort').onchange=e=>{sort=e.target.value;renderGames()};
