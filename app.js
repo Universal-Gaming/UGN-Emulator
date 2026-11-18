@@ -227,9 +227,10 @@ async function launch(id,options={}){
  const rom=usesOwn?URL.createObjectURL(options.file):new URL('./'+g.file,location.href).href;
  const bios=options.bios?URL.createObjectURL(options.bios):null;
  if(usesOwn)localGameObjectUrls.push(rom);if(bios)localGameObjectUrls.push(bios);
+ const stableGameId=key=>{let hash=2166136261;for(const c of String(key)){hash=Math.imul(hash^c.charCodeAt(0),16777619)>>>0}return hash||1};
  const safe=v=>JSON.stringify(v).replace(/</g,'\\u003c');
  const biosCode=bios?'window.EJS_biosUrl='+safe(bios)+';':'';
- frame.srcdoc='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="background:#030816;margin:0;color:#fff"><div id="game" style="height:100dvh;width:100vw"></div><script>window.EJS_player="#game";window.EJS_core='+safe(sys.core)+';window.EJS_gameUrl='+safe(rom)+';window.EJS_gameName='+safe(g.name)+';'+biosCode+'window.EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";window.EJS_startOnLoaded=true;window.EJS_color="#00d4ff";window.EJS_backgroundColor="#040b1b";window.EJS_Buttons={playPause:true,restart:true,mute:true,settings:true,fullscreen:true,saveState:true,loadState:true};window.EJS_ready=function(){parent.postMessage({ugnEmuStage:"ready"},"*")};window.EJS_onGameStart=function(){parent.postMessage({ugnEmuStage:"started"},"*")};window.addEventListener("error",function(e){parent.postMessage({ugnError:e.message},"*")});<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script></body></html>';
+ frame.srcdoc='<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="background:#030816;margin:0;color:#fff"><div id="game" style="height:100dvh;width:100vw"></div><script>window.EJS_player="#game";window.EJS_core='+safe(sys.core)+';window.EJS_gameUrl='+safe(rom)+';window.EJS_gameName='+safe(g.name)+';window.EJS_gameID='+stableGameId(g.id)+';'+biosCode+'window.EJS_pathtodata="https://cdn.emulatorjs.org/stable/data/";window.EJS_startOnLoaded=true;window.EJS_color="#00d4ff";window.EJS_backgroundColor="#040b1b";window.EJS_Buttons={playPause:true,restart:true,mute:true,settings:true,fullscreen:true,saveState:true,loadState:true};window.EJS_ready=function(){parent.postMessage({ugnEmuStage:"ready"},"*")};window.EJS_onGameStart=function(){parent.postMessage({ugnEmuStage:"started"},"*")};window.addEventListener("error",function(e){parent.postMessage({ugnError:e.message},"*")});<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script></body></html>';
  memory.played[g.id]=(memory.played[g.id]||0)+1;memory.recent=[g.id,...memory.recent.filter(x=>x!==g.id)].slice(0,8);
  save();renderHistory();if(titleDialog.open)titleDialog.close();if(!dialog.open)dialog.showModal();
 }
@@ -243,7 +244,7 @@ dialog.addEventListener('close',()=>{
 window.addEventListener('message',e=>{
  if(!frame||e.source!==frame.contentWindow)return;
  if(e.data?.ugnError){finishHostedBoot?.();$('#player-status').textContent='EMULATOR ERROR: '+String(e.data.ugnError).slice(0,150)}
- if(e.data?.ugnEmuStage==='ready')$('#player-status').textContent='CORE READY — STARTING GAME';
+ if(e.data?.ugnEmuStage==='ready')$('#player-status').textContent='CORE READY — CLICK INSIDE GAME WINDOW TO START';
  if(e.data?.ugnEmuStage==='started'){finishHostedBoot?.();$('#player-status').textContent='GAME RUNNING / '+String(document.querySelector('#player-title')?.textContent||'')};
 });
 async function validateROMS(){await Promise.all(games.map(async g=>{try{let res=await fetch('./'+g.file,{method:'HEAD',cache:'no-store'});installed[g.file]=res.ok&&Number(res.headers.get('content-length')||10000)>2000}catch{installed[g.file]=false}}));renderSystems();renderGames();renderHistory();changeSpot(0);window.__ugnArchiveRefresh?.();}
