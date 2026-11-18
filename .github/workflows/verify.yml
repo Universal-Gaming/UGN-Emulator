@@ -64,7 +64,7 @@ jobs:
           print('Verified',len(roms),'console ROM payloads')
           PY
       - run: npm install --no-save playwright@1.56.1
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install chromium
       - name: Artwork coverage, broken-link fallback and mobile visual check
         run: node tests/artwork.mjs
       - name: Interactive buttons and navigation regression
