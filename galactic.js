@@ -391,6 +391,7 @@ export function mountGalacticArchive(api) {
   function buildRoom(){
     if(!roomStudio||!scene)return;
     if(roomGroup){
+      if(selectionHelper){roomGroup.remove(selectionHelper);selectionHelper.geometry?.dispose?.();selectionHelper.material?.dispose?.();selectionHelper=null;}
       scene.remove(roomGroup);
       const mats=new Set(),geos=new Set(),tex=new Set();
       roomGroup.traverse(o=>{
@@ -426,7 +427,7 @@ export function mountGalacticArchive(api) {
     else if(next==='room'){userCameraZ=7;userCameraX=0;$('#room-panel').hidden=false;report('PERSONAL GAMING ROOM / SELECT AN OBJECT TO EDIT');}
     if(camera){movingTo={z:userCameraZ,x:userCameraX};camera.position.y=next==='room'?2.25:2.35;}
     if(options.fromIntro){$('.world-intro')?.classList.add('hidden');$('.galactic-world')?.classList.add('world-active');}
-    if(next==='room')updateRoomControls();
+    if(next==='room'){updateRoomControls();setRoomView('overview');}else hideReference();
   }
   function focusExhibit(id){
     const i=api.systems.findIndex(s=>s.id===id);if(i<0)return;
@@ -495,26 +496,183 @@ export function mountGalacticArchive(api) {
   function enter(){const ui=$('#world-intro');ui.classList.add('hidden');world.classList.add('world-active');$('#world-cinematic').hidden=false;warpActive=true;introStarted=performance.now();if(!camera){finishIntro();return}userCameraZ=9;movingTo={z:9,x:0};camera.position.set(0,2.3,24);setTimeout(finishIntro,introDuration);}
   function finishIntro(){if(!warpActive)return;warpActive=false;$('#world-cinematic').hidden=true;setSector('archive',{fromIntro:true});report('WELCOME TO THE GALACTIC ARCHIVE / CONSOLES AWAIT');}
   $('#enter-archive').onclick=enter;$('#skip-cinematic').onclick=finishIntro;
+  /* Photo-accurate room editor: styles, window views, furniture, featured systems and backups. */
+  const SUPPORTED_FURNITURE=new Set(['crt','stand','console','cabinet','shelf','bed','desk','chair','sofa','table','rug','lamp','lava','plant','poster','figure','snacks','controller']);
+  let selectionHelper=null;
   function updateRoomControls(){
-    $('#room-preset').value=config.preset;$('#room-walls').value=config.walls;$('#room-floor').value=config.floor;$('#room-lights').value=config.lights;
+    const fields={'room-preset':'preset','room-walls':'walls','room-floor':'floor','room-lights':'lights',
+      'room-window':'window','room-atmosphere':'atmosphere','room-clutter':'clutter'};
+    for(const [id,key] of Object.entries(fields)){const el=$('#'+id);if(el&&[...el.options].some(o=>o.value===config[key]))el.value=config[key]}
+    $('#room-snap').checked=config.snap!==false;
+    for(let i=0;i<4;i++){$('#room-display-'+i).value=config.displayConsoles?.[i]||['nes','snes','n64','psx'][i]}
     $('#furniture-selected').textContent=selectedFurniture?selectedFurniture.userData.furnitureType.toUpperCase():'NONE';
+    $('#room-object-count').textContent=config.furniture.length+' PLACED';
+    $$('[data-room-view]').forEach(b=>b.classList.toggle('room-view-active',b.dataset.roomView===currentRoomView));
   }
-  const roomProps={'room-preset':'preset','room-walls':'walls','room-floor':'floor','room-lights':'lights'};
-  for(const [id,field] of Object.entries(roomProps))$('#'+id).onchange=e=>{config[field]=e.target.value;if(field==='preset'){const looks={retro80:['gray','wood','warm'],bedroom90:['purple','carpet','violet'],era2000:['cream','carpet','white'],ugn:['navy','metal','cyan'],collector:['dark','wood','warm'],cosmic:['purple','tile','violet']};const v=looks[e.target.value]||looks.ugn;config.walls=v[0];config.floor=v[1];config.lights=v[2];}persist();buildRoom();updateRoomControls();report('ROOM CUSTOMIZATION SAVED / '+field.toUpperCase())};
-  $$('[data-furniture]').forEach(btn=>btn.onclick=()=>{
-    const id=Date.now()+Math.floor(Math.random()*1000);
-    const item={id,type:btn.dataset.furniture,x:Math.max(-6,Math.min(6,(Math.random()-.5)*5)),z:-.4+Math.random()*2,rot:0};
-    config.furniture.push(item);persist();if(roomGroup){const group=makeFurniture(item);selectFurniture(group)}report('ADDED '+item.type.toUpperCase()+' / DRAG TO POSITION');
+  for(let i=0;i<4;i++){
+    const el=$('#room-display-'+i);
+    el.innerHTML=api.systems.map(s=>'<option value="'+s.id+'">'+s.short+' / '+s.year+'</option>').join('');
+  }
+  const fields={'room-walls':'walls','room-floor':'floor','room-lights':'lights','room-window':'window',
+    'room-atmosphere':'atmosphere','room-clutter':'clutter'};
+  for(const [id,key] of Object.entries(fields))$('#'+id).onchange=e=>{
+    checkpoint();config[key]=e.target.value;persist();buildRoom();updateRoomControls();
+    report('ROOM UPDATED / '+key.toUpperCase());
+  };
+  $('#room-preset').onchange=e=>{
+    const newPreset=e.target.value;if(!PRESET_LOOKS[newPreset])return;
+    checkpoint();config.layouts[config.preset]=config.furniture.map(x=>({...x}));
+    config.preset=newPreset;config.furniture=Array.isArray(config.layouts[newPreset])?config.layouts[newPreset].map(x=>({...x})):makePresetLayout(newPreset);
+    Object.assign(config,PRESET_LOOKS[newPreset]);persist();buildRoom();updateRoomControls();
+    report('LOADED '+newPreset.toUpperCase()+' / '+config.furniture.length+' FURNISHINGS');
+  };
+  $('#room-snap').onchange=e=>{checkpoint();config.snap=e.target.checked;persist();report(config.snap?'GRID SNAPPING ENABLED':'FREE PLACEMENT ENABLED')};
+  for(let i=0;i<4;i++)$('#room-display-'+i).onchange=e=>{
+    checkpoint();config.displayConsoles[i]=e.target.value;persist();buildRoom();updateRoomControls();report('FEATURED CONSOLE DISPLAY UPDATED');
+  };
+  function setRoomView(view){
+    currentRoomView=view;
+    const perspectives={
+      overview:{x:0,z:8.0,y:2.7,yaw:0,pitch:-.06},
+      crt:{x:-3.4,z:1.4,y:2.05,yaw:-.15,pitch:.01},
+      collection:{x:.35,z:1.6,y:2.4,yaw:0,pitch:.04},
+      desk:{x:4.6,z:1.2,y:2.20,yaw:.13,pitch:0}
+    };
+    const p=perspectives[view]||perspectives.overview;
+    userCameraX=p.x;userCameraZ=p.z;orbitYaw=p.yaw;orbitPitch=p.pitch;
+    if(camera){camera.position.y=p.y;movingTo={x:p.x,z:p.z}}
+    $$('[data-room-view]').forEach(b=>b.classList.toggle('room-view-active',b.dataset.roomView===view));
+    report('VIEWPOINT / '+view.toUpperCase());
+  }
+  $$('[data-room-view]').forEach(b=>b.onclick=()=>setRoomView(b.dataset.roomView));
+  let category='all';
+  $$('[data-furniture-category]').forEach(b=>b.onclick=()=>{
+    category=b.dataset.furnitureCategory;
+    $$('[data-furniture-category]').forEach(x=>x.classList.toggle('active',x===b));
+    $$('[data-furniture]').forEach(x=>x.hidden=category!=='all'&&x.dataset.category!==category);
   });
-  function selectFurniture(group){
-    selectedFurniture=group;
-    $('#furniture-selected').textContent=(group?.userData.furnitureType||'none').toUpperCase();
-    if(!group)return;
-    furnitureObjects.forEach(m=>{if(m.parent===group)m.visible=true});
+  const newId=()=>Math.max(Date.now(),...config.furniture.map(f=>Number(f.id)||0))+1;
+  function addFurniture(type,entry=null){
+    if(!SUPPORTED_FURNITURE.has(type)){report('UNSUPPORTED FURNITURE TYPE');return}
+    if(config.furniture.length>=120){report('ROOM OBJECT LIMIT / 120');return}
+    checkpoint();
+    const n=config.furniture.length;
+    const item=entry?{...entry,id:newId()}:{id:newId(),type,x:Math.min(6,-2+(n%8)*.52),z:Math.max(-7,-.6+Math.floor(n/8)*.45),rot:0};
+    config.furniture.push(item);
+    persist();if(roomGroup&&roomStudio){const g=makeFurniture(item);selectFurniture(g)}
+    updateRoomControls();report('ADDED '+type.toUpperCase()+' / DRAG OR NUDGE TO POSITION');
   }
-  $('#furniture-rotate').onclick=()=>{if(!selectedFurniture){report('SELECT A FURNITURE OBJECT FIRST');return}const entry=config.furniture.find(f=>f.id===selectedFurniture.userData.furnitureId);if(!entry)return;entry.rot=(entry.rot||0)+Math.PI/4;selectedFurniture.rotation.y=entry.rot;persist();};
-  $('#furniture-delete').onclick=()=>{if(!selectedFurniture){report('SELECT A FURNITURE OBJECT FIRST');return}const id=selectedFurniture.userData.furnitureId;config.furniture=config.furniture.filter(f=>f.id!==id);persist();roomGroup.remove(selectedFurniture);furnitureObjects=furnitureObjects.filter(m=>m.userData.furnitureId!==id);selectFurniture(null);report('FURNITURE REMOVED')};
-  $('#room-reset').onclick=()=>{config.furniture=DEFAULT.furniture.map(x=>({...x}));config.preset='ugn';config.walls='navy';config.floor='metal';config.lights='cyan';persist();selectFurniture(null);buildRoom();updateRoomControls();report('ROOM RESET TO DEFAULT LAYOUT')};
+  $$('[data-furniture]').forEach(b=>b.onclick=()=>addFurniture(b.dataset.furniture));
+  function selectFurniture(group){
+    if(selectionHelper&&roomGroup){roomGroup.remove(selectionHelper);selectionHelper.geometry?.dispose?.();selectionHelper.material?.dispose?.();selectionHelper=null;}
+    selectedFurniture=group||null;
+    $('#furniture-selected').textContent=(group?.userData.furnitureType||'none').toUpperCase();
+    if(!group||!THREE)return;
+    selectionHelper=new THREE.BoxHelper(group,0x5cfc76);
+    selectionHelper.material.transparent=true;selectionHelper.material.opacity=.8;
+    if(roomGroup)roomGroup.add(selectionHelper);
+  }
+  $('#furniture-rotate').onclick=()=>{
+    if(!selectedFurniture){report('SELECT A FURNITURE OBJECT FIRST');return}
+    const entry=config.furniture.find(f=>f.id===selectedFurniture.userData.furnitureId);if(!entry)return;
+    checkpoint();entry.rot=(entry.rot||0)+Math.PI/4;selectedFurniture.rotation.y=entry.rot;persist();
+    selectionHelper?.update?.();report('ROTATED '+entry.type.toUpperCase()+' / 45°');
+  };
+  $('#furniture-duplicate').onclick=()=>{
+    if(!selectedFurniture){report('SELECT A FURNITURE OBJECT FIRST');return}
+    const orig=config.furniture.find(f=>f.id===selectedFurniture.userData.furnitureId);if(!orig)return;
+    addFurniture(orig.type,{...orig,x:Math.min(8,orig.x+.75),z:Math.min(6,orig.z+.75)});
+  };
+  $('#furniture-delete').onclick=()=>{
+    if(!selectedFurniture){report('SELECT A FURNITURE OBJECT FIRST');return}
+    checkpoint();const id=selectedFurniture.userData.furnitureId;
+    config.furniture=config.furniture.filter(f=>f.id!==id);
+    roomGroup.remove(selectedFurniture);
+    furnitureObjects=furnitureObjects.filter(m=>m.userData.furnitureId!==id);
+    selectFurniture(null);persist();updateRoomControls();report('OBJECT REMOVED');
+  };
+  $$('[data-nudge-x]').forEach(b=>b.onclick=()=>{
+    if(!selectedFurniture){report('SELECT A FURNITURE OBJECT FIRST');return}
+    const entry=config.furniture.find(f=>f.id===selectedFurniture.userData.furnitureId);if(!entry)return;
+    checkpoint();const inc=config.snap!==false?.5:.15;
+    entry.x=Math.max(-8.6,Math.min(8.6,entry.x+Number(b.dataset.nudgeX)*inc));
+    entry.z=Math.max(-9.0,Math.min(6.0,entry.z+Number(b.dataset.nudgeZ)*inc));
+    selectedFurniture.position.set(entry.x,0,entry.z);selectionHelper?.update?.();persist();
+  });
+  function restoreRoom(snapshot){
+    try{const data=JSON.parse(snapshot);if(!data||!PRESET_LOOKS[data.preset]||!Array.isArray(data.furniture))return false;
+      Object.assign(config,data);persist();buildRoom();updateRoomControls();return true;
+    }catch{return false}
+  }
+  $('#room-undo').onclick=()=>{
+    if(!roomUndo.length){report('NOTHING TO UNDO');return}
+    roomRedo.push(roomSnapshot());restoreRoom(roomUndo.pop());report('ROOM CHANGE UNDONE');
+  };
+  $('#room-redo').onclick=()=>{
+    if(!roomRedo.length){report('NOTHING TO REDO');return}
+    roomUndo.push(roomSnapshot());restoreRoom(roomRedo.pop());report('ROOM CHANGE REDONE');
+  };
+  $('#room-reset').onclick=()=>{
+    checkpoint();config.furniture=makePresetLayout(config.preset);
+    Object.assign(config,PRESET_LOOKS[config.preset]);persist();buildRoom();updateRoomControls();
+    report('RESTORED '+config.preset.toUpperCase()+' ROOM DESIGN');
+  };
+  const download=(filename,blob)=>{
+    const url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+  };
+  $('#room-export').onclick=()=>download('UGN-Galactic-Room-'+config.preset+'.json',
+    new Blob([JSON.stringify({format:'ugn-room-v2',exportedAt:new Date().toISOString(),
+      preset:config.preset,walls:config.walls,floor:config.floor,lights:config.lights,window:config.window,
+      atmosphere:config.atmosphere,clutter:config.clutter,snap:config.snap,
+      displayConsoles:config.displayConsoles,furniture:config.furniture},null,2)],{type:'application/json'}));
+  $('#room-import-button').onclick=()=>$('#room-import-file').click();
+  $('#room-import-file').onchange=async e=>{
+    const file=e.target.files?.[0];if(!file)return;
+    if(file.size>600000){report('ROOM JSON IS TOO LARGE');e.target.value='';return}
+    try{
+      const o=JSON.parse(await file.text());if(!o||!Array.isArray(o.furniture)||!PRESET_LOOKS[o.preset]||o.furniture.length>120)throw Error('Invalid room file');
+      const clean=o.furniture.map((f,i)=>{
+        if(!SUPPORTED_FURNITURE.has(f.type))throw Error('Unsupported object');
+        const pos=(n,min,max)=>Math.max(min,Math.min(max,Number.isFinite(Number(n))?Number(n):0));
+        return {id:100000+i,type:f.type,x:pos(f.x,-8.6,8.6),z:pos(f.z,-9,6),rot:pos(f.rot,-Math.PI*16,Math.PI*16)};
+      });
+      checkpoint();
+      const valid=(id,value,fallback)=>[...$('#'+id).options].some(op=>op.value===value)?value:fallback;
+      config.preset=o.preset;config.furniture=clean;
+      config.walls=valid('room-walls',o.walls,'purple');
+      config.floor=valid('room-floor',o.floor,'carpet');
+      config.lights=valid('room-lights',o.lights,'violet');
+      config.window=valid('room-window',o.window,'earth');
+      config.atmosphere=valid('room-atmosphere',o.atmosphere,'neon');
+      config.clutter=valid('room-clutter',o.clutter,'packed');
+      config.snap=o.snap!==false;
+      config.displayConsoles=Array.from({length:4},(_,i)=>api.systems.find(s=>s.id===o.displayConsoles?.[i])?.id||['nes','snes','n64','psx'][i]);
+      persist();buildRoom();updateRoomControls();report('ROOM LAYOUT IMPORTED LOCALLY');
+    }catch{report('INVALID OR UNSUPPORTED ROOM LAYOUT')}
+    e.target.value='';
+  };
+  $('#room-snapshot').onclick=()=>{
+    if(!renderer||!roomGroup){report('3D RENDERER IS NOT READY');return}
+    try{renderer.render(scene,camera);
+      const canvas=renderer.domElement;canvas.toBlob(blob=>{
+        if(!blob){report('COULD NOT CAPTURE ROOM PHOTO');return}
+        download('UGN-'+config.preset+'-room.png',blob);report('3D ROOM PHOTO SAVED');
+      },'image/png');
+    }catch{report('SCREENSHOT CAPTURE NOT AVAILABLE')}
+  };
+  const reference=document.createElement('div');
+  reference.className='room-reference-overlay';reference.hidden=true;
+  reference.innerHTML='<img src="./assets/personal-gaming-room.webp" alt="Reference image: realistic UGN retro-futuristic bedroom" /><span>REFERENCE IMAGE · LIVE ROOM IS INTERACTIVE 3D</span>';
+  world.append(reference);
+  $('#room-show-reference').onclick=()=>{
+    referenceVisible=!referenceVisible;reference.hidden=!referenceVisible;
+    $('#room-show-reference').setAttribute('aria-pressed',String(referenceVisible));
+    report(referenceVisible?'DESIGN REFERENCE SHOWN':'LIVE 3D ROOM VIEW');
+  };
+  function hideReference(){if(referenceVisible){referenceVisible=false;reference.hidden=true;$('#room-show-reference').setAttribute('aria-pressed','false')}}
+  updateRoomControls();
   $('#graphics-preset').value=config.graphics;
   $('#open-display-settings').onclick=()=>$('#quality-panel').hidden=!$('#quality-panel').hidden;
   $('#close-display-settings').onclick=()=>$('#quality-panel').hidden=true;
@@ -604,6 +762,8 @@ export function mountGalacticArchive(api) {
       root.append(renderer.domElement);
       const fallback=$('.galactic-fallback');if(fallback)fallback.style.display='none';
       raycaster=new THREE.Raycaster();mouse=new THREE.Vector2(0,0);
+      const studioModule=await import('./room-studio.js');
+      roomStudio=studioModule.createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfield,sign});
       buildArchive();buildMuseum();buildVault();buildRoom();archiveGroup.visible=true;museumGroup.visible=false;vaultGroup.visible=false;roomGroup.visible=false;
       applyQuality();resize();window.addEventListener('resize',resize);
       requestAnimationFrame(tick);report('STARSHIP RENDERER ONLINE / EXPLORE THE DECK');
