@@ -89,8 +89,12 @@ try{
  assert.equal(await page.locator('#player-viewport iframe').count(),1);
  const player=await page.locator('#player-viewport iframe').getAttribute('srcdoc');
  assert.match(player,/EJS_core/);
+ await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('CORE READY')||document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:25000});
+ // EmulatorJS documents that auto-start freezes until the user interacts with the iframe.
+ if(!(await page.locator('#player-status').innerText()).includes('GAME RUNNING'))
+   await page.locator('#player-viewport iframe').contentFrame().locator('#game').click({position:{x:180,y:170},force:true});
  try {await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:45000});}
- catch (e) {console.warn('Actual game startup not confirmed:',await page.locator('#player-status').textContent());throw e;}
+ catch (e) {console.warn('Actual game startup not confirmed:',await page.locator('#player-status').textContent());console.warn('Emulator diagnostics:',await page.locator('#player-viewport iframe').contentFrame().evaluate(()=>({canvas:document.querySelectorAll('canvas').length,body:document.body?.innerText?.slice(0,500),emulator:!!window.EJS_emulator,gameManager:!!window.EJS_emulator?.gameManager})));throw e;}
  await page.locator('#player-close').click();
  assert.equal(await page.locator('#game-dialog[open]').count(),0);
  // Massive console catalog is metadata only; ROM files for unhosted games stay local.
@@ -110,6 +114,9 @@ try{
  assert.match(localSource,/blob:/,'The game file must load locally from an object URL');
  assert.match(localSource,/EJS_core/);
  try{
+   await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('CORE READY')||document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:25000});
+   if(!(await page.locator('#player-status').innerText()).includes('GAME RUNNING'))
+     await page.locator('#player-viewport iframe').contentFrame().locator('#game').click({position:{x:180,y:170},force:true});
    await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:45000});
  } catch(e) {console.warn('Local-file emulator boot failed: '+await page.locator('#player-status').textContent());throw e;}
  await page.locator('#player-close').click();
