@@ -70,10 +70,44 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      for(let i=0;i<90;i++){x.fillStyle='#f4d3ff88';x.fillRect(rand(i)*512,rand(i+31)*512,2,2)}
      x.strokeStyle='#35eeff';x.lineWidth=9;x.beginPath();x.ellipse(260,255,144,57,-.45,0,Math.PI*2);x.stroke();
      x.textAlign='center';x.fillStyle='#5cfc76';x.font='bold 80px monospace';x.fillText(flavor==='retro'?'198X':'UGN',256,255);x.font='bold 24px monospace';x.fillText('GALACTIC ARCHIVE',256,325);
+   }else if(kind==='planet'){
+     const ringed=flavor==='ringed';
+     const bg=x.createLinearGradient(0,0,0,512);
+     if(ringed){bg.addColorStop(0,'#6d4d9f');bg.addColorStop(.24,'#b984b4');bg.addColorStop(.45,'#5b4a8c');bg.addColorStop(.67,'#e6c8af');bg.addColorStop(1,'#352b77')}
+     else{bg.addColorStop(0,'#153c89');bg.addColorStop(.5,'#257bbc');bg.addColorStop(1,'#0c3868')}
+     x.fillStyle=bg;x.fillRect(0,0,512,512);
+     if(ringed){
+       for(let i=0;i<57;i++){let yy=rand(i+800)*512;
+         x.fillStyle=i%3?'#d7b5e31d':'#25144c32';x.fillRect(0,yy,512,1+rand(i+23)*11)}
+     }else{
+       // Original stylized blue-planet surface with islands and procedural cloud layers.
+       for(let i=0;i<90;i++){const xx=rand(i+303)*512,yy=rand(i+504)*512;
+         const w=15+rand(i+4)*105,h=9+rand(i+31)*60;
+         x.fillStyle=i%4?'#286f6a88':'#46987489';x.beginPath();
+         x.ellipse(xx,yy,w,h,(rand(i+81)-.5)*1.4,0,Math.PI*2);x.fill()}
+       for(let i=0;i<165;i++){const xx=rand(i+701)*512,yy=rand(i+992)*512;
+         x.strokeStyle='#e8f8ff'+(i%3?'25':'54');x.lineWidth=3+rand(i+19)*11;
+         x.beginPath();x.ellipse(xx,yy,8+rand(i+20)*80,2+rand(i+33)*13,rand(i+12)*.5,0,Math.PI*2);x.stroke()}
+     }
+     const glow=x.createLinearGradient(0,0,512,0);glow.addColorStop(0,'#02082866');glow.addColorStop(.35,'#ffffff14');glow.addColorStop(.75,'#00092000');glow.addColorStop(1,'#000b3477');
+     x.fillStyle=glow;x.fillRect(0,0,512,512);
    }else if(kind==='space'){x.fillStyle='#020a22';x.fillRect(0,0,512,512);
      for(let i=0;i<430;i++){x.fillStyle=i%9?'#7ec2f96b':'#e7f6ff';x.fillRect(rand(i)*512,rand(i+43)*512,i%4?1:2,i%4?1:2)}
      if(flavor==='nebula'||flavor==='galaxy'){for(let i=0;i<90;i++){const px=128+rand(i+7)*340,py=100+rand(i+96)*280;const gr=x.createRadialGradient(px,py,2,px,py,25+rand(i)*110);
        gr.addColorStop(0,i%2?'#af64ff30':'#40b6f53b');gr.addColorStop(1,'#1a0c3600');x.fillStyle=gr;x.fillRect(px-115,py-115,230,230)}}
+
+     if(flavor==='galaxy'){
+       x.save();x.translate(270,230);x.rotate(-.35);
+       for(let arm=0;arm<3;arm++){
+         for(let i=0;i<320;i++){const q=i/320,t=q*Math.PI*5+arm*Math.PI*2/3,r=6+q*190;
+           const px=Math.cos(t)*r,py=Math.sin(t)*r*.47,bright=(1-q)*.68+.2;
+           x.fillStyle=arm===1?'rgba(123,189,255,'+bright*.26+')':'rgba(217,162,255,'+bright*.28+')';
+           x.beginPath();x.arc(px+(rand(i+arm*347)-.5)*25,py+(rand(i+arm*571)-.5)*14,1+rand(i+56)*3,0,Math.PI*2);x.fill();
+         }
+       }
+       const core=x.createRadialGradient(0,0,0,0,0,66);core.addColorStop(0,'#fefaff');core.addColorStop(.18,'#c7aff7');core.addColorStop(1,'#9d52ff00');
+       x.fillStyle=core;x.fillRect(-66,-66,132,132);x.restore();
+     }
    }
    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;
  }
@@ -278,7 +312,7 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
    add(room,space,frameX,y,z);space.renderOrder=2;
    if(config.window==='earth'||config.window==='ringed'){
      // Planet silhouette is visible in the window with actual geometry layered in front of the star panel.
-     const planet=new THREE.Mesh(new THREE.SphereGeometry(config.window==='earth'?1.54:1.26,40,24),new THREE.MeshStandardMaterial({color:config.window==='earth'?0x417bc2:0x9368a6,metalness:.08,roughness:.85,emissive:config.window==='earth'?0x1a3a7b:0x3b2066,emissiveIntensity:.48,depthTest:false}));
+     const planet=new THREE.Mesh(new THREE.SphereGeometry(config.window==='earth'?1.54:1.26,40,24),new THREE.MeshStandardMaterial({map:makeTexture('planet',config.window),metalness:.05,roughness:.89,emissive:config.window==='earth'?0x0c2850:0x261348,emissiveIntensity:.28,depthTest:false}));
      add(room,planet,5.15,4.15,-9.90);planet.renderOrder=3;planet.userData.spin=true;
      if(config.window==='ringed'){const ring=new THREE.Mesh(new THREE.TorusGeometry(1.9,.07,9,50),L(0xdec8ff,.45));ring.rotation.set(.45,.18,.24);add(room,ring,5.15,4.15,-9.85);ring.renderOrder=3;}
    }else if(config.window==='station'){
