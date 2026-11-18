@@ -84,12 +84,36 @@ jobs:
           # MIT-licensed Nintendo DS homebrew and project: fulldiveVR/FullRoid.Games.
           mkdir -p roms/nds
           grab "https://raw.githubusercontent.com/fulldiveVR/FullRoid.Games/master/repository/nds/lunarrunner.nds" "roms/nds/lunar-runner.nds"
+          # Verified game-specific MIT, zlib and GPL grants from gbdev/database metadata.
+          # Only original GB/GBC ROMs are installed; games without an explicit license were excluded.
+          grab "$gbdb/plantboy/PlantBoy.gb" "roms/gb/plantboy.gb"
+          grab "$gbdb/rex-runner-gb/rex-runner.gb" "roms/gb/rex-runner-gb.gb"
+          grab "$gbdb/deved_potion-panic/files/potionpanic_jam.gbc" "roms/gbc/potion-panic.gbc"
+          grab "$gbdb/squishy-the-turtle/squishy-magfest.gb" "roms/gb/squishy-the-turtle.gb"
+          grab "$gbdb/tuff/game.gb" "roms/gb/tuff.gb"
+          grab "$gbdb/rebound/Rebound.gbc" "roms/gbc/rebound.gbc"
+          grab "$gbdb/flooder/flooder.gb" "roms/gbc/flooder.gbc"
+          grab "$gbdb/maxpirate/maxpirate.gb" "roms/gb/maxpirate.gb"
+          grab "$gbdb/domination/domination.gb" "roms/gb/domination.gb"
+          grab "$gbdb/crossconnect/CrossConnect.gbc" "roms/gbc/crossconnect.gbc"
+          grab "$gbdb/grub-glide/GrubGlide.gb" "roms/gb/grub-glide.gb"
+          grab "$gbdb/crystal-lake/CrystalLake.gb" "roms/gb/crystal-lake.gb"
+          grab "$gbdb/shock-lobster/shocklobster.gb" "roms/gb/shock-lobster.gb"
+          grab "$gbdb/carazu/carazu.gb" "roms/gb/carazu.gb"
+          grab "$gbdb/big2small/big2small.gb" "roms/gb/big2small.gb"
+          grab "$gbdb/gb-wordyl/GBWORDYL_0.85_en.gb" "roms/gb/gb-wordyl.gb"
+          grab "$gbdb/el-dueloroso/ElDueloroso.gb" "roms/gb/el-dueloroso.gb"
+          grab "$gbdb/rex-run-v1-0/rex-run-v1.0.gb" "roms/gb/rex-run-v1-0.gb"
+          grab "$gbdb/escape-obliterizer-dx/ESCAPE_OBLITERIZER_DX.gb" "roms/gbc/escape-obliterizer-dx.gbc"
+          grab "$gbdb/bit_bang/bit_bang.gb" "roms/gb/bit_bang.gb"
+          grab "$gbdb/sushi-nights/SushiNights.gb" "roms/gb/sushi-nights.gb"
+          grab "$gbdb/porklike-gb/porklike.gb" "roms/gb/porklike-gb.gb"
           # Validate Nintendo NES header and expected file sizes.
           python3 - <<'PY'
           from pathlib import Path
           files=list(Path('roms').rglob('*'))
           roms=[p for p in files if p.is_file()]
-          assert len(roms)==40, f'Expected 40 ROM files, got {len(roms)}'
+          assert len(roms)==62, f'Expected 62 ROM files, got {len(roms)}'
           for p in roms:
               assert p.stat().st_size >= (4096 if p.suffix=='.a26' else 8000), f'Undersized ROM {p}'
               data=p.read_bytes()
