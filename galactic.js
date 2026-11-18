@@ -83,34 +83,80 @@ export function mountGalacticArchive(api) {
     planet.userData.spin=true;return planet;
   }
   function createConsole(group,id){
-    const cream=material(0xc8c7b9,.18,.7),black=material(0x171c2a,.45,.45),gray=material(0x62687b,.38,.38),dark=material(0x111827,.5,.34),white=material(0xd2dae3,.18,.6),purple=material(0x484269,.45,.32);
+    // Each hardware family has its own distinct silhouette, buttons, vents, cartridge
+    // slots or disc lid. These are original stylized museum replicas, not scans.
+    const base=new THREE.Group();base.position.y=.40;group.add(base);
+    const ink=material(0x0d1321,.38,.5),cream=material(0xc9c4ad,.2,.7);
+    const grey=material(0xa4a5ac,.25,.55),violet=material(0x665884,.4,.43);
+    const cobalt=material(0x253f68,.55,.45),black=material(0x181c28,.58,.38);
+    const woods=material(0x845837,.12,.73),chrome=material(0x4e6f88,.7,.27);
+    const add=(mesh,x=0,y=0,z=0)=>{mesh.position.set(x,y,z);base.add(mesh);return mesh};
+    const block=(w,h,d,x,y,z,mat)=>add(new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat),x,y,z);
+    const disc=(r,h,x,y,z,mat)=>add(new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,40),mat),x,y,z);
+    const ball=(r,x,y,z,mat)=>add(new THREE.Mesh(new THREE.SphereGeometry(r,16,12),mat),x,y,z);
+    const led=(x,y,z,col=0x5cfc76)=>ball(.052,x,y,z,glow(col));
+    const dpad=(x,y,z,scale=1)=>{
+      block(.39*scale,.055,.115*scale,x,y,z,ink);
+      block(.11*scale,.055,.39*scale,x,y,z,ink);
+    };
+    const faceButtons=(x,y,z,color=0xaf5279)=>{
+      for(let i=0;i<2;i++){const m=disc(.075,.05,x+i*.16,y,z,glow(i?0x8b6bdc:color));m.rotation.x=Math.PI/2}
+    };
+    const pad=(x,y,z,col=ink)=>{
+      block(.85,.14,.36,x,y,z,col);dpad(x-.23,y+.1,z,.55);faceButtons(x+.12,y+.1,z+.07);
+    };
     const portable=['gb','gbc','gba','nds','segaGG','ngp'].includes(id);
-    const disc=['psx','segaCD','segaSaturn','neogeo'].includes(id);
-    const retro=id==='atari2600';
-    const base=portable?white:retro?material(0x5c352b,.15,.8):['nes','snes'].includes(id)?cream:disc?gray:black;
-    const shell=new THREE.Group();shell.position.y=.4;group.add(shell);
     if(portable){
-      const handheld=rect(id==='gba'?1.45:1.05,1.62,.27,base);shell.add(handheld);
-      const screen=rect(id==='nds'?1.0:.82,id==='nds'?.53:.65,.04,dark);screen.position.set(0,.32,.16);shell.add(screen);
-      const glass=rect(id==='nds'?.87:.69,id==='nds'?.45:.53,.045,basic(0x0cb3ba));glass.position.set(0,.32,.2);shell.add(glass);
-      if(id==='nds'){const lower=rect(.75,.45,.04,dark);lower.position.set(0,-.52,.16);shell.add(lower);}
-      const pad=rect(.38,.11,.05,black);pad.position.set(-.3,-.48,.19);shell.add(pad);
-      const upright=rect(.11,.35,.05,black);upright.position.set(-.3,-.48,.20);shell.add(upright);
-      for(let i=0;i<2;i++){const b=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.06,16),dark);b.rotation.x=Math.PI/2;b.position.set(.25+i*.18,-.52,.2);shell.add(b);}
+      const wide=['gba','segaGG','ngp'].includes(id), ds=id==='nds';
+      const color=id==='gbc'?violet:id==='gba'?cobalt:id==='segaGG'?black:id==='ngp'?chrome:grey;
+      const width=wide?2.05:1.24,height=wide?1.2:ds?1.95:1.78;
+      block(width,height,.26,0,.2,0,color);
+      if(ds){
+        block(1.2,.07,.35,0,.15,.07,black);
+        block(1.08,.70,.04,0,.69,.15,ink);block(.96,.57,.042,0,.69,.19,glow(0x2c9aa3));
+        block(.86,.48,.042,0,-.39,.16,ink);block(.74,.39,.044,0,-.39,.20,glow(0x2c9aa3));
+        dpad(-.38,-.79,.2,.45);faceButtons(.19,-.79,.19,0xa15c9c);
+      }else{
+        const sy=wide?.34:.57;
+        block(wide?.9:1.04,wide?.69:.83,.055,0,sy,.17,ink);
+        block(wide?.77:.84,wide?.55:.67,.06,0,sy,.205,glow(id==='gb'?0x8fba8d:0x459da7));
+        if(wide){dpad(-.70,-.19,.19,.64);faceButtons(.55,-.24,.19,id==='gba'?0xbe839a:0xa84769);}
+        else {dpad(-.33,-.30,.19,.61);faceButtons(.18,-.38,.2);}
+        if(id==='gb'||id==='gbc')block(.4,.065,.02,.03,-.74,.15,black);
+        if(id==='segaGG'){block(.13,.2,.05,-.96,.18,.12,chrome);block(.13,.2,.05,.96,.18,.12,chrome)}
+      }
+      if(id==='gbc')add(new THREE.Mesh(new THREE.TorusGeometry(.14,.018,8,35),glow(0xc2b2ff)),.42,.97,.18);
     }else{
-      const slab=rect(2.05,.55,1.45,base);slab.position.y=0; shell.add(slab);
-      const raised=rect(1.65,.1,1.03,id==='nes'?cream:gray);raised.position.set(0,.31,-.04);shell.add(raised);
-      if(disc){const tray=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.02,44),black);tray.position.set(0,.38,0);shell.add(tray);const ring=new THREE.Mesh(new THREE.TorusGeometry(.31,.02,8,45),glow(0x50bbd1));ring.rotation.x=-Math.PI/2;ring.position.set(0,.4,0);shell.add(ring);}
-      else {const slot=rect(.8,.07,.07,black);slot.position.set(0,.38,0);shell.add(slot);const cartridge=rect(.44,.32,.11,id==='n64'?purple:gray);cartridge.position.set(0,.5,-.06);shell.add(cartridge);}
-      for(let j=0;j<2;j++){const b=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.035,16),glow(j===0?0x5cfc76:0x93b6ca));b.position.set(-.7+j*.18,.31,.48);shell.add(b);}
-      const pad=new THREE.Group();pad.position.set(.1,-.43,1.18);const shellPad=rect(1.05,.18,.44,black);pad.add(shellPad);
-      const dPad=rect(.23,.055,.07,gray);dPad.position.set(-.31,.12,0);pad.add(dPad);const dPadV=rect(.07,.055,.25,gray);dPadV.position.set(-.31,.12,0);pad.add(dPadV);
-      const b1=new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.04,16),glow(0x36b9cd));b1.position.set(.28,.13,.08);pad.add(b1);shell.add(pad);
+      const isAtari=id==='atari2600',isGenesis=['segaMD','sega32x','segaCD'].includes(id),isSNES=id==='snes',isN64=id==='n64';
+      const isPS=id==='psx',isSaturn=id==='segaSaturn',isNeo=id==='neogeo';
+      const body=isAtari?black:isSNES?grey:id==='nes'?cream:isPS?grey:isN64?black:isSaturn?black:isNeo?black:ink;
+      const w=isSNES?2.1:2.18, d=isNeo?1.65:1.48;
+      block(w,.49,d,0,0,0,body);
+      if(isGenesis){disc(.73,.08,0,.3,-.03,ink);disc(.51,.085,0,.36,-.03,black);}
+      else if(isN64){disc(.71,.12,0,.31,-.16,black);block(.50,.085,.20,0,.39,-.22,ink);}
+      else if(isPS){disc(.62,.045,0,.30,-.11,grey);add(new THREE.Mesh(new THREE.TorusGeometry(.58,.035,12,56),ink),0,.33,-.11).rotation.x=Math.PI/2;}
+      else if(isSaturn){disc(.64,.065,0,.33,-.08,black);add(new THREE.Mesh(new THREE.TorusGeometry(.52,.022,8,60),chrome),0,.37,-.08).rotation.x=Math.PI/2;}
+      else if(isSNES){block(1.55,.065,1.0,0,.31,-.08,cream);block(.65,.065,.28,0,.38,-.12,ink);}
+      else if(isAtari){block(2.15,.08,1.18,0,.29,0,woods);for(let i=0;i<5;i++)block(1.86,.04,.035,0,.34,-.45+i*.20,black);}
+      else if(isNeo){block(1.3,.09,.55,0,.32,-.19,chrome);block(.65,.11,.065,0,.39,-.18,black);}
+      else{block(1.62,.08,1.04,0,.29,-.07,grey);block(1.25,.20,.08,0,.19,.74,black);}
+      if(!['psx','segaSaturn','segaCD'].includes(id)){
+        const cartridge=block(id==='n64'?.37:.54,.43,.12,0,.54,-.12,isSNES?violet:grey);cartridge.rotation.x=-.07;
+      }
+      if(isAtari){for(let i=0;i<4;i++)block(.07,.14,.08,-.65+i*.43,.46,-.45,chrome);}
+      else if(isSNES){block(.11,.12,.23,-.70,.36,.39,violet);block(.11,.12,.23,-.51,.36,.39,violet);led(.70,.35,.45,0xa264ff);}
+      else{led(-.79,.34,.42);led(-.61,.34,.42,0x65b4e5);}
+      if(isN64){for(let j=0;j<4;j++)block(.25,.14,.06,-.71+j*.47,-.09,.78,grey)}
+      else {for(let j=0;j<2;j++)block(.36,.14,.06,-.58+j*1.15,-.11,d/2+.01,ink);}
+      if(isGenesis){for(let i=0;i<7;i++)block(.06,.026,.66,-.70+i*.23,.30,-.2,black);}
+      if(isNeo)block(.66,.18,.09,0,.39,-.39,chrome);
+      if(id==='sega32x'){block(.86,.31,.58,0,.61,-.12,black);block(.57,.08,.10,0,.80,.08,chrome);}
+      if(id==='segaCD'){block(1.94,.17,1.4,0,-.30,0,black);led(.8,-.20,.60,0xff93b2);}
+      pad(-.24,-.49,.85,isSNES?grey:ink);
     }
-    if(['snes','psx'].includes(id)){const stripe=trimBox(shell,1.3,.04,.03,0,.33,.62,0x8a72e0);stripe.position.z=.73;}
-    if(retro){for(let i=0;i<5;i++)trimBox(shell,1.7,.03,.04,0,.34,.54-i*.21,0xbb955e)}
-    shell.rotation.y=-.15;
-    return shell;
+    const logo=sign(id.toUpperCase(),1.35,.7);logo.position.set(0,.03,.81);logo.rotation.x=-.15;base.add(logo);
+    base.rotation.y=-.10;
+    return base;
   }
   function buildArchive(){
     archiveGroup=new THREE.Group();scene.add(archiveGroup);
