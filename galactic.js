@@ -3,6 +3,7 @@
  * with actual hardware photographs displayed only in the information panel.
  * Emulator and game metadata are imported from app.js, never replaced by clones.
  */
+import { setArtworkImage, archiveArtwork } from './artwork.js';
 export function mountGalacticArchive(api) {
   const $=s=>document.querySelector(s);
   const $$=s=>Array.from(document.querySelectorAll(s));
@@ -440,7 +441,7 @@ export function mountGalacticArchive(api) {
     exhibitIndex=i;const s=api.systems[i];
     setSector('exhibits');$('#exhibit-panel').hidden=false;
     $('#exhibit-maker').textContent=s.maker.toUpperCase()+' / '+s.year;$('#exhibit-title').textContent=s.name;$('#exhibit-about').textContent=s.about;
-    const image=$('#exhibit-photo');image.src=api.photo(s);image.alt=s.name+' authentic hardware photo';image.onerror=()=>{image.hidden=true};image.hidden=false;
+    const image=$('#exhibit-photo');image.src=api.photo(s);image.alt=s.name+' authentic hardware photo';image.onerror=()=>{image.onerror=null;image.src=archiveArtwork(s.name,s.short);image.alt='UGN console archive cover for '+s.name};image.hidden=false;
     const available=api.games.filter(g=>g.system===id&&(g.mode==='personal'||api.installed[g.file]===true));
     api.loadPersonalFor?.(id);
     const list=$('#exhibit-game-list');list.innerHTML='';
@@ -474,7 +475,7 @@ export function mountGalacticArchive(api) {
       const caseButton=document.createElement('button');caseButton.type='button';caseButton.className='holo-case';caseButton.setAttribute('aria-label','Select '+g.name);
       caseButton.style.transform='translateX('+offset*109+'px) rotateY('+(-offset*23)+'deg) scale('+(offset===0?1:.77)+')';
       caseButton.style.opacity=offset===0?'1':'.63';caseButton.style.zIndex=String(5-Math.abs(offset));
-      if(g.image){const img=document.createElement('img');img.src=g.image;img.alt='Cover or screenshot for '+g.name;img.loading='lazy';img.onerror=()=>img.remove();caseButton.append(img)}
+      {const img=document.createElement('img');setArtworkImage(img,g.image,g.name,api.systems.find(s=>s.id===g.system)?.short||g.system);img.loading='lazy';caseButton.append(img)}
       const label=document.createElement('span');label.className='case-label';label.textContent=g.name;caseButton.append(label);
       caseButton.onclick=()=>{if(index===shelfIndex)api.inspect(g.id);else{shelfIndex=index;renderShelf(systemId)}};
       track.append(caseButton);
