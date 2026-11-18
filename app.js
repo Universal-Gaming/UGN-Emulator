@@ -24,6 +24,18 @@ const systemCatalog=[
 ];
 const C=(id,file,name,genre,creator,year,desc,color='cyan',image='')=>({id:file,file,name,genre,creator,year,desc,system:id,color,image});
 const games=[
+// Additional explicitly licensed GB/GBC homebrew (details in CREDITS.md)
+C("gb","roms/gb/plantboy.gb","PlantBoy","Action","exezin","—","Independently developed action game, compiled for the original Game Boy hardware.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/plantboy/screenshot01.bmp"),
+C("gb","roms/gb/rex-runner-gb.gb","Rex Runner GB","Platformer","The Void","—","Independently developed platformer game, compiled for the original Game Boy hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/rex-runner-gb/screenshot_00.png"),
+C("gbc","roms/gbc/potion-panic.gbc","Potion Panic (Demo)","Platformer","DevEd","—","Independently developed platformer game, compiled for the original Game Boy Color hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/deved_potion-panic/cover.png"),
+C("gb","roms/gb/squishy-the-turtle.gb","Squishy the Turtle","Adventure","Cppchriscpp","—","Independently developed adventure game, compiled for the original Game Boy hardware.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/squishy-the-turtle/squishy.png"),
+C("gb","roms/gb/tuff.gb","Tuff","Platformer","BonsaiDen","—","Independently developed platformer game, compiled for the original Game Boy hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/tuff/1.png"),
+C("gbc","roms/gbc/rebound.gbc","Rebound","Puzzle","DevEd","—","Independently developed puzzle game, compiled for the original Game Boy Color hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/rebound/reb.png"),
+C("gbc","roms/gbc/flooder.gbc","Flooder","Puzzle","Oliver Balfour","—","Independently developed puzzle game, compiled for the original Game Boy Color hardware.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/flooder/1.png"),
+C("gb","roms/gb/maxpirate.gb","Max Pirate","Action","Lemmy Hawkins","—","Independently developed action game, compiled for the original Game Boy hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/maxpirate/cover.png"),
+C("gb","roms/gb/domination.gb","Domination","Strategy","Graham Coulby (IonicLimb)","—","Independently developed strategy game, compiled for the original Game Boy hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/domination/domination-screenshot-1.bmp"),
+C("gbc","roms/gbc/crossconnect.gbc","CrossConnect","Puzzle","quinnp","—","Independently developed puzzle game, compiled for the original Game Boy Color hardware.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/crossconnect/title.png"),
+C("gb","roms/gb/grub-glide.gb","Grub Glide","Action","Ethan Hazel","—","Independently developed action game, compiled for the original Game Boy hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/grub-glide/1.png"),
 // Rights-checked homebrew expansions: exact binary names and original creator sources in CREDITS.md.
 C('nes','roms/nes/cybercoaster.nes','Cybercoaster','Action Platformer','Fizzer & noby',2025,'A new NES homebrew with an original side-scrolling course, licensed CC BY 4.0.','violet','https://raw.githubusercontent.com/nesdev-org/homebrew-db/master/entries/cybercoaster/cybercoaster_000.png'),
 C('gb','roms/gb/2048gb.gb','2048gb','Puzzle','Sanqui',2014,'Open-source 2048-inspired Game Boy cartridge software, released under the zlib license.','cyan','https://raw.githubusercontent.com/gbdev/database/master/entries/2048gb/1.png'),
