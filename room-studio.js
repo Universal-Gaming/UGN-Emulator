@@ -28,6 +28,12 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      for(let i=0;i<512;i+=5){x.fillStyle='#000d1e44';x.fillRect(0,i,512,2)}
    }else if(kind==='wood'){x.fillStyle='#6e473e';x.fillRect(0,0,512,512);
      for(let i=0;i<110;i++){let y=rand(i)*512;x.strokeStyle=i%2?'#2d16232b':'#cf936838';x.lineWidth=1+rand(i+4)*2;x.beginPath();x.moveTo(0,y);x.bezierCurveTo(180,y+rand(i+33)*5,380,y-3,512,y+1);x.stroke()}
+   }else if(kind==='carpet'){
+     x.fillStyle=flavor==='gray'?'#3b4760':'#3d315c';x.fillRect(0,0,512,512);
+     for(let i=0;i<22000;i++){const v=60+Math.floor(rand(i+4)*64);
+       x.fillStyle='rgba('+v+','+(v-12)+','+(v+68)+',.22)';
+       x.fillRect(rand(i*3+1)*512,rand(i*5+9)*512,1+rand(i+25)*3,1+rand(i+13)*3);
+     }
    }else if(kind==='rug'){x.fillStyle='#332751';x.fillRect(0,0,512,512);
      for(let j=0;j<7;j++){x.strokeStyle=j%2?'#09bfeea8':'#b773ffa8';x.lineWidth=8-j*.6;x.strokeRect(20+j*14,20+j*14,472-j*28,472-j*28)}
      let g=x.createRadialGradient(256,256,2,256,256,165);g.addColorStop(0,'#b36cfa');g.addColorStop(.4,'#195da7');g.addColorStop(1,'#101832');x.fillStyle=g;x.beginPath();x.arc(256,256,162,0,Math.PI*2);x.fill();
@@ -182,7 +188,7 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      cyl(g,.37,.30,.21,0,.16,0,iron);
      for(let i=0;i<10;i++)ball(g,.073,(rand(i)-.5)*.52,.31+(i%3)*.035,(rand(i+40)-.5)*.44,M(0xe3af69,.06,.8));
    }
-   g.position.set(Number(entry.x)||0,0,Number(entry.z)||0);g.rotation.y=Number(entry.rot)||0;
+   g.position.set(Number(entry.x)||0,Number(entry.y)||0,Number(entry.z)||0);g.rotation.y=Number(entry.rot)||0;
    hit(g,entry,w,Math.max(h,1.1),entry.type==='crt'?1.28:d);return g;
  }
  function windowScene(room,config){
@@ -207,7 +213,7 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
  function build(config){
    const room=new THREE.Group();room.name='UGN / Photo-Match Gaming Room';hitObjects=[];
    const wc=wallColors[config.walls]??wallColors.navy,fc=floorColors[config.floor]??floorColors.metal;
-   const floorMat=config.floor==='wood'?new THREE.MeshStandardMaterial({map:makeTexture('wood'),roughness:.65}):M(fc,config.floor==='carpet'?.0:.28,config.floor==='carpet'?.95:.6);
+   const floorMat=['wood','carpet'].includes(config.floor)?new THREE.MeshStandardMaterial({map:makeTexture(config.floor),roughness:config.floor==='carpet'?.97:.65,metalness:.035}):M(fc,.28,.6);
    const ground=B(room,19,.18,19,0,-.14,-.9,floorMat);
    B(room,.28,7.65,19,-9.5,3.8,-.9,M(wc,.14,.74));
    B(room,.28,7.65,19,9.5,3.8,-.9,M(wc,.14,.74));
