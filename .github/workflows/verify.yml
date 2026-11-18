@@ -50,6 +50,9 @@ jobs:
         with:
           name: emulator-browser-smoke
           path: |
+            smoke-intro.png
+            smoke-shelf.png
+            smoke-room.png
             smoke-desktop.png
             smoke-mobile.png
           if-no-files-found: ignore
