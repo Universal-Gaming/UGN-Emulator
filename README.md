@@ -1,29 +1,45 @@
-# UGN Emulator
+# UGN Emulator — The Universe of Consoles
 
-A cosmic-themed, interactive console emulation site from Universal Gaming Network, hosted using GitHub Pages.
+A premium, interactive, 3D browser console-emulation experience for **Universal Gaming Network**. All playable titles are actual compiled console ROMs, not JavaScript substitutes.
 
-## What this project actually plays
+**Live GitHub Pages:** https://universal-gaming.github.io/UGN-Emulator/
 
-**13 compiled, redistributable console homebrew ROMs**, preinstalled via GitHub Actions:
-- Nintendo NES (2)
-- Game Boy (1) and Game Boy Color (3) — both use the EmulatorJS Gambatte core
-- Game Boy Advance (4)
-- Sega Genesis (3)
+## Current catalog
 
-The website uses actual EmulatorJS/RetroArch WebAssembly-based console cores. No JavaScript imitation games, ROM import controls, game uploads, or commercial copyrighted ROM collections. Gamepad and emulator save-state functionality are handled by EmulatorJS where supported.
+- **27 actual console ROMs** are present in this repository.
+- **8 represented hardware families** have playable-file candidates: NES, SNES, Nintendo 64, Game Boy / Game Boy Color, Game Boy Advance, Sega Genesis, Atari 2600, and Neo Geo Pocket. Game Boy and Game Boy Color have separate filter categories but use the same EmulatorJS core.
+- **16 console categories**, accurately labeled with authentic hardware photography when available. Categories without bundled licensed games say **COMING SOON**.
+- No game imports, uploads, AI-made arcade games, or pretend playable titles.
+- Three.js WebGL 3D hero showroom, adaptive UGN cosmic UI, actual console imagery, catalog filters, search, favorites, recent activity, keyboard/gamepad support via EmulatorJS, player fullscreen and emulator save states where supported.
 
-All 17 systems shown by the reference site appear as categories, but **uninstalled consoles are explicitly marked as coming later** until appropriately licensed games are added and verified.
+## Emulator architecture
 
-## Deployment
+- Static GitHub Pages front end.
+- Genuine compiled console ROMs from `roms/<console>/` loaded through EmulatorJS/WebAssembly.
+- EmulatorJS cores currently load from the official public CDN: https://cdn.emulatorjs.org/stable/data/ . Therefore the game ROMs are bundled in-house, but the emulator runtime is **not yet self-hosted**.
+- 3D scene loads Three.js via a pinned public CDN with a graceful CSS fallback.
+- No account, server-side session, upload or tracking requirement. Favorites and recent history use localStorage.
+- Collection installed-state checks use `HEAD` requests. A ROM download success is not the same as full game compatibility.
 
-GitHub Pages is deployed from `main`. ROMs are downloaded, validated, and committed by `.github/workflows/bundle-roms.yml`. The game catalog checks that a ROM file exists before enabling its launch button.
+## Repository structure
 
-Site: https://universal-gaming.github.io/UGN-Emulator/
+- `index.html` — UGN console experience
+- `styles.css` — responsive premium UI
+- `app.js` — verified game catalog, system hardware showroom, playable ROM launching
+- `roms/` — game binaries
+- `.github/workflows/bundle-roms.yml` — homebrew ROM reproducible installation
+- `CREDITS.md` — credits, licenses, legal sources
 
-## Credits and licenses
+## Content and rights
 
-See [CREDITS.md](CREDITS.md). Game ROMs are self-hosted by GitHub Pages. EmulatorJS core scripts currently use its official CDN, rather than an in-repository copy.
+Not every commercial game in the reference site can be mirrored. Internet Archive availability does **not** itself provide redistributing rights. Only the curated collection of independently published homebrew/freeware games has been installed, with upstream and license notices in [CREDITS.md](CREDITS.md).
 
-## Verification limits
+Original console brands remain trademarks of their owners. UGN is independent of Nintendo, Sega, Sony, SNK and Atari.
 
-The GitHub Action validates downloads, nonempty files, and NES ROM headers. Such validation **does not establish that every game can be completed or runs perfectly**. Verify browser play, input, save-state behavior and audio on target devices before advertising full compatibility.
+## Verification
+
+Checks should cover: ROM file presence and sizes, required NES headers, JavaScript syntax, available core URLs, and real-browser smoke tests. Do not announce a game as fully compatible until its controls, sound, rendering, gameplay and save state functionality have been tried in the browser.
+
+## Design principles
+
+A **console museum and emulator**, never a generic browser arcade. Immersive 3D, UGN cosmic colors, exact console identity, clear gameplay status, creator credits, accessibility and graceful performance fallback.
