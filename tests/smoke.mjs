@@ -28,7 +28,11 @@ try{
  assert.equal(Number(await page.locator('#hero-games').innerText()),roms.length);
  assert.equal(Number(await page.locator('#hero-systems').innerText()),10);
  assert.equal(await page.locator('#game-grid .game-card').count(),36,'First page shows 36 real titles');
- await page.locator('#load-more-games').click();
+ for(let n=0;n<Math.ceil(roms.length/36);n++){
+   const more=page.locator('#load-more-games');
+   if(!(await more.isVisible()))break;
+   await more.click();
+ }
  assert.equal(await page.locator('#game-grid .game-card').count(),roms.length,'Load More displays the entire bundled game collection');
  await page.locator('#game-search').fill('Celeste');
  assert.equal(await page.locator('#game-grid .game-card').count(),1);
