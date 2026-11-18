@@ -33,6 +33,9 @@ try{
  await page.locator('[data-platform=all]').click();
  // The starship is the primary experience, not a static marketing hero.
  await page.locator('#galactic-stage').waitFor({timeout:10000});
+ await page.locator('#home').scrollIntoViewIfNeeded();
+ await page.waitForFunction(()=>{const img=document.querySelector('.concept-backdrop img');return img?.complete&&img.naturalWidth>500;},null,{timeout:10000});
+ assert.equal(await page.locator('.location-card img').count(),4);
  await page.screenshot({path:'smoke-intro.png',fullPage:false});
  await page.locator('#enter-archive').click();
  await page.locator('#skip-cinematic').click();
