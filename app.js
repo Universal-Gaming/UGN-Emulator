@@ -69,12 +69,12 @@ const imageMarkup=(file,alt='',extra='')=>file?'<img loading="lazy" src="'+escap
 const photo=s=>commons(s?.photo);
 function notify(message){let el=$('#toast');el.textContent=message;el.classList.add('show');clearTimeout(notify.t);notify.t=setTimeout(()=>el.classList.remove('show'),3200)}
 function installedCount(id){return games.filter(g=>g.system===id&&installed[g.file]===true).length}
-function selectSystem(id){platform=id;renderPills();renderGames();$('#library').scrollIntoView({behavior:'smooth'});notify('Viewing '+(system(id)?.name||'all systems'))}
+function selectSystem(id){platform=id;visibleLimit=36;if(catalogMode!=='hosted')loadTitlesForPlatform(id);renderPills();renderGames();$('#library').scrollIntoView({behavior:'smooth'});notify('Viewing '+(system(id)?.name||'all systems'))}
 function changeSpot(i){spot=(i+systemCatalog.length)%systemCatalog.length;const s=systemCatalog[spot];$('#feature-index').textContent=String(spot+1).padStart(2,'0');$('#feature-position').textContent=String(spot+1).padStart(2,'0')+' / '+systemCatalog.length;$('#feature-era').textContent=s.year+' / '+s.maker.toUpperCase();$('#feature-title').textContent=s.name;$('#feature-description').textContent=s.about;$('#feature-count').textContent=installedCount(s.id)?installedCount(s.id)+' INSTALLED GAME'+(installedCount(s.id)===1?'':'S'):'NO INSTALLED GAMES YET';const img=$('#feature-image');img.alt='Authentic '+s.name+' console hardware';img.src=photo(s);img.onerror=()=>{img.onerror=null;img.removeAttribute('src');img.alt=s.name+' photo temporarily unavailable'};$('#feature-explore').onclick=()=>selectSystem(s.id)}
 $('#feature-prev').onclick=()=>changeSpot(spot-1);$('#feature-next').onclick=()=>changeSpot(spot+1);
 function renderSystems(){const list=systemCatalog.filter(s=>maker==='all'||s.maker===maker);
 $('#system-grid').innerHTML=list.map(s=>{const amount=installedCount(s.id);return '<button class="system-card '+(amount?'':'soon')+'" data-system="'+s.id+'"><span class="system-status">'+(amount?amount+' GAME'+(amount===1?'':'S'):'COMING SOON')+'</span><div class="system-img">'+imageMarkup(photo(s),s.name+' hardware','onerror="this.hidden=true;this.nextElementSibling.hidden=false"')+'<span class="system-noimage" hidden>'+escapes(s.short.slice(0,3))+'</span></div><div class="system-card-body"><div class="system-name">'+escapes(s.short)+'</div><div class="system-sub">'+s.maker.toUpperCase()+' / '+s.year+'</div></div></button>'}).join('');
-$$('[data-system]').forEach(b=>b.onclick=()=>{const id=b.dataset.system;const i=systemCatalog.findIndex(s=>s.id===id);changeSpot(i);if(installedCount(id))selectSystem(id);else notify(system(id).name+' — no licensed games installed yet')});
+$$('[data-system]').forEach(b=>b.onclick=()=>{const id=b.dataset.system;const i=systemCatalog.findIndex(s=>s.id===id);changeSpot(i);if(installedCount(id))selectSystem(id);else{setCatalogMode('personal');selectSystem(id)}});
 }
 $$('.sys-filter').forEach(b=>b.onclick=()=>{maker=b.dataset.maker;$$('.sys-filter').forEach(x=>x.classList.toggle('active',x===b));renderSystems()});
 
@@ -252,9 +252,11 @@ if(document.querySelector('#galactic-stage')){
   import('./galactic.js').then(module=>{
     module.mountGalacticArchive({
       systems:systemCatalog,
-      games,
+      games:allTitles,
       installed,
       launch,
+      inspect:showDetails,
+      browsePersonal:(id)=>{setCatalogMode('personal');selectSystem(id)},
       photo,
       notify,
       selectSystem
