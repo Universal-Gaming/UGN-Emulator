@@ -208,7 +208,7 @@ export function mountConsoleIndex(api) {
     'window.EJS_ready=function(){parent.postMessage({ugnLocalStage:"ready"},"*")};'+
     'window.EJS_onGameStart=function(){parent.postMessage({ugnLocalStage:"started"},"*")};'+
     'window.addEventListener("error",function(e){parent.postMessage({ugnLocalError:String(e.message)},"*")});'+
-    '<\\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\\/script></body></html>';
+    '<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script></body></html>';
   };
   function launchFile(){
     if(!selected||!rom)return;
