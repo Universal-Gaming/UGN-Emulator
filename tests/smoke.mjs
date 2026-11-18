@@ -23,7 +23,7 @@ try{
  await page.locator('#game-grid .game-card').first().waitFor({timeout:15000});
  await page.waitForFunction(()=>document.querySelector('#hero-games').textContent!=='—',{timeout:20000});
  assert.equal(Number(await page.locator('#hero-games').innerText()),27);
- assert.equal(Number(await page.locator('#hero-systems').innerText()),8);
+ assert.equal(Number(await page.locator('#hero-systems').innerText()),9);
  assert.equal(await page.locator('#game-grid .game-card').count(),27);
  await page.locator('#game-search').fill('Celeste');
  assert.equal(await page.locator('#game-grid .game-card').count(),1);
@@ -42,5 +42,5 @@ try{
  await page.setViewportSize({width:390,height:844});
  await page.screenshot({path:'smoke-mobile.png',fullPage:true});
  assert.equal(fatal.length,0,'Uncaught JS exceptions: '+fatal.join('; '));
- console.log('PASS: 27 ROMs, eight console families, search, filters, launcher, modal, desktop/mobile renders');
+ console.log('PASS: 27 ROMs, nine system categories, search, filters, launcher, modal, desktop/mobile renders');
 }finally{if(browser)await browser.close();server.kill();}
