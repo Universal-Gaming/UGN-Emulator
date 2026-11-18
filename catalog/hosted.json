@@ -1,0 +1,322 @@
+{
+  "schema": 1,
+  "description": "CI-validated game files distributed by the UGN Emulator site.",
+  "games": [
+    {
+      "path": "roms/atari2600/sheep-it-up.a26",
+      "bytes": 4096
+    },
+    {
+      "path": "roms/gb/2048gb.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/adjustris.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/airplanz.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/big2small.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gb/bit_bang.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/carazu.gb",
+      "bytes": 262144
+    },
+    {
+      "path": "roms/gb/corrib75.gb",
+      "bytes": 131072
+    },
+    {
+      "path": "roms/gb/crystal-lake.gb",
+      "bytes": 1048576
+    },
+    {
+      "path": "roms/gb/dawn-will-come.gb",
+      "bytes": 2097152
+    },
+    {
+      "path": "roms/gb/deadeus.gb",
+      "bytes": 1048576
+    },
+    {
+      "path": "roms/gb/domination.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gb/dusky-dungeon.gb",
+      "bytes": 262144
+    },
+    {
+      "path": "roms/gb/el-dueloroso.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gb/game-boy-of-life.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/gb-corp.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/gb-wordyl.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/grub-glide.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gb/jp.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gb/libbet.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/lost-in-translation.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/madpews-battlegrounds.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/max-pirate-extra-boom.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gb/maxpirate.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/pelmanism.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/plantboy.gb",
+      "bytes": 16384
+    },
+    {
+      "path": "roms/gb/porklike-gb.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gb/postbot.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gb/renegade-rush.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gb/rex-run-v1-0.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/rex-runner-gb.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/shock-lobster.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gb/squishy-the-turtle.gb",
+      "bytes": 131072
+    },
+    {
+      "path": "roms/gb/sushi-nights.gb",
+      "bytes": 131072
+    },
+    {
+      "path": "roms/gb/tobu-tobu-girl.gb",
+      "bytes": 262144
+    },
+    {
+      "path": "roms/gb/tobudx.gb",
+      "bytes": 262144
+    },
+    {
+      "path": "roms/gb/tuff.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gba/apotris.gba",
+      "bytes": 4194304
+    },
+    {
+      "path": "roms/gba/cebelix.gba",
+      "bytes": 43912
+    },
+    {
+      "path": "roms/gba/celeste-classic.gba",
+      "bytes": 5416932
+    },
+    {
+      "path": "roms/gba/dezgex.gba",
+      "bytes": 216708
+    },
+    {
+      "path": "roms/gba/grimlight.gba",
+      "bytes": 51716
+    },
+    {
+      "path": "roms/gba/meteorain.gba",
+      "bytes": 1710503
+    },
+    {
+      "path": "roms/gba/mystic-q.gba",
+      "bytes": 93652
+    },
+    {
+      "path": "roms/gba/pik-roll.gba",
+      "bytes": 46284
+    },
+    {
+      "path": "roms/gba/piugba-demo.gba",
+      "bytes": 6614656
+    },
+    {
+      "path": "roms/gbc/a-slime-travel.gbc",
+      "bytes": 262144
+    },
+    {
+      "path": "roms/gbc/airaki.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gbc/crossconnect.gbc",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gbc/deep-scan.gb",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gbc/escape-obliterizer-dx.gbc",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gbc/flooder.gbc",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gbc/gbhack.gbc",
+      "bytes": 262144
+    },
+    {
+      "path": "roms/gbc/geometrix.gbc",
+      "bytes": 32768
+    },
+    {
+      "path": "roms/gbc/namihey.gb",
+      "bytes": 65536
+    },
+    {
+      "path": "roms/gbc/potion-panic.gbc",
+      "bytes": 262144
+    },
+    {
+      "path": "roms/gbc/rebound.gbc",
+      "bytes": 131072
+    },
+    {
+      "path": "roms/gbc/ucity.gbc",
+      "bytes": 131072
+    },
+    {
+      "path": "roms/genesis/battle-4tris.bin",
+      "bytes": 131072
+    },
+    {
+      "path": "roms/genesis/break-an-egg.md",
+      "bytes": 262144
+    },
+    {
+      "path": "roms/genesis/cave-story.md",
+      "bytes": 4194304
+    },
+    {
+      "path": "roms/genesis/space-shooter.bin",
+      "bytes": 131072
+    },
+    {
+      "path": "roms/genesis/tank-battle.bin",
+      "bytes": 131072
+    },
+    {
+      "path": "roms/genesis/ultimate-tetris.md",
+      "bytes": 851673
+    },
+    {
+      "path": "roms/n64/kumi-daiko.n64",
+      "bytes": 3126896
+    },
+    {
+      "path": "roms/nds/lunar-runner.nds",
+      "bytes": 63040
+    },
+    {
+      "path": "roms/nes/2048.nes",
+      "bytes": 24592
+    },
+    {
+      "path": "roms/nes/alter-ego.nes",
+      "bytes": 40976
+    },
+    {
+      "path": "roms/nes/concentration-room.nes",
+      "bytes": 24592
+    },
+    {
+      "path": "roms/nes/cybercoaster.nes",
+      "bytes": 49168
+    },
+    {
+      "path": "roms/nes/nova-the-squirrel.nes",
+      "bytes": 262160
+    },
+    {
+      "path": "roms/nes/rhde-furniture-fight.nes",
+      "bytes": 32784
+    },
+    {
+      "path": "roms/nes/spacegulls.nes",
+      "bytes": 65552
+    },
+    {
+      "path": "roms/nes/table-tennis.nes",
+      "bytes": 40976
+    },
+    {
+      "path": "roms/nes/thwaite.nes",
+      "bytes": 24592
+    },
+    {
+      "path": "roms/nes/zap-ruder.nes",
+      "bytes": 24592
+    },
+    {
+      "path": "roms/ngp/asteroids-neo.ngp",
+      "bytes": 26699
+    },
+    {
+      "path": "roms/snes/n-warp-daisakusen.sfc",
+      "bytes": 2097152
+    },
+    {
+      "path": "roms/snes/super-boss-gaiden.sfc",
+      "bytes": 524288
+    }
+  ]
+}
