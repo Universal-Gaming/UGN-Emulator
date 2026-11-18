@@ -21,7 +21,7 @@ A premium, interactive, 3D browser console-emulation experience for **Universal 
 - EmulatorJS cores currently load from the official public CDN: https://cdn.emulatorjs.org/stable/data/ . Therefore the game ROMs are bundled in-house, but the emulator runtime is **not yet self-hosted**.
 - 3D scene loads Three.js via a pinned public CDN with a graceful CSS fallback.
 - No account, server-side session, upload or tracking requirement. Favorites and recent history use localStorage.
-- Collection installed-state checks use `HEAD` requests. A ROM download success is not the same as full game compatibility.
+- Installed-game availability uses the CI-validated `catalog/hosted.json` manifest in one request, falling back to bounded HEAD checks if missing. A ROM download success is not proof of full game compatibility.
 
 ## Repository structure
 
@@ -82,3 +82,10 @@ The repository now includes 62 verified-on-disk ROM binaries: 10 NES, 2 SNES, 1 
 This update introduces **17 additional authentic cartridge binaries** (10 original Game Boy, 4 Game Boy Color, 3 Game Boy Advance) and takes the intended Play Now collection from 62 to **79**. The games' names are distinct from the separate 41,408-entry bring-your-own-copy index. Sources, individual author names, declared licenses and expected ROM sizes are listed in [`catalog/licensed-rom-expansion.json`](catalog/licensed-rom-expansion.json) and [CREDITS.md](CREDITS.md). The GitHub Actions ROM bundler fetches and validates the binaries, then commits them. A game is only shown as installed after its ROM file is present. An installed ROM is not a claim of end-to-end gameplay verification on all devices.
 
 The full title index includes commercial releases as **metadata only**. UGN does not mirror their copyrighted ROMs or BIOS files; visitors can select their own compatible, lawfully obtained local copies where the emulator core supports them.
+
+## Release-hardening update: 79 game images
+
+- Every installed game's card, detail dialog and 3D holographic case has an image. Author/publisher image URLs are used when available; if artwork is absent or an image URL fails, a unique, original UGN cosmic archive sleeve appears, **explicitly labeled not official game artwork**. The 41,408-title index and private game-copy dialog use the same fallback.
+- Games launch from actual console ROMs, not JavaScript copies. The bundled 79-file release and manifest are checked by CI; startup no longer fires 79 simultaneous network probes.
+- The release suite checks artwork, mobile width, game controls, WebGL starship interaction, and successful emulator startup. Game-by-game manual audio/save/controller tests remain necessary; no software can be proven 100% bug-free by automation.
+- The site currently uses third-party EmulatorJS and Three.js hosting plus externally hosted original artwork. Read [HOSTING.md](HOSTING.md) for deployment, license review, static hosting requirements and remaining constraints.
