@@ -26,3 +26,33 @@ The site integrates the independent open-source [EmulatorJS](https://github.com/
 ## Scope
 
 The console selection reflects the reference site's NES, Genesis, Game Gear, 32X, Sega CD, Saturn, Game Boy/Color, GBA, DS, Neo Geo, Neo Geo Pocket, SNES, N64, PlayStation 1, Atari 2600, and Flash collections. **Only systems with built-in games are launchable**. Unlicensed commercial ROMs, BIOS images, and user-ROM upload or import interfaces are not provided.
+
+
+## Additional console ROMs added to the 27-title collection
+
+| System | Game | Creator | Licensing information / source |
+|---|---|---|---|
+| NES | Nova the Squirrel | NovaSquirrel | GPL-3.0 code / CC BY-NC-SA 4.0 assets — https://github.com/NovaSquirrel/NovaTheSquirrel |
+| NES | Alter Ego | Shiru | Freeware — https://shiru.untergrund.net/software.shtml |
+| NES | Spacegulls | Morphcat Games | Freeware — https://morphcatgames.itch.io/spacegulls |
+| SNES | Super Boss Gaiden | Dieter von Laser / Chilly Willy | Freeware — https://www.romhacking.net/homebrew/60/ |
+| SNES | N-Warp Daisakusen | d4s | Freeware — https://www.romhacking.net/homebrew/13/ |
+| Nintendo 64 | Kumi-Daiko Beatoff 64 | Team Riistahillo | CC0 1.0 — https://github.com/N64brew-Game-Jam-2020/Kumi-Daiko-Beatoff-64 |
+| Game Boy | Tobu Tobu Girl | Tangram Games | MIT code / CC BY 4.0 assets — https://github.com/SimonLarsen/tobutobugirl |
+| Game Boy | Deadeus | -IZMA- | Freeware release — https://izma.itch.io/deadeus |
+| GBA | Celeste Classic GBA | JeffRuLz (port) / Maddy Thorson and Noel Berry (original) | Free/open-source port; see project terms — https://github.com/JeffRuLz/Celeste-Classic-GBA |
+| Genesis | Cave Story MD | andwn / Studio Pixel | MIT port, original game freeware — https://github.com/andwn/cave-story-md |
+| Genesis | Ultimate Tetris | Haroldo O. Pinheiro | Freeware/open source — https://haroldo-ok.itch.io/ultimate-tetris |
+| Genesis | Break An Egg | Studio Vetea | Freeware — https://buildbot.libretro.com/assets/cores/ |
+| Atari 2600 | Sheep It Up! | Dr. Ludos | Freeware/open-source — https://drludos.itch.io/sheep-it-up |
+| Neo Geo Pocket | Asteroids neo | Steven MacDonald | MIT — https://github.com/underscore42/ngpc-asteroids-neo |
+
+These binaries originated from a compiled free-homebrew selection at https://github.com/Mylittlestories/recalbox-os-web/tree/main/www/roms, which documents its sources at https://github.com/Mylittlestories/recalbox-os-web/blob/main/www/roms/LICENSES.md. Freeware does not necessarily grant unrestricted commercial redistribution; review individual title permissions before monetizing the service.
+
+## Hardware photography
+
+Real-console photographs are loaded from Wikimedia Commons, principally the public-domain Vanamo Online Game Museum / Evan-Amos collection (https://commons.wikimedia.org/wiki/User:Evan-Amos). Source filenames are recorded in `app.js`. Any independently licensed Commons images are subject to their individual file pages.
+
+## Technical note
+
+EmulatorJS loads game cores from its public CDN. The game ROM files are included in this GitHub repository. Game compatibility, artwork availability and gameplay are separate verification concerns.
