@@ -90,3 +90,36 @@ Cybercoaster's author credit and CC BY 4.0 terms apply to its game data and any 
 
 **No rights inference:** Merely appearing on GitHub, Internet Archive, or Homebrew Hub is not treated as permission to redistribute. Games with no explicit release permission were not added to the built-in collection. The separate 41,408-title catalog is a bring-your-own-copy index, not a ROM download list.
 
+
+## Additional 22 open-licensed Game Boy / Game Boy Color games (40 → 62)
+
+For every title below, its **individual Homebrew Hub metadata** explicitly identifies the game as a playable ROM and declares the listed license. The independent Homebrew Hub database's own GPL license was *not* used as a substitute for game authorization. Each ROM was fetched from that exact entry in the [gbdev/database](https://github.com/gbdev/database) repository.
+
+| Console homebrew title | Original credited developer | Published license | File and original metadata |
+|---|---|---|---|
+| PlantBoy | exezin | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/plantboy) |
+| Rex Runner GB | The Void | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/rex-runner-gb) |
+| Potion Panic (Demo) | DevEd | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/deved_potion-panic) |
+| Squishy the Turtle | Cppchriscpp | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/squishy-the-turtle) |
+| Tuff | BonsaiDen | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/tuff) |
+| Rebound | DevEd | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/rebound) |
+| Flooder | Oliver Balfour | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/flooder) |
+| Max Pirate | Lemmy Hawkins | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/maxpirate) |
+| Domination | Graham Coulby (IonicLimb) | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/domination) |
+| CrossConnect | quinnp | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/crossconnect) |
+| Grub Glide | Ethan Hazel | zlib | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/grub-glide) |
+| Crystal Lake | VHVS | zlib | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/crystal-lake) |
+| Shock Lobster | tbsp | zlib | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/shock-lobster) |
+| Carazu | Martin Holtkamp | GPL-3.0-or-later | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/carazu) |
+| Big2Small | mdsteele | GPL-3.0-or-later | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/big2small) |
+| GB-Wordyl | bbbbbr | GPL-3.0 | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/gb-wordyl) |
+| El Dueloroso | Adrián JG | GPL-3.0 | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/el-dueloroso) |
+| Rex Run | el_seyf | GPL-3.0 | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/rex-run-v1-0) |
+| Escape Obliterizer Deluxe | João Godinho | GPL-3.0 | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/escape-obliterizer-dx) |
+| Bit Bang | StudioGuma | GPL-3.0-or-later | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/bit_bang) |
+| Sushi Nights | Zalo | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/sushi-nights) |
+| Porklike GB | binji | MIT | [Author-supplied ROM and license metadata](https://github.com/gbdev/database/tree/master/entries/porklike-gb) |
+
+License references and copyright attribution remain the original authors'. MIT licenses require retention of applicable copyright/permission notices; GPL titles require access to corresponding source. See each linked original game entry and follow its own upstream source links and notices. For older freeware entries with no explicit permission to redistribute, UGN continues to use the **Use My Copy** loader rather than bundling a ROM.
+
+**Important:** The catalog includes games with similar genre mechanics to historical commercial games, but no Nintendo, Sega, or Sony commercial cartridge dump has been added in this batch.
