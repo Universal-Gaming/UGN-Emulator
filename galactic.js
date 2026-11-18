@@ -457,8 +457,8 @@ export function mountGalacticArchive(api) {
   $('#close-room').onclick=()=>{setSector('archive')};
   $('#return-archive').onclick=()=>{setSector('archive')};$('#room-play-game').onclick=()=>openShelf();
   $('#enter-room')?.addEventListener('click',()=>setSector('room'));
-  $('[data-sector]').forEach(b=>b.onclick=()=>setSector(b.dataset.sector,{fromIntro:true}));
-  $('[data-space]').forEach(b=>b.addEventListener('click',()=>{
+  $$('[data-sector]').forEach(b=>b.onclick=()=>setSector(b.dataset.sector,{fromIntro:true}));
+  $$('[data-space]').forEach(b=>b.addEventListener('click',()=>{
     document.querySelector('#home')?.scrollIntoView({behavior:'smooth'});
     const sector=b.dataset.space;
     setSector(sector,{fromIntro:true});
