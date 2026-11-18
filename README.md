@@ -6,8 +6,8 @@ A premium, interactive, 3D browser console-emulation experience for **Universal 
 
 ## Current catalog
 
-- **27 actual console ROMs** are present in this repository.
-- **8 represented hardware families** have playable-file candidates: NES, SNES, Nintendo 64, Game Boy / Game Boy Color, Game Boy Advance, Sega Genesis, Atari 2600, and Neo Geo Pocket. Game Boy and Game Boy Color have separate filter categories but use the same EmulatorJS core.
+- **31 actual console ROMs** are present in this repository.
+- **9 represented hardware categories** have playable-file candidates: NES, SNES, Nintendo 64, Game Boy / Game Boy Color, Game Boy Advance, Sega Genesis, Atari 2600, and Neo Geo Pocket. Game Boy and Game Boy Color have separate filter categories but use the same EmulatorJS core.
 - **16 console categories**, accurately labeled with authentic hardware photography when available. Categories without bundled licensed games say **COMING SOON**.
 - No game imports, uploads, AI-made arcade games, or pretend playable titles.
 - Three.js WebGL 3D hero showroom, adaptive UGN cosmic UI, actual console imagery, catalog filters, search, favorites, recent activity, keyboard/gamepad support via EmulatorJS, player fullscreen and emulator save states where supported.
@@ -43,3 +43,9 @@ Checks should cover: ROM file presence and sizes, required NES headers, JavaScri
 ## Design principles
 
 A **console museum and emulator**, never a generic browser arcade. Immersive 3D, UGN cosmic colors, exact console identity, clear gameplay status, creator credits, accessibility and graceful performance fallback.
+
+## Galactic Archive interactive experience
+
+The primary page includes a fully explorable Three.js starship with sixteen interactive hardware pedestals and a planetary observation deck, cinematic entry with skip, holographic game-case browsing, quick 2D accessibility mode (`library.html`), optional synthesized ambient spacecraft audio, adjustable graphics quality, and local 3D gaming room customization.
+
+Available room designs: 1980s Retro, 1990s Bedroom, 2000s Gaming Setup, Futuristic UGN, Premium Collector, and Cosmic Observation. You can add, drag, rotate, and remove objects; layouts are stored locally. Hardware console meshes are original stylized 3D approximations paired with real hardware photos, not licensed photogrammetry models. WebGL and network availability can affect how scenes render.
