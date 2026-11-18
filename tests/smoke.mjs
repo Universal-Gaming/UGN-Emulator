@@ -142,12 +142,17 @@ try{
  const localSource=await page.locator('#player-viewport iframe').getAttribute('srcdoc');
  assert.match(localSource,/blob:/,'The game file must load locally from an object URL');
  assert.match(localSource,/EJS_core/);
+ assert.match(localSource,/<\/script><script src=/i,'Personal-copy iframe must contain real closing script tags so the EmulatorJS loader runs');
  try{
    await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('CORE READY')||document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:25000});
    if(!(await page.locator('#player-status').innerText()).includes('GAME RUNNING'))
      await page.locator('#player-viewport iframe').contentFrame().locator('#game').click({position:{x:180,y:170},force:true});
    await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:45000});
- } catch(e) {console.warn('Local-file emulator boot failed: '+await page.locator('#player-status').textContent());throw e;}
+ } catch(e) {
+   console.warn('Local-file emulator boot failed:',await page.locator('#player-status').textContent());
+   const diag=await page.locator('#player-viewport iframe').contentFrame().locator('body').evaluate(el=>({html:el.innerHTML.slice(0,600),emulator:!!el.ownerDocument.defaultView?.EJS_emulator,gameDiv:!!el.querySelector('#game')}));
+   console.warn('Local-copy iframe diagnostics:',diag);throw e;
+ }
  await page.locator('#player-close').click();
  assert.equal(await page.locator('#game-dialog[open]').count(),0);
  await page.screenshot({path:'smoke-catalog.png',fullPage:false});
