@@ -46,6 +46,10 @@ try{
  await page.screenshot({path:'smoke-shelf.png',fullPage:false});
  await page.locator('[data-sector="room"]').click();
  await page.locator('#room-panel:not([hidden])').waitFor();
+ await page.waitForFunction(()=>document.querySelector('#galactic-stage')?.dataset.renderer, null, {timeout:30000});
+ assert.equal(await page.locator('#galactic-stage').getAttribute('data-renderer'),'webgl','Three.js must produce a real WebGL scene');
+ assert.ok(Number(await page.locator('#galactic-stage').getAttribute('data-room-object-count'))>=18,'Room 3D meshes should be built');
+
  await page.waitForFunction(()=>document.querySelector('#room-preset')?.value==='photo',null,{timeout:15000});
  const initialRoom=await page.evaluate(()=>JSON.parse(localStorage.getItem('ugn-galactic-room-v1'))||{furniture:[]});
  assert.ok(initialRoom.furniture?.length>=16,'Photographic UGN starter room should contain detailed furnishings');
