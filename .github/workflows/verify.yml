@@ -52,6 +52,8 @@ jobs:
           PY
       - run: npm install --no-save playwright@1.56.1
       - run: npx playwright install --with-deps chromium
+      - name: Interactive buttons and navigation regression
+        run: node tests/controls.mjs
       - name: Browser end-to-end smoke
         run: node tests/smoke.mjs
       - name: Upload desktop/mobile screenshots
