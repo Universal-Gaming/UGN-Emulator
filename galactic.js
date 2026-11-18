@@ -16,23 +16,92 @@ export function mountGalacticArchive(api) {
   let userCameraZ=9, userCameraX=0, introStarted=0, introDuration=2800, warpActive=false;
   let movingTo=null, hoverId='',lastTime=performance.now(),frameCount=0,fpsStart=performance.now();
   let audioContext=null, drone=null, droneGain=null,ambientOn=false;
-  const rooms={
-    retro80:{wall:0x443a56,floor:0x5b403b,light:0xf6b66c,name:'1980s Retro Room'},
-    bedroom90:{wall:0x445b75,floor:0x696b73,light:0xe4a9ff,name:'1990s Gamer Bedroom'},
-    era2000:{wall:0x8d9aa0,floor:0x4a4b55,light:0x80d6ff,name:'Early 2000s Setup'},
-    ugn:{wall:0x0c2144,floor:0x0a1830,light:0x00d4ff,name:'Futuristic UGN Lounge'},
-    collector:{wall:0x202b34,floor:0x1b2529,light:0xffdfae,name:'Premium Collector Room'},
-    cosmic:{wall:0x16113e,floor:0x172b4a,light:0x9680ff,name:'Cosmic Observation Room'}
+  /* Versioned room state with one independently saved layout per historical era. */
+  const ROOM_KEY='ugn-galactic-room-v1';
+  const PRESET_LOOKS={
+    photo:{walls:'purple',floor:'carpet',lights:'violet',window:'earth',atmosphere:'neon',clutter:'packed'},
+    retro80:{walls:'gray',floor:'wood',lights:'warm',window:'stars',atmosphere:'cozy',clutter:'packed'},
+    bedroom90:{walls:'purple',floor:'carpet',lights:'violet',window:'ringed',atmosphere:'cozy',clutter:'packed'},
+    era2000:{walls:'cream',floor:'carpet',lights:'cyan',window:'station',atmosphere:'chill',clutter:'curated'},
+    ugn:{walls:'navy',floor:'metal',lights:'cyan',window:'earth',atmosphere:'neon',clutter:'curated'},
+    collector:{walls:'dark',floor:'wood',lights:'warm',window:'galaxy',atmosphere:'cozy',clutter:'packed'},
+    cosmic:{walls:'purple',floor:'tile',lights:'violet',window:'nebula',atmosphere:'deep',clutter:'curated'}
   };
-  const DEFAULT={preset:'ugn',walls:'navy',floor:'metal',lights:'cyan',graphics:'balanced',furniture:[
-    {id:101,type:'crt',x:-3.4,z:-3.8,rot:0},
-    {id:102,type:'sofa',x:0,z:1.3,rot:Math.PI},
-    {id:103,type:'shelf',x:5,z:-5.7,rot:0},
-    {id:104,type:'lamp',x:-6,z:-4.7,rot:0}
-  ]};
+  // Positioned to resemble the provided retro-futuristic photo: shelves/CRT left,
+  // glass console case center, desk right, gamer bed front-right, blue planet window.
+  const LAYOUT_BLUEPRINTS={
+    photo:[
+      ['shelf',-8.25,-7.9,Math.PI/2],['shelf',-8.25,-4.75,Math.PI/2],
+      ['crt',-4.20,-5.80,0],['cabinet',.30,-6.65,0],
+      ['shelf',2.80,-7.9,0],['desk',6.65,-6.15,0],['chair',6.45,-3.92,Math.PI],
+      ['bed',6.55,3.12,0],['sofa',-6.5,4.22,0],['table',-4.3,3.52,0],
+      ['rug',-3.6,3.15,0],['plant',-8.10,-9.04,0],['lava',-2.25,-4.70,0],
+      ['poster',-8.85,-.2,Math.PI/2],['lamp',8.3,1.0,0],['console',-4.3,-3.22,0],
+      ['figure',2.7,-5.1,0],['snacks',-3.65,3.32,0]
+    ],
+    retro80:[
+      ['shelf',-8.3,-6,Math.PI/2],['shelf',-8.3,-2.7,Math.PI/2],
+      ['crt',-3.6,-6.15,0],['stand',.1,-6.15,0],['console',.15,-5.65,0],
+      ['sofa',-3.2,3.1,0],['table',0,2.1,0],['rug',-1.6,2.6,0],
+      ['lamp',5.4,-4.6,0],['poster',-7.9,-.5,Math.PI/2],['shelf',5.2,-7.9,0],['plant',8.1,-6.7,0]
+    ],
+    bedroom90:[
+      ['shelf',-8.3,-7.7,Math.PI/2],['shelf',-8.3,-4.5,Math.PI/2],
+      ['crt',-4,-6.3,0],['cabinet',.1,-6.5,0],['desk',6.3,-5.8,0],
+      ['chair',6.4,-3.75,Math.PI],['bed',6.1,2.5,0],['rug',-3.3,3.4,0],
+      ['sofa',-5.9,3.5,0],['table',-3.8,3,0],['poster',-8.8,-.5,Math.PI/2],
+      ['lava',-2,-4.4,0],['lamp',8,1,0],['plant',-8,-9,0]
+    ],
+    era2000:[
+      ['shelf',-8.2,-7.2,Math.PI/2],['crt',-4,-6.2,0],['stand',.15,-5.9,0],
+      ['desk',5.4,-6.4,0],['chair',5.4,-3.5,Math.PI],['bed',6,2.2,0],
+      ['cabinet',.2,-8,0],['sofa',-5,3.2,0],['table',-3.5,2.8,0],
+      ['poster',-8.7,-.2,Math.PI/2],['lamp',8,-3,0],['rug',-2.2,2.6,0]
+    ],
+    ugn:[
+      ['cabinet',-5.5,-6.7,0],['cabinet',-2.0,-6.7,0],['desk',5.6,-6.3,0],
+      ['chair',5.5,-3.6,Math.PI],['sofa',-4.5,3.5,0],['table',-2.3,2.9,0],
+      ['rug',-2,2.4,0],['plant',8.4,-6.0,0],['poster',-8.7,-.2,Math.PI/2],
+      ['crt',1.8,-5.9,0],['lamp',8.3,2.2,0],['shelf',-8.3,-7.4,Math.PI/2]
+    ],
+    collector:[
+      ['shelf',-8.4,-7.75,Math.PI/2],['shelf',-8.4,-4.8,Math.PI/2],
+      ['shelf',-8.4,-1.8,Math.PI/2],['cabinet',-3.4,-7.1,0],
+      ['cabinet',.5,-7.1,0],['cabinet',4.2,-7.1,0],['crt',-4.8,1.0,0],
+      ['sofa',-4.1,4.5,0],['table',-2.0,3.5,0],['rug',-2.3,3.2,0],
+      ['desk',6.4,-2.8,0],['chair',6.6,-.65,Math.PI],['plant',8.1,-8,0],
+      ['lamp',8.3,4,0],['figure',-1.7,-5.8,0],['poster',-8.9,3.3,Math.PI/2]
+    ],
+    cosmic:[
+      ['bed',5.6,2.6,0],['sofa',-5.6,3.4,0],['cabinet',-4.2,-6.2,0],
+      ['desk',5.7,-5.7,0],['chair',5.5,-3.7,Math.PI],['shelf',-8.2,-7.6,Math.PI/2],
+      ['crt',-.1,-5.5,0],['plant',8.1,-6.7,0],['rug',-2.6,2.5,0],
+      ['table',-3.1,3.15,0],['lava',1.5,-4.5,0],['poster',-8.9,0,Math.PI/2]
+    ]
+  };
+  const makePresetLayout=id=>(LAYOUT_BLUEPRINTS[id]||LAYOUT_BLUEPRINTS.photo).map(([type,x,z,rot],i)=>({
+    id:1000+Object.keys(LAYOUT_BLUEPRINTS).indexOf(id)*100+i,type,x,z,rot
+  }));
+  const DEFAULT={preset:'photo',...PRESET_LOOKS.photo,graphics:'balanced',
+    displayConsoles:['nes','snes','n64','psx'],snap:true,roomVersion:2,layouts:{},furniture:makePresetLayout('photo')};
   let config;
-  try{const read=JSON.parse(localStorage.getItem('ugn-galactic-room-v1')||'null');config={...DEFAULT,...read,furniture:Array.isArray(read?.furniture)?read.furniture:DEFAULT.furniture.map(x=>({...x}))}}catch{config={...DEFAULT,furniture:DEFAULT.furniture.map(x=>({...x}))}}
-  const persist=()=>{try{localStorage.setItem('ugn-galactic-room-v1',JSON.stringify(config))}catch{}};
+  try{
+    const stored=JSON.parse(localStorage.getItem(ROOM_KEY)||'null');
+    const oldDefault=stored&&!stored.roomVersion&&stored.preset==='ugn'&&stored.furniture?.length===4;
+    const source=oldDefault?null:stored;
+    config={...DEFAULT,...(source||{}),displayConsoles:Array.isArray(source?.displayConsoles)?source.displayConsoles.slice(0,4):[...DEFAULT.displayConsoles],
+      furniture:Array.isArray(source?.furniture)?source.furniture:makePresetLayout(source?.preset||'photo'),
+      layouts:source?.layouts&&typeof source.layouts==='object'?source.layouts:{},roomVersion:2};
+    if(!PRESET_LOOKS[config.preset])config.preset='photo';
+    if(!Array.isArray(config.furniture)||config.furniture.length<1)config.furniture=makePresetLayout(config.preset);
+  }catch{config={...DEFAULT,furniture:makePresetLayout('photo'),layouts:{}}}
+  let roomStudio=null,roomUndo=[],roomRedo=[],currentRoomView='overview',referenceVisible=false;
+  const roomSnapshot=()=>JSON.stringify(config);
+  const checkpoint=()=>{roomUndo.push(roomSnapshot());if(roomUndo.length>35)roomUndo.shift();roomRedo.length=0};
+  const persist=()=>{config.roomVersion=2;config.layouts[config.preset]=config.furniture.map(x=>({...x}));try{localStorage.setItem(ROOM_KEY,JSON.stringify(config))}catch{}
+    const el=$('#room-save-status');if(el)el.textContent='✓ ROOM AUTOSAVED / '+config.furniture.length+' OBJECTS';
+    const count=$('#room-object-count');if(count)count.textContent=config.furniture.length+' PLACED';
+  };
   const report=s=>{const el=$('#world-prompt');if(el)el.textContent=s;api.notify?.(s)};
   const rect=(w,h,d,material)=>new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
   const material=(c,metal=.2,rough=.55)=>new THREE.MeshStandardMaterial({color:c,metalness:metal,roughness:rough});
@@ -313,75 +382,34 @@ export function mountGalacticArchive(api) {
       const light=new THREE.PointLight(c,75,19,1.5);light.position.set(x,6,z);vaultGroup.add(light);
     }
   }
-  function roomSurface(){
-    const c=rooms[config.preset]||rooms.ugn;
-    const wallColors={navy:0x101e3d,purple:0x2c1c4b,gray:0x69717d,dark:0x121521,cream:0xb9ac97};
-    const floorColors={metal:0x152136,wood:0x604438,carpet:0x313e54,tile:0x323c44};
-    return {wall:wallColors[config.walls]||c.wall,floor:floorColors[config.floor]||c.floor,light:{cyan:0x00d4ff,violet:0x9174ff,green:0x5cfc76,warm:0xffbf80,white:0xd7eeff}[config.lights]||c.light}
-  }
+  // Room Studio renderer is isolated from the console emulators and museum assets.
   function makeFurniture(entry){
-    const g=new THREE.Group();g.userData.furnitureId=entry.id;g.userData.furnitureType=entry.type;
-    const brown=material(0x624438,.1,.8),metal=material(0x273a55,.55,.4),screen=glow(0x095f75),padding=material(0x394d6c,.1,.9);
-    const add=(mesh,x,y,z)=>{mesh.position.set(x,y,z);g.add(mesh);return mesh};
-    const addBox=(w,h,d,x,y,z,mat)=>add(rect(w,h,d,mat),x,y,z);
-    if(entry.type==='crt'){
-      addBox(1.75,1.35,1.45,0,1.65,0,material(0x696b68,.15,.8));
-      addBox(1.42,1.0,.08,0,1.73,.76,material(0x101928,.3,.1));
-      addBox(1.25,.84,.025,0,1.73,.81,screen);
-      addBox(.16,.65,.15,.87,1.65,.62,material(0xa6a8a4));
-      addBox(1.6,.14,.67,0,.93,0,metal);
-      addBox(.24,.95,.24,-.5,.44,0,metal);addBox(.24,.95,.24,.5,.44,0,metal);
-    } else if(entry.type==='console'){
-      addBox(1.8,.85,1.25,0,.45,0,metal);
-      addBox(1.3,.12,.95,0,.95,-.05,material(0x76819a));
-      addBox(.6,.06,.08,0,1.02,.32,glow(0x00d4ff));
-      const game=addBox(.35,.45,.08,0,1.20,-.05,material(0x4f6cc2));game.rotation.x=-.18;
-    } else if(entry.type==='sofa'){
-      addBox(2.8,.48,1.3,0,.55,0,padding);
-      addBox(2.8,1.0,.3,0,1.15,-.55,padding);
-      addBox(.3,.75,1.2,-1.45,.68,0,metal);addBox(.3,.75,1.2,1.45,.68,0,metal);
-      for(let k=-1;k<=1;k++)addBox(.8,.13,1.12,k*.86,.85,.15,material(0x486385));
-    } else if(entry.type==='shelf'){
-      for(const x of [-1,1])addBox(.13,3.3,.65,x*.95,1.65,0,metal);
-      for(let y=.32;y<=3.1;y+=.9){addBox(2,.13,.7,0,y,0,brown);for(let j=-3;j<=3;j++){const height=.36+(j%3)*.1;const item=addBox(.14,height,.34,j*.23,y+.13+height/2,.04,material([0x477baa,0x7a52b2,0x49ad8d,0xc78b5e][(j+7)%4]));item.rotation.z=j%2?.05:-.03;}}
-    }else if(entry.type==='lamp'){
-      addBox(.20,2.4,.22,0,1.2,0,metal);
-      const shade=new THREE.Mesh(new THREE.CylinderGeometry(.6,.35,.75,18),material(0x6f93ab,.5,.4));add(shade,0,2.55,0);
-      const bulb=new THREE.Mesh(new THREE.SphereGeometry(.19,14,12),glow(0xffe5a1));add(bulb,0,2.2,0);
-    }else if(entry.type==='poster'){
-      addBox(1.9,2.15,.1,0,1.5,0,material(0x2a3156,.15,.5));
-      addBox(1.72,1.98,.03,0,1.5,.08,material(0x18668f));
-      const title=sign('UGN RETRO',1.68,.8);title.position.set(0,1.66,.12);g.add(title);
-      const badge=sign('A GALAXY OF GAMES',1.68,.55);badge.position.set(0,1.22,.13);g.add(badge);
-    }
-    g.position.set(entry.x,0,entry.z);g.rotation.y=entry.rot||0;
-    const hit=rect(entry.type==='lamp'?.9:entry.type==='sofa'?3.2:entry.type==='shelf'?2.35:2.2,3.3,entry.type==='sofa'?1.6:1.7,new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));hit.position.y=1.65;hit.userData.furnitureId=entry.id;g.add(hit);furnitureObjects.push(hit);roomGroup.add(g);return g;
+    if(!roomStudio||!roomGroup)return null;
+    const furniture=roomStudio.makeFurniture(entry,config);
+    roomGroup.add(furniture);return furniture;
   }
   function buildRoom(){
-    if(roomGroup){scene.remove(roomGroup);roomGroup.traverse(node=>{node.geometry?.dispose?.();if(node.material){const mats=Array.isArray(node.material)?node.material:[node.material];mats.forEach(m=>{m.map?.dispose?.();m.dispose?.()})}})}
-    roomGroup=new THREE.Group();scene.add(roomGroup);roomGroup.visible=activeSector==='room';furnitureObjects=[];selectedFurniture=null;$('#furniture-selected').textContent='NONE';
-    const surfaces=roomSurface(),walls=material(surfaces.wall,.25,.75),floormat=material(surfaces.floor,.3,.65);
-    roomFloor=rect(19,.18,18,floormat);roomFloor.position.set(0,-.15,-1);roomGroup.add(roomFloor);
-    const back=rect(19,7,.28,walls);back.position.set(0,3.5,-10);roomGroup.add(back);
-    for(const side of [-1,1]){const panel=rect(.26,7,19,walls);panel.position.set(side*9.5,3.5,-1);roomGroup.add(panel);}
-    const ceiling=rect(19,.25,19,material(0x11192f,.35,.5));ceiling.position.set(0,7.3,-1);roomGroup.add(ceiling);
-    for(const side of [-1,1]){
-      for(let z=-8;z<=6;z+=3.8)trimBox(roomGroup,.12,5.8,.12,side*9.31,3.2,z,surfaces.light);
-      trimBox(roomGroup,.15,.06,18,side*8.7,.09,-1,surfaces.light);
+    if(!roomStudio||!scene)return;
+    if(roomGroup){
+      scene.remove(roomGroup);
+      const mats=new Set(),geos=new Set(),tex=new Set();
+      roomGroup.traverse(o=>{
+        if(o.geometry)geos.add(o.geometry);
+        for(const m of Array.isArray(o.material)?o.material||[]:o.material?[o.material]:[]){
+          mats.add(m);if(m.map)tex.add(m.map);
+        }
+      });
+      for(const t of tex)t.dispose();
+      for(const m of mats)m.dispose();
+      for(const g of geos)g.dispose();
     }
-    trimBox(roomGroup,18,.07,.18,0,6.6,-9.7,surfaces.light);
-    const win=rect(7.1,3.75,.04,basic(0x051329));win.position.set(0,4.3,-9.84);roomGroup.add(win);
-    const rim=material(0x356075,.6,.38);
-    for(const x of [-3.7,3.7]){const m=rect(.18,4.1,.2,rim);m.position.set(x,4.3,-9.7);roomGroup.add(m)}
-    for(const y of [2.2,6.4]){const m=rect(7.8,.18,.2,rim);m.position.set(0,y,-9.7);roomGroup.add(m)}
-    const planet=addPlanet(roomGroup,1.9,4,-36,7.2);planet.userData.spin=true;
-    buildStarfield(roomGroup,config.graphics==='low'?350:900);
-    const keyLight=new THREE.PointLight(surfaces.light,config.graphics==='low'?24:43,25,1.6);keyLight.position.set(2,5,1);roomGroup.add(keyLight);
-    const fill=new THREE.AmbientLight(0xb8c8e3,1.3);roomGroup.add(fill);
-    const door=rect(2.3,4.0,.12,material(0x15253c,.45,.48));door.position.set(-8,2,-9.7);roomGroup.add(door);
-    const doorText=sign('EXIT / ARCHIVE',2,.55);doorText.position.set(-8,3.7,-9.59);roomGroup.add(doorText);
-    doorText.userData.interact='archive';furnitureObjects.push(doorText);
+    const r=roomStudio.build(config);
+    roomGroup=r.group;roomFloor=r.floor;furnitureObjects=r.hits;roomGroup.visible=activeSector==='room';
+    selectedFurniture=null;
+    scene.add(roomGroup);
     config.furniture.forEach(makeFurniture);
+    const selected=$('#furniture-selected');if(selected)selected.textContent='NONE';
+    const count=$('#room-object-count');if(count)count.textContent=config.furniture.length+' PLACED';
   }
   function setSector(next,options={}){
     activeSector=next;
