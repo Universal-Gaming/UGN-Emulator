@@ -233,7 +233,7 @@ export function mountConsoleIndex(api) {
       const res=await fetch('./catalog/manifest.json',{cache:'force-cache'});
       if(!res.ok)throw new Error('Manifest HTTP '+res.status);
       manifest=await res.json();
-      $('#full-index-total').textContent=Number(manifest.total||0).toLocaleString('en-US');
+      $('#full-index-total').textContent=Number(manifest.total||0).toLocaleString('en-US');if($('#hero-catalog'))$('#hero-catalog').textContent=Number(manifest.total||0).toLocaleString('en-US');
       const opt=$('#index-console');
       opt.innerHTML='<option value="all">ALL 16 SYSTEMS</option>'+manifest.systems.map(m=>'<option value="'+clean(m.id)+'">'+clean(allSystemLabel(m.id))+' ('+Number(m.count).toLocaleString('en-US')+')</option>').join('');
       opt.value=active;
