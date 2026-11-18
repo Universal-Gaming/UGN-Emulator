@@ -1,0 +1,104 @@
+{
+  "generated_from": "libretro/libretro-database",
+  "license": "CC-BY-SA-4.0",
+  "source": "https://github.com/libretro/libretro-database",
+  "systems": [
+    {
+      "id": "nes",
+      "name": "Nintendo - Nintendo Entertainment System",
+      "count": 5194,
+      "file": "catalog/byo/nes.json"
+    },
+    {
+      "id": "snes",
+      "name": "Nintendo - Super Nintendo Entertainment System",
+      "count": 3546,
+      "file": "catalog/byo/snes.json"
+    },
+    {
+      "id": "n64",
+      "name": "Nintendo - Nintendo 64",
+      "count": 1103,
+      "file": "catalog/byo/n64.json"
+    },
+    {
+      "id": "gb",
+      "name": "Nintendo - Game Boy",
+      "count": 2037,
+      "file": "catalog/byo/gb.json"
+    },
+    {
+      "id": "gbc",
+      "name": "Nintendo - Game Boy Color",
+      "count": 2272,
+      "file": "catalog/byo/gbc.json"
+    },
+    {
+      "id": "gba",
+      "name": "Nintendo - Game Boy Advance",
+      "count": 3231,
+      "file": "catalog/byo/gba.json"
+    },
+    {
+      "id": "nds",
+      "name": "Nintendo - Nintendo DS",
+      "count": 7468,
+      "file": "catalog/byo/nds.json"
+    },
+    {
+      "id": "segaMD",
+      "name": "Sega - Mega Drive - Genesis",
+      "count": 2427,
+      "file": "catalog/byo/segaMD.json"
+    },
+    {
+      "id": "segaGG",
+      "name": "Sega - Game Gear",
+      "count": 562,
+      "file": "catalog/byo/segaGG.json"
+    },
+    {
+      "id": "sega32x",
+      "name": "Sega - 32X",
+      "count": 66,
+      "file": "catalog/byo/sega32x.json"
+    },
+    {
+      "id": "segaCD",
+      "name": "Sega - Mega-CD - Sega CD",
+      "count": 434,
+      "file": "catalog/byo/segaCD.json"
+    },
+    {
+      "id": "segaSaturn",
+      "name": "Sega - Saturn",
+      "count": 1911,
+      "file": "catalog/byo/segaSaturn.json"
+    },
+    {
+      "id": "psx",
+      "name": "Sony - PlayStation",
+      "count": 10091,
+      "file": "catalog/byo/psx.json"
+    },
+    {
+      "id": "atari2600",
+      "name": "Atari - 2600",
+      "count": 779,
+      "file": "catalog/byo/atari2600.json"
+    },
+    {
+      "id": "ngp",
+      "name": "SNK - Neo Geo Pocket",
+      "count": 9,
+      "file": "catalog/byo/ngp.json"
+    },
+    {
+      "id": "neogeo",
+      "name": "SNK - Neo Geo",
+      "count": 278,
+      "file": "catalog/byo/neogeo.json"
+    }
+  ],
+  "total": 41408
+}
