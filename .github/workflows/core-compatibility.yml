@@ -1,0 +1,35 @@
+name: Test Console Core Compatibility
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/core-compatibility.mjs'
+      - '.github/workflows/core-compatibility.yml'
+concurrency:
+  group: ugn-core-matrix-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  ten-core-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install chromium
+      - name: Boot a real console ROM in all ten installed emulator categories
+        run: node tests/core-compatibility.mjs
+      - name: Upload console compatibility report and diagnostic screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-ten-core-compatibility
+          path: |
+            core-compatibility.json
+            core-previews/*.png
+          if-no-files-found: warn
