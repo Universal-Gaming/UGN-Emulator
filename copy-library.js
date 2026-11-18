@@ -1,4 +1,5 @@
 import { attachBootOverlay } from './player-boot.js';
+import { artworkImage, wireArtwork, setArtworkImage } from './artwork.js';
 /* UGN Emulator — complete title index and private use-your-own-copy browser playback.
    No commercial game binaries, BIOS or uploaded files are sent to UGN.
    Metadata: Libretro Database, CC BY-SA 4.0. */
@@ -109,7 +110,7 @@ export function mountConsoleIndex(api) {
     }catch(error){
       if(request!==currentListKey)return;
       setStatus('ARCHIVE FAILED TO LOAD — TRY RELOADING THE PAGE');
-      $('#index-grid').innerHTML='<div class="archive-load-error">The title index cannot be reached. Your 31 hosted homebrew games remain playable above.</div>';
+      $('#index-grid').innerHTML='<div class="archive-load-error">The title index cannot be reached. Your installed homebrew games remain playable above.</div>';
       console.warn('UGN console catalog:',error);
     }finally{if(request===currentListKey)loading=false;}
   }
@@ -120,11 +121,10 @@ export function mountConsoleIndex(api) {
     $('#index-prev').disabled=page===0;$('#index-next').disabled=end>=total;
     $('#index-empty').hidden=total!==0;
     $('#index-grid').innerHTML=shown.map(g=>{
-      const host=hostedFor(g),isHost=!!host,art=covers(g);
+      const host=hostedFor(g),isHost=!!host,art=host?.image||covers(g);
       return '<article class="index-card" data-entry="'+clean(g.key)+'"><div class="index-cover">'+
         '<button class="index-card-favorite '+(prefs.favorites.includes(prefId(g))?'active':'')+'" data-index-fav="'+clean(g.key)+'" aria-label="Toggle favorite for '+clean(g.title)+'" aria-pressed="'+prefs.favorites.includes(prefId(g))+'">♥</button>'+
-        '<img loading="lazy" decoding="async" src="'+clean(art)+'" alt="Box artwork for '+clean(g.title)+'" onerror="this.hidden=true;this.nextElementSibling.hidden=false">'+
-        '<span class="index-placeholder" hidden>'+clean(systemById(g.system)?.short||'UGN')+'</span>'+
+        artworkImage(art,g.title,systemById(g.system)?.short||g.system)+
         '<span class="index-cover-label">'+clean(systemById(g.system)?.short||g.system)+'</span>'+
         (g.region?'<span class="index-region">'+clean(g.region)+'</span>':'')+'</div>'+
         '<div class="index-card-content"><h3 title="'+clean(g.title)+'">'+clean(g.title)+'</h3>'+
@@ -132,6 +132,7 @@ export function mountConsoleIndex(api) {
         '<div class="index-card-action"><span class="'+(isHost?'ready':'')+'">'+(isHost?'● HOSTED':'◈ YOUR COPY')+'</span>'+
         '<button data-copy="'+clean(g.key)+'">'+(isHost?'PLAY NOW':'USE MY COPY')+' ↗</button></div></div></article>';
     }).join('');
+    wireArtwork($('#index-grid'));
     document.querySelectorAll('[data-index-fav]').forEach(b=>b.addEventListener('click',()=>{
       const entry=shown.find(x=>x.key===b.dataset.indexFav);if(!entry)return;
       const id=prefId(entry);prefs.favorites=prefs.favorites.includes(id)?prefs.favorites.filter(v=>v!==id):[...prefs.favorites,id];
@@ -163,8 +164,8 @@ export function mountConsoleIndex(api) {
     $('#copy-rom-file').accept=accept[entry.system]||'.zip';
     $('#copy-rom-label').textContent='SELECT GAME FILE · '+(accept[entry.system]||'.zip').replaceAll(',',', ');
     $('#copy-bios-hint').textContent=biosRules[entry.system]||'Not normally required. Only add a BIOS if you have a legally usable copy.';
-    const cover=$('#copy-art');cover.src=covers(entry);cover.hidden=false;
-    cover.onerror=()=>{cover.hidden=true;$('#copy-art-fallback').hidden=false};
+    const cover=$('#copy-art');
+    setArtworkImage(cover,hostedFor(entry)?.image||covers(entry),entry.title,systemById(entry.system)?.short||entry.system);
     $('#copy-art-fallback').hidden=true;
     fileStatus('Files stay entirely in this browser session. UGN does not upload or store them.');
     dialog.showModal();
