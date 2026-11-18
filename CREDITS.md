@@ -56,3 +56,16 @@ Real-console photographs are loaded from Wikimedia Commons, principally the publ
 ## Technical note
 
 EmulatorJS loads game cores from its public CDN. The game ROM files are included in this GitHub repository. Game compatibility, artwork availability and gameplay are separate verification concerns.
+
+## Additional NES games from the Homebrew Hub
+
+These four games are copied from the [NES Homebrew Hub](https://github.com/nesdev-org/homebrew-db), which includes the actual NES ROMs and creator metadata:
+
+| Game | Creator | License | Source |
+|---|---|---|---|
+| Concentration Room | Damian Yerrick | GPL-3.0-or-later | [croom](https://github.com/nesdev-org/homebrew-db/tree/master/entries/croom) |
+| RHDE: Furniture Fight | Damian Yerrick | FSF All-Permissive | [rhde](https://github.com/nesdev-org/homebrew-db/tree/master/entries/rhde) |
+| Thwaite | Damian Yerrick | GPL-3.0-or-later | [thwaite](https://github.com/nesdev-org/homebrew-db/tree/master/entries/thwaite) |
+| Zap Ruder | Damian Yerrick | zlib | [zap-ruder](https://github.com/nesdev-org/homebrew-db/tree/master/entries/zap-ruder) |
+
+Upstream GPL source and corresponding terms remain available via the linked original projects; license obligations remain applicable to redistributed builds.
