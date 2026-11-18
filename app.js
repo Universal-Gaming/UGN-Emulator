@@ -1,4 +1,5 @@
-/* UGN Emulator: premium console-only experience. No fake games, no upload interface. */
+/* UGN Emulator: real console emulation, licensed built-in titles and lawful local copies. */
+import {loadPersonalTitles,seedPersonalTitles,acceptedFormats,needsBios,coreNeedsIsolation} from './personal-catalog.js';
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const commons=name=>name?'https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(name)+'?width=700':'';
@@ -54,6 +55,10 @@ C('segaMD','roms/genesis/break-an-egg.md','Break An Egg','Action','Studio Vetea'
 C('atari2600','roms/atari2600/sheep-it-up.a26','Sheep It Up!','Platformer','Dr. Ludos',2017,'A genuine Atari 2600 homebrew with a charming sheep protagonist.','lime'),
 C('ngp','roms/ngp/asteroids-neo.ngp','Asteroids neo','Shooter','Steven MacDonald',2026,'An independently developed Neo Geo Pocket shooter.','violet')
 ];
+const curatedTitles=seedPersonalTitles();
+const allTitles=[...games,...curatedTitles];
+const externalLoaded=new Set();
+let catalogMode='hosted',visibleLimit=36;
 const storageKey='ugn-emulator-prefs-v3';let memory={favorites:[],played:{},recent:[]};
 try{const saved=JSON.parse(localStorage.getItem(storageKey)||'{}');if(saved&&typeof saved==='object'){memory={...memory,...saved};if(!Array.isArray(memory.favorites))memory.favorites=[];if(!Array.isArray(memory.recent))memory.recent=[];if(!memory.played||typeof memory.played!=='object')memory.played={}}}catch{}
 const save=()=>{try{localStorage.setItem(storageKey,JSON.stringify(memory))}catch{}};
