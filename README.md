@@ -89,3 +89,7 @@ The full title index includes commercial releases as **metadata only**. UGN does
 - Games launch from actual console ROMs, not JavaScript copies. The bundled 79-file release and manifest are checked by CI; startup no longer fires 79 simultaneous network probes.
 - The release suite checks artwork, mobile width, game controls, WebGL starship interaction, and successful emulator startup. Game-by-game manual audio/save/controller tests remain necessary; no software can be proven 100% bug-free by automation.
 - The site currently uses third-party EmulatorJS and Three.js hosting plus externally hosted original artwork. Read [HOSTING.md](HOSTING.md) for deployment, license review, static hosting requirements and remaining constraints.
+
+### Original screenshot URL audit
+
+GitHub Actions includes [Audit Original Game Artwork](.github/workflows/artwork-audit.yml), which checks the actual browser image loading behavior for all 79 hosted titles and uploads a timestamped `artwork-audit.json` report. A failing external artwork URL does not silently become a supposed official screenshot: the interface renders a distinct, labeled UGN cover. External images remain network dependencies and may be copyrighted; review game-by-game permissions before mirroring or monetization.

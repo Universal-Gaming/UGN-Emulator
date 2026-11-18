@@ -1,0 +1,34 @@
+name: Audit Original Game Artwork
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'app.js'
+      - 'tests/image-source-audit.mjs'
+      - '.github/workflows/artwork-audit.yml'
+concurrency:
+  group: ugn-artwork-audit-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  verify-original-art:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install chromium
+      - name: Probe all 79 actual image sources and document fallbacks
+        run: node tests/image-source-audit.mjs
+      - name: Publish timestamped source-image audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-game-art-audit
+          path: artwork-audit.json
+          if-no-files-found: warn
