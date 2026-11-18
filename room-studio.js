@@ -59,7 +59,7 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
    mesh.instanceMatrix.needsUpdate=true;parent.add(mesh);
  }
  function hit(group,entry,w=2,h=2.8,d=1.5){
-   const mesh=B(group,w,h,d,0,h/2,0,new THREE.MeshBasicMaterial({visible:false}));
+   const mesh=B(group,w,h,d,0,h/2,0,new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));
    mesh.userData.furnitureId=entry.id;mesh.userData.furnitureType=entry.type;group.userData.hitTarget=mesh;hitObjects.push(mesh);return mesh;
  }
  function furniture(entry,cfg){
@@ -81,7 +81,7 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      cb(.16,.58,.12,.90,1.78,.65,plastic);for(let i=0;i<2;i++){const b=cyl(g,.07,.07,.03,.9,1.7+i*.24,.73,iron);b.rotation.x=Math.PI/2;}
      cb(.55,.10,.55,-.6,.68,.16,black);cb(.55,.08,.08,-.6,.72,.48,em);
      T('CRT / PLAY GAMES',2.4,0,2.93,.15);
-     const tvHit=cb(1.62,1.06,.05,-.12,1.90,.81,new THREE.MeshBasicMaterial({visible:false}));tvHit.userData.interact='room-play';hitObjects.push(tvHit);
+     const tvHit=cb(1.62,1.06,.05,-.12,1.90,.81,new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));tvHit.userData.interact='room-play';hitObjects.push(tvHit);
    }else if(entry.type==='stand'){
      w=3.1;h=1.4;d=1.5;
      cb(3.0,.16,1.5,0,1.1,0,top);cb(2.98,.16,1.5,0,.14,0,wood);
@@ -111,6 +111,9 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      for(let i=0;i<4;i++){const consoleId=cfg.displayConsoles?.[i]||['nes','snes','n64','psx'][i];
        const shell=new THREE.Group();add(g,shell,i%2?+.72:-.72,i<2?3.69:1.54,0);
        createConsole(shell,consoleId);shell.scale.setScalar(.28);
+       const slot=B(g,1.16,.92,.08,i%2?.72:-.72,i<2?3.69:1.54,.78,
+         new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));
+       slot.userData.interact='room-console';slot.userData.consoleId=consoleId;hitObjects.push(slot);
      }
      T('UGN / CONSOLE VAULT',2.85,0,4.91,.60);
      strip(g,2.95,.05,.05,0,.16,.65,0x9057ff);
@@ -187,6 +190,12 @@ export function createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfie
      w=.9;h=.5;d=.9;
      cyl(g,.37,.30,.21,0,.16,0,iron);
      for(let i=0;i<10;i++)ball(g,.073,(rand(i)-.5)*.52,.31+(i%3)*.035,(rand(i+40)-.5)*.44,M(0xe3af69,.06,.8));
+   }
+   // Lightweight contact shadows add depth without GPU-heavy real-time shadow maps.
+   if(!['rug','poster','snacks','figure'].includes(entry.type)){
+     const shadow=new THREE.Mesh(new THREE.CircleGeometry(Math.max(w,d)*.55,28),
+       new THREE.MeshBasicMaterial({color:0x01020a,transparent:true,opacity:.25,depthWrite:false,side:THREE.DoubleSide}));
+     shadow.rotation.x=-Math.PI/2;shadow.scale.set(1,.68,1);shadow.position.y=.018;g.add(shadow);
    }
    g.position.set(Number(entry.x)||0,Number(entry.y)||0,Number(entry.z)||0);g.rotation.y=Number(entry.rot)||0;
    hit(g,entry,w,Math.max(h,1.1),entry.type==='crt'?1.28:d);return g;
