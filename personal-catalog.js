@@ -1,13 +1,13 @@
 /* Title-only index for personal-copy compatibility.
- * We NEVER import, retain, expose or link commercial ROM download URLs.
- * A public reference spreadsheet is queried for game names and, where supplied,
- * cover thumbnails. Any external thumbnail remains remotely hosted.
+ * We NEVER download, serve or link commercial ROM files.
+ * The title index is generated from rights-neutral Libretro DAT metadata, CC BY-SA 4.0.
+ * Cover thumbnails are loaded by exact game title from the independent Libretro thumbnail service when available.
  * When that catalog is unavailable, known console titles remain selectable
  * by providing your own legally obtained file.
  */
-const PUBLIC_CATALOG="https://docs.google.com/spreadsheets/d/1qLJ3-k50ZvMmpxeO9C-72G9uat9BnYYezZC-nKmFzaY/gviz/tq";
-const referenceIds={nes:"nes",snes:"snes",n64:"n64",gb:"gb",gbc:"gb",gba:"gba",nds:"nds",segaMD:"sega",segaGG:"gg",sega32x:"sega32x",segaCD:"segacd",segaSaturn:"saturn",psx:"ps1",atari2600:"atari2600",ngp:"ngp",neogeo:"neogeo"};
+/* Static in-repository, rights-neutral metadata licensed CC BY-SA from Libretro Database. */
 const cache=new Map();
+const playlists={nes:"Nintendo - Nintendo Entertainment System",snes:"Nintendo - Super Nintendo Entertainment System",n64:"Nintendo - Nintendo 64",gb:"Nintendo - Game Boy",gbc:"Nintendo - Game Boy Color",gba:"Nintendo - Game Boy Advance",nds:"Nintendo - Nintendo DS",segaMD:"Sega - Mega Drive - Genesis",segaGG:"Sega - Game Gear",sega32x:"Sega - 32X",segaCD:"Sega - Mega-CD - Sega CD",segaSaturn:"Sega - Saturn",psx:"Sony - PlayStation",atari2600:"Atari - 2600",ngp:"SNK - Neo Geo Pocket",neogeo:"SNK - Neo Geo"};
 export const acceptedFormats={
   nes:".nes,.zip,.7z",snes:".sfc,.smc,.zip,.7z",n64:".z64,.n64,.v64,.zip",gb:".gb,.gbc,.zip",
   gbc:".gbc,.gb,.zip",gba:".gba,.zip",nds:".nds,.zip",segaMD:".md,.gen,.bin,.smd,.zip",segaGG:".gg,.zip",
@@ -40,49 +40,43 @@ function titleId(consoleId,title){let h=2166136261;const s=consoleId+"|"+normali
 function game(consoleId,name,img=null,source="manual"){
   return{id:titleId(consoleId,name),name,system:consoleId,file:null,mode:"personal",genre:"Classic Console",creator:"Original copyright holder",year:"Classic",desc:"Play the original console title with your own compatible, lawfully obtained game file. UGN does not provide this ROM.",image:img,color:"violet",source};
 }
-function extract(text){
-  const start=text.indexOf("("),end=text.lastIndexOf(")");
-  if(start<0||end<=start)throw Error("Invalid public catalog response");
-  const data=JSON.parse(text.slice(start+1,end));
-  if(data.status!=="ok"||!data.table)throw Error("Public catalog unavailable");
-  const cols=data.table.cols||[];
-  const keys=cols.map((c,i)=>String(c.label||c.id||"col"+i).trim());
-  return (data.table.rows||[]).map(row=>{
-    const vals=(row.c||[]).map(x=>x&&x.v!=null?x.v:"");
-    const out={};for(let i=0;i<keys.length;i++)out[keys[i]]=vals[i]||"";
-    return out;
-  });
+function canonicalCoverPath(consoleId,name){
+  const playlist=playlists[consoleId];if(!playlist)return null;
+  // Exact DAT title match; a failed URL falls back to a genuine photo of the console.
+  return "https://raw.githubusercontent.com/libretro-thumbnails/"+
+    encodeURIComponent(playlist.replaceAll(" ","_").replaceAll("-","-"))+
+    "/master/Named_Boxarts/"+encodeURIComponent(name.replaceAll("&","_").replaceAll("/","_"))+".png";
 }
-export async function loadPersonalTitles(consoleId) {
+export async function loadPersonalTitles(consoleId){
   if(cache.has(consoleId))return cache.get(consoleId);
-  const fallback=(seeds[consoleId]||[]).map(n=>game(consoleId,n));
-  const load=async()=>{
-    const id=referenceIds[consoleId];if(!id)return fallback;
-    const query="select * where A = '"+id+"'";
-    const params=new URLSearchParams({tqx:"out:json",headers:"1",sheet:"games",tq:query});
-    let rows;
+  const fallback=(seeds[consoleId]||[]).map(name=>game(consoleId,name));
+  const task=(async()=>{
+    if(!playlists[consoleId])return fallback;
     try{
-      const result=await fetch(PUBLIC_CATALOG+"?"+params,{mode:"cors",credentials:"omit",signal:AbortSignal.timeout(18000)});
-      if(!result.ok)throw Error("Public catalog HTTP "+result.status);
-      rows=extract(await result.text());
-    }catch(e){console.warn("Public title index unavailable; showing locally curated names",e);return fallback;}
-    const unique=new Map(fallback.map(g=>[normalize(g.name),g]));
-    for(const row of rows){
-      const title=String(row.name||row.title||row.col1||"").trim();
-      if(!title||title.length>180)continue;
-      const image=String(row.thumbnailUrl||"").trim();
-      const validImage=/^https:\/\//.test(image)&&image.length<1500?image:null;
-      const x=game(consoleId,title,validImage,"public-reference-metadata");
-      // The spreadsheet's ROM downloadUrl and other file links are never used.
-      const key=normalize(title);if(key)unique.set(key,x);
+      const res=await fetch('./catalog/byo/'+consoleId+'.json',{cache:'force-cache'});
+      if(!res.ok)throw Error('Title index HTTP '+res.status);
+      const rows=await res.json();
+      if(!Array.isArray(rows))throw Error('Invalid title index');
+      const seen=new Set();
+      const titles=[];
+      for(const row of rows){
+        const name=String(row?.[0]||'').trim();
+        if(!name||name.length>220)continue;
+        const key=normalize(name);
+        if(!key||seen.has(key))continue;
+        seen.add(key);
+        const item=game(consoleId,name,canonicalCoverPath(consoleId,name),"libretro-database");
+        item.region=String(row?.[1]||"");
+        titles.push(item);
+      }
+      return titles.length?titles:fallback;
+    }catch(error){
+      console.warn('Local title index unavailable for '+consoleId,error);
+      return fallback;
     }
-    const result=[...unique.values()];
-    if(!result.length)return fallback;
-    return result;
-  };
-  const promise=load().catch(()=>fallback);
-  cache.set(consoleId,promise);
-  return promise;
+  })();
+  cache.set(consoleId,task);
+  return task;
 }
 export function builtinTitleCount(consoleId){return(seeds[consoleId]||[]).length;}
 
