@@ -1,22 +1,29 @@
 # UGN Emulator
 
-UGN Emulator is a 3D-themed, browser-based gaming experience for Universal Gaming Network.
+A cosmic-themed, interactive console emulation site from Universal Gaming Network, hosted using GitHub Pages.
 
-## Playable today
-Eight original browser games: Nebula Defender, Cosmic Serpent, Orbit Pong, Prism Breaker, Meteor Run, Signal Match, Hyper Reflex, and Lunar Descent.
+## What this project actually plays
 
-- No ROM imports or file uploads.
-- Built-in game catalog with keyboard and on-screen controls.
-- Local high scores, favorite games, and recent game history (browser localStorage).
-- Original, dependency-free perspective-rendered 3D console gallery.
-- Responsive interface themed in UGN cosmic colors.
+**13 compiled, redistributable console homebrew ROMs**, preinstalled via GitHub Actions:
+- Nintendo NES (2)
+- Game Boy (1) and Game Boy Color (3) — both use the EmulatorJS Gambatte core
+- Game Boy Advance (4)
+- Sega Genesis (3)
 
-## Console roadmap
-NES, SNES, Game Boy family, Sega, PlayStation, N64, DS and later generations appear only as **planned systems**, not functional emulators. PSP, PS2 and GameCube/Wii are particularly experimental on GitHub Pages. No commercial games or BIOS files are distributed. Only properly licensed games can be preinstalled.
+The website uses actual EmulatorJS/RetroArch WebAssembly-based console cores. No JavaScript imitation games, ROM import controls, game uploads, or commercial copyrighted ROM collections. Gamepad and emulator save-state functionality are handled by EmulatorJS where supported.
 
-## Host on GitHub Pages
-Settings → Pages → Deploy from a branch → `main` → `/(root)` → Save.
+All 17 systems shown by the reference site appear as categories, but **uninstalled consoles are explicitly marked as coming later** until appropriately licensed games are added and verified.
 
-Live URL after Pages is enabled: https://universal-gaming.github.io/UGN-Emulator/
+## Deployment
 
-This project is an original-game showcase and console-emulation roadmap; it does **not** yet include console emulator cores. Testing across devices/browsers is still required.
+GitHub Pages is deployed from `main`. ROMs are downloaded, validated, and committed by `.github/workflows/bundle-roms.yml`. The game catalog checks that a ROM file exists before enabling its launch button.
+
+Site: https://universal-gaming.github.io/UGN-Emulator/
+
+## Credits and licenses
+
+See [CREDITS.md](CREDITS.md). Game ROMs are self-hosted by GitHub Pages. EmulatorJS core scripts currently use its official CDN, rather than an in-repository copy.
+
+## Verification limits
+
+The GitHub Action validates downloads, nonempty files, and NES ROM headers. Such validation **does not establish that every game can be completed or runs perfectly**. Verify browser play, input, save-state behavior and audio on target devices before advertising full compatibility.
