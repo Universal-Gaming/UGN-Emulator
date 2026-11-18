@@ -204,7 +204,7 @@ $('#nav-toggle').onclick=()=>{const nav=$('.primary-nav');nav.classList.toggle('
 $$('.primary-nav a').forEach(a=>a.onclick=()=>{$('.primary-nav').classList.remove('open');$('#nav-toggle').setAttribute('aria-expanded','false')});
 
 const dialog=$('#game-dialog'),titleDialog=$('#title-dialog'),viewport=$('#player-viewport');
-let frame=null,detailGame=null,localGameObjectUrls=[];
+let frame=null,detailGame=null,localGameObjectUrls=[],finishHostedBoot=null;
 function showDetails(id){
  const g=allTitles.find(x=>x.id===id);if(!g)return;
  detailGame=g;const own=g.mode==='personal',sys=system(g.system);
@@ -265,6 +265,7 @@ async function launch(id,options={}){
  viewport.replaceChildren();
  frame=document.createElement('iframe');frame.title='UGN Emulator — '+g.name;frame.allow='autoplay; fullscreen; gamepad';
  frame.setAttribute('allowfullscreen','');frame.setAttribute('referrerpolicy','no-referrer');viewport.append(frame);
+ finishHostedBoot?.();finishHostedBoot=attachBootOverlay(viewport,sys.short,g.name);
  const rom=usesOwn?URL.createObjectURL(options.file):new URL('./'+g.file,location.href).href;
  const bios=options.bios?URL.createObjectURL(options.bios):null;
  if(usesOwn)localGameObjectUrls.push(rom);if(bios)localGameObjectUrls.push(bios);
@@ -278,6 +279,7 @@ async function launch(id,options={}){
 $('#player-close').onclick=()=>dialog.close();
 $('#player-fullscreen').onclick=()=>{if(!document.fullscreenElement)dialog.requestFullscreen?.().catch(()=>notify('Fullscreen is unavailable'));else document.exitFullscreen?.()};
 dialog.addEventListener('close',()=>{
+ finishHostedBoot?.();finishHostedBoot=null;
  viewport.replaceChildren();frame=null;
  for(const url of localGameObjectUrls)URL.revokeObjectURL(url);
  localGameObjectUrls=[];
