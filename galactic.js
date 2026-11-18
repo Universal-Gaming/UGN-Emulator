@@ -496,10 +496,10 @@ export function mountGalacticArchive(api) {
     const nav=document.querySelector('.primary-nav'),toggle=document.querySelector('#nav-toggle');
     nav?.classList.remove('open');toggle?.setAttribute('aria-expanded','false');
   };
-  $('[data-sector]').forEach(b=>b.onclick=()=>setSector(b.dataset.sector,{fromIntro:true}));
+  document.querySelectorAll('[data-sector]').forEach(b=>b.onclick=()=>setSector(b.dataset.sector,{fromIntro:true}));
   // Header sector buttons must work exactly like the deck controls, including before
   // the cinematic intro has been played and on compact/mobile navigation.
-  $('[data-nav-sector]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-nav-sector]').forEach(b=>b.addEventListener('click',()=>{
     setSector(b.dataset.navSector,{fromIntro:true});
     document.querySelector('#home')?.scrollIntoView({behavior:'smooth',block:'start'});
     closeMobileNavigation();
