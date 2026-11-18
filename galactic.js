@@ -102,6 +102,7 @@ export function mountGalacticArchive(api) {
   const persist=()=>{config.roomVersion=2;config.layouts[config.preset]=config.furniture.map(x=>({...x}));try{localStorage.setItem(ROOM_KEY,JSON.stringify(config))}catch{}
     const el=$('#room-save-status');if(el)el.textContent='✓ ROOM AUTOSAVED / '+config.furniture.length+' OBJECTS';
     const count=$('#room-object-count');if(count)count.textContent=config.furniture.length+' PLACED';
+    if(root)root.dataset.roomObjectCount=String(config.furniture.length);
   };
   persist();
   const report=s=>{const el=$('#world-prompt');if(el)el.textContent=s;api.notify?.(s)};
@@ -825,9 +826,10 @@ export function mountGalacticArchive(api) {
       roomStudio=studioModule.createRoomStudio({THREE,api,createConsole,addPlanet,buildStarfield,sign});
       buildArchive();buildMuseum();buildVault();buildRoom();archiveGroup.visible=true;museumGroup.visible=false;vaultGroup.visible=false;roomGroup.visible=false;
       applyQuality();resize();window.addEventListener('resize',resize);
+      root.dataset.renderer='webgl';root.dataset.roomObjectCount=String(config.furniture.length);
       requestAnimationFrame(tick);report('STARSHIP RENDERER ONLINE / EXPLORE THE DECK');
     }catch(err){
-      console.warn('UGN Galactic Archive WebGL unavailable:',err);
+      root.dataset.renderer='fallback';console.warn('UGN Galactic Archive WebGL unavailable:',err);
       $('#galactic-fps').textContent='2D FALLBACK';
       report('3D UNAVAILABLE — ALL GAME LIBRARY AND ROOM CONTROLS REMAIN ACCESSIBLE');
     }
