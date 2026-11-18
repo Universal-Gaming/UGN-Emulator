@@ -10,7 +10,7 @@ assert.doesNotMatch(index,/Nebula Defender|Cosmic Serpent|Prism Breaker|Orbit Po
 assert.match(js,/cdn\.emulatorjs\.org/);
 const roms=[];
 for(const dir of readdirSync('roms',{withFileTypes:true}).filter(x=>x.isDirectory()))for(const f of readdirSync(path.join('roms',dir.name)))roms.push('roms/'+dir.name+'/'+f);
-assert.equal(roms.length,31,'Expect 31 homebrew ROMs');
+assert.equal(roms.length,40,'Expect 40 homebrew ROMs');
 for(const f of roms)assert.ok(existsSync(f),'Missing '+f);
 const server=spawn('python3',['-m','http.server','8000','--bind','127.0.0.1'],{stdio:'ignore'});
 await new Promise(r=>setTimeout(r,1300));
@@ -21,15 +21,22 @@ try{
  const fatal=[];page.on('pageerror',e=>fatal.push(String(e)));
  await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('#game-grid .game-card').first().waitFor({timeout:15000});
- await page.waitForFunction(()=>Number(document.querySelector('#hero-games')?.textContent)===31,null,{timeout:25000});
- assert.equal(Number(await page.locator('#hero-games').innerText()),31);
- assert.equal(Number(await page.locator('#hero-systems').innerText()),9);
- assert.equal(await page.locator('#game-grid .game-card').count(),31);
+ await page.waitForFunction(()=>Number(document.querySelector('#hero-games')?.textContent)===40,null,{timeout:25000});
+ assert.equal(Number(await page.locator('#hero-games').innerText()),40);
+ assert.equal(Number(await page.locator('#hero-systems').innerText()),10);
+ assert.equal(await page.locator('#game-grid .game-card').count(),40);
  await page.locator('#game-search').fill('Celeste');
  assert.equal(await page.locator('#game-grid .game-card').count(),1);
  await page.locator('#game-search').fill('');
  await page.locator('[data-platform=nes]').click();
  assert.equal(await page.locator('#game-grid .game-card').count(),9);
+ const distinctGameIds=await page.locator('#game-grid [data-inspect]').evaluateAll(nodes=>nodes.map(n=>n.dataset.inspect));
+ assert.equal(new Set(distinctGameIds).size,distinctGameIds.length,'Every NES game must have a unique launch identifier');
+ await page.locator('#game-grid [data-inspect]').nth(1).click();
+ await page.locator('#title-dialog[open]').waitFor({timeout:10000});
+ const selectedName=await page.locator('#title-name').innerText();
+ assert.notEqual(selectedName,'2048 NES','Second NES game must not silently open the first ROM');
+ await page.locator('#title-close').click();
  await page.locator('[data-platform=all]').click();
  // The starship is the primary experience, not a static marketing hero.
  await page.locator('#galactic-stage').waitFor({timeout:10000});
@@ -113,7 +120,7 @@ try{
  if(!(await page.locator('#player-status').innerText()).includes('GAME RUNNING'))
    await page.locator('#player-viewport iframe').contentFrame().locator('#game').click({position:{x:180,y:170},force:true});
  try {await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:45000});}
- catch (e) {console.warn('Actual game startup not confirmed:',await page.locator('#player-status').textContent());console.warn('Emulator diagnostics:',await page.locator('#player-viewport iframe').contentFrame().evaluate(()=>({canvas:document.querySelectorAll('canvas').length,body:document.body?.innerText?.slice(0,500),emulator:!!window.EJS_emulator,gameManager:!!window.EJS_emulator?.gameManager})));throw e;}
+ catch (e) {console.warn('Actual game startup not confirmed:',await page.locator('#player-status').textContent());console.warn('Emulator diagnostics:',await page.locator('#player-viewport iframe').contentFrame().locator('body').evaluate(el=>({canvas:el.querySelectorAll('canvas').length,body:el.innerText?.slice(0,500),emulator:!!el.ownerDocument.defaultView?.EJS_emulator,gameManager:!!el.ownerDocument.defaultView?.EJS_emulator?.gameManager})));throw e;}
  await page.locator('#player-close').click();
  assert.equal(await page.locator('#game-dialog[open]').count(),0);
  // Massive console catalog is metadata only; ROM files for unhosted games stay local.
@@ -146,5 +153,5 @@ try{
  await page.screenshot({path:'smoke-mobile.png',fullPage:true});
  const unexpected=fatal.filter(msg=>!msg.includes('Wake Lock permission request denied'));
  assert.equal(unexpected.length,0,'Uncaught application JS exceptions: '+unexpected.join('; '));
- console.log('PASS: 41K title index + local-file browser emulation; 31 real ROMs, nine installed systems, 3D starship, holographic library, editable room, search, launcher and responsive layouts');
+ console.log('PASS: 41K title index + local-file browser emulation; 40 real ROMs, ten installed systems, 3D starship, holographic library, editable room, search, launcher and responsive layouts');
 }finally{if(browser)await browser.close();server.kill();}
