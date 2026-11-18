@@ -132,12 +132,12 @@ export function mountConsoleIndex(api) {
         '<div class="index-card-action"><span class="'+(isHost?'ready':'')+'">'+(isHost?'● HOSTED':'◈ YOUR COPY')+'</span>'+
         '<button data-copy="'+clean(g.key)+'">'+(isHost?'PLAY NOW':'USE MY COPY')+' ↗</button></div></div></article>';
     }).join('');
-    $('[data-index-fav]').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('[data-index-fav]').forEach(b=>b.addEventListener('click',()=>{
       const entry=shown.find(x=>x.key===b.dataset.indexFav);if(!entry)return;
       const id=prefId(entry);prefs.favorites=prefs.favorites.includes(id)?prefs.favorites.filter(v=>v!==id):[...prefs.favorites,id];
       savePrefs();renderPage();renderOwnedCollection();
     }));
-    $('[data-copy]').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>{
       const entry=shown.find(x=>x.key===b.dataset.copy);
       if(!entry)return;
       const hosted=hostedFor(entry);
