@@ -1,0 +1,51 @@
+name: Verify UGN Emulator
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'styles.css'
+      - 'app.js'
+      - 'roms/**'
+      - 'tests/**'
+      - '.github/workflows/verify.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax and authentic ROM checks
+        shell: bash
+        run: |
+          node --check app.js
+          python3 - <<'PY'
+          from pathlib import Path
+          roms=[p for p in Path('roms').rglob('*') if p.is_file()]
+          assert len(roms)==27, f'Expected 27 ROMs; found {len(roms)}'
+          for p in roms:
+            b=p.read_bytes()
+            assert len(b)>=4096, f'Undersized ROM {p}'
+            if p.suffix=='.nes': assert b[:4]==b'NES\x1a',f'Invalid NES header: {p}'
+            assert not b.lstrip().startswith(b'<html'),f'HTML instead of ROM: {p}'
+          print('Verified',len(roms),'console ROM payloads')
+          PY
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Browser end-to-end smoke
+        run: node tests/smoke.mjs
+      - name: Upload desktop/mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-browser-smoke
+          path: |
+            smoke-desktop.png
+            smoke-mobile.png
+          if-no-files-found: ignore
