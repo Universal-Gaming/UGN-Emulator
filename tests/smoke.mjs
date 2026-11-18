@@ -57,7 +57,7 @@ try{
  assert.equal(await page.locator('#player-viewport iframe').count(),1);
  const player=await page.locator('#player-viewport iframe').getAttribute('srcdoc');
  assert.match(player,/EJS_core/);
- try {await page.locator('#player-status').getByText('GAME RUNNING',{exact:false}).waitFor({timeout:45000});}
+ try {await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:45000});}
  catch (e) {console.warn('Actual game startup not confirmed:',await page.locator('#player-status').textContent());throw e;}
  await page.locator('#player-close').click();
  assert.equal(await page.locator('#game-dialog[open]').count(),0);
