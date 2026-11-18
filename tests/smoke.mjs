@@ -125,6 +125,7 @@ try{
  assert.equal(await page.locator('#player-viewport iframe').count(),1);
  const player=await page.locator('#player-viewport iframe').getAttribute('srcdoc');
  assert.match(player,/EJS_core/);
+ assert.match(player,/ResizeObserver loop/, 'Nonfatal ResizeObserver messages must not be displayed as crashes');
  await page.waitForFunction(()=>document.querySelector('#player-status')?.textContent?.includes('CORE READY')||document.querySelector('#player-status')?.textContent?.includes('GAME RUNNING'),null,{timeout:25000});
  // EmulatorJS documents that auto-start freezes until the user interacts with the iframe.
  if(!(await page.locator('#player-status').innerText()).includes('GAME RUNNING'))

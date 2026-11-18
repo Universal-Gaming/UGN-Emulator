@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'app.js'
+      - 'copy-library.js'
       - 'tests/core-compatibility.mjs'
       - '.github/workflows/core-compatibility.yml'
 concurrency:

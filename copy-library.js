@@ -208,7 +208,7 @@ export function mountConsoleIndex(api) {
     'window.EJS_Buttons={playPause:true,restart:true,mute:true,settings:true,fullscreen:true,saveState:true,loadState:true};'+
     'window.EJS_ready=function(){parent.postMessage({ugnLocalStage:"ready"},"*")};'+
     'window.EJS_onGameStart=function(){parent.postMessage({ugnLocalStage:"started"},"*")};'+
-    'window.addEventListener("error",function(e){parent.postMessage({ugnLocalError:String(e.message)},"*")});'+
+    'window.addEventListener("error",function(e){var msg=String(e.message||"");if(/ResizeObserver loop (?:limit exceeded|completed with undelivered notifications)/i.test(msg)){e.preventDefault();return;}parent.postMessage({ugnLocalError:msg},"*")});'+
     '<\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script></body></html>';
   };
   function launchFile(){
@@ -242,7 +242,7 @@ export function mountConsoleIndex(api) {
     if(!currentFrame||e.source!==currentFrame.contentWindow||!e.data)return;
     if(e.data.ugnLocalStage==='ready')$('#player-status').textContent='CORE READY · CLICK INSIDE GAME WINDOW TO START YOUR COPY';
     if(e.data.ugnLocalStage==='started'){finishLocalBoot?.();$('#player-status').textContent='GAME RUNNING · LOCAL FILE';}
-    if(e.data.ugnLocalError){finishLocalBoot?.();$('#player-status').textContent='LOCAL EMULATOR ERROR · '+String(e.data.ugnLocalError).slice(0,140);}
+    if(e.data.ugnLocalError&&!/ResizeObserver loop (?:limit exceeded|completed with undelivered notifications)/i.test(String(e.data.ugnLocalError))){finishLocalBoot?.();$('#player-status').textContent='LOCAL EMULATOR ERROR · '+String(e.data.ugnLocalError).slice(0,140);}
   });
   $('#index-console').addEventListener('change',e=>{active=e.target.value;buildResults()});
   $('#index-query').addEventListener('input',e=>{
