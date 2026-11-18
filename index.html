@@ -22,7 +22,134 @@
 <div class="world-caption"><div><i></i> GALACTIC ARCHIVE ONLINE</div><span>REAL CONSOLES • REAL EMULATION • NO ARCADE GAMES</span></div>
 <aside id="exhibit-panel" class="world-panel" hidden aria-label="Selected console details"><div class="panel-eyebrow">CONSOLE EXHIBIT <button id="close-exhibit" aria-label="Close exhibit">✕</button></div><div id="exhibit-preview" class="exhibit-preview"><img id="exhibit-photo" alt="Console exhibit photography"></div><div class="exhibit-headline"><span id="exhibit-maker">NINTENDO / 1985</span><h2 id="exhibit-title">Console</h2><p id="exhibit-about">Historical console exhibit</p></div><div class="panel-library-label">INSTALLED CONSOLE GAMES</div><div id="exhibit-game-list" class="exhibit-game-list"></div><button id="exhibit-view-library" class="primary-btn panel-wide">EXPLORE ALL TITLES FOR THIS CONSOLE ↗</button><button id="exhibit-open-own" class="secondary-btn panel-wide">USE A COPY I OWN ⤓</button></aside>
 <aside id="holo-shelf" class="world-panel holo-shelf-panel" hidden aria-label="Interactive holographic game collection"><div class="panel-eyebrow">HOLOGRAPHIC GAME ARCHIVE <button id="close-holo-shelf" aria-label="Close holographic library">✕</button></div><h2>THE <em>VAULT.</em></h2><p>Authentic compiled console games. Rotate the cases, inspect the title, and launch the real ROM.</p><label class="holo-search">⌕ <input id="holo-search-input" placeholder="Search the game universe..." aria-label="Search holographic game library"></label><div class="holo-shelf-viewport"><div class="holo-shelf-track" id="holo-shelf-track"></div></div><div class="holo-shelf-navigation"><button id="holo-prev" aria-label="Previous game">←</button><span id="holo-counter">01 / 31</span><button id="holo-next" aria-label="Next game">→</button></div><div class="holo-selected"><strong id="holo-selected-name">Choose a game</strong><span id="holo-selected-system">CONSOLE / YEAR</span><p id="holo-selected-desc"></p><button class="primary-btn panel-wide" id="holo-play">BOOT SELECTED ROM ↗</button><button class="secondary-btn panel-wide" id="holo-all-games">BROWSE 41,000+ CONSOLE TITLES ↗</button></div></aside>
-<aside id="room-panel" class="world-panel room-panel" hidden aria-label="Personal gaming room customization"><div class="panel-eyebrow">YOUR PRIVATE UGN GAMING SPACE <button id="close-room" aria-label="Close room controls">✕</button></div><h2>YOUR <em>ROOM.</em></h2><img class="room-design-preview" src="./assets/personal-gaming-room.webp" alt="UGN retro room design reference showing CRT console setup, gaming shelves and galactic windows" loading="lazy"><p>Customize an actual 3D space. Your layout and preferences are stored locally on this device.</p><label>ROOM STYLE<select id="room-preset"><option value="retro80">1980s Retro Room</option><option value="bedroom90">1990s Gamer Bedroom</option><option value="era2000">Early 2000s Setup</option><option value="ugn">Futuristic UGN Lounge</option><option value="collector">Premium Collector's Room</option><option value="cosmic">Cosmic Observation Room</option></select></label><label>WALL FINISH<select id="room-walls"><option value="navy">Deep Space Navy</option><option value="purple">Galactic Purple</option><option value="gray">Retro Gray</option><option value="dark">Obsidian</option><option value="cream">Warm Ivory</option></select></label><label>FLOOR FINISH<select id="room-floor"><option value="metal">Futuristic Metal</option><option value="wood">Retro Wood</option><option value="carpet">Soft Carpet</option><option value="tile">Collector's Tile</option></select></label><label>LIGHTING<select id="room-lights"><option value="cyan">Electric Cyan</option><option value="violet">Galactic Violet</option><option value="green">UGN Green</option><option value="warm">Warm Retro</option><option value="white">Bright Gallery</option></select></label><div class="panel-library-label">ADD FURNITURE TO YOUR ROOM</div><div class="furniture-tools"><button data-furniture="crt">+ CRT TV</button><button data-furniture="console">+ CONSOLE</button><button data-furniture="sofa">+ SOFA</button><button data-furniture="shelf">+ GAME SHELF</button><button data-furniture="lamp">+ LAMP</button><button data-furniture="poster">+ POSTER</button></div><div class="furniture-editor"><div>SELECTED OBJECT <b id="furniture-selected">NONE</b></div><div><button id="furniture-rotate" title="Rotate selected furniture">↻ ROTATE</button><button id="furniture-delete" title="Remove selected furniture">✕ REMOVE</button><button id="room-reset" title="Reset room">RESET</button></div></div><p class="room-tip">Drag a piece of furniture across the room floor to reposition it. Your changes save automatically.</p><button class="primary-btn panel-wide" id="room-play-game">LAUNCH A CONSOLE GAME ↗</button><button class="secondary-btn panel-wide" id="return-archive">RETURN TO ARCHIVE ↗</button></aside>
+<aside id="room-panel" class="world-panel room-panel" hidden aria-label="UGN personal gaming room editor">
+  <div class="panel-eyebrow">UGN // PERSONAL QUARTERS <button id="close-room" aria-label="Close room editor">✕</button></div>
+  <h2>THE <em>GAMING ROOM.</em></h2>
+  <p class="room-panel-lede">A furnished retro-futuristic space-station room. Choose an era, customize every detail, and save your own setup on this device.</p>
+  <div class="room-reference-wrap">
+    <img class="room-design-preview" src="./assets/personal-gaming-room.webp" alt="UGN room design reference: 1990s CRT, wood game shelves, glass console cabinet, desk, bed and panoramic planet window" loading="lazy">
+    <button id="room-show-reference" class="room-compare-button" aria-pressed="false">◈ COMPARE WITH REFERENCE</button>
+  </div>
+  <div class="room-save-status" id="room-save-status" role="status" aria-live="polite"><span class="signal-led"></span> ROOM SAVED TO THIS DEVICE</div>
+  <label class="room-field">ROOM STYLE
+    <select id="room-preset">
+      <option value="photo">UGN Photo-Match Retro Bedroom ★</option>
+      <option value="retro80">1980s Retro Den</option>
+      <option value="bedroom90">1990s Gamer Bedroom</option>
+      <option value="era2000">Early 2000s Gamer Setup</option>
+      <option value="ugn">Futuristic UGN Lounge</option>
+      <option value="collector">Premium Collector Gallery</option>
+      <option value="cosmic">Cosmic Observation Suite</option>
+    </select>
+  </label>
+  <div class="room-view-buttons" role="group" aria-label="Room camera views">
+    <button data-room-view="overview" class="room-view-active">◈ OVERVIEW</button>
+    <button data-room-view="crt">▣ CRT AREA</button>
+    <button data-room-view="collection">▤ DISPLAY</button>
+    <button data-room-view="desk">⌘ DESK</button>
+  </div>
+  <details class="room-editor-section" open>
+    <summary>✦ THEME & ATMOSPHERE</summary>
+    <div class="room-editor-content">
+      <div class="room-field-grid">
+        <label class="room-field">WALL FINISH<select id="room-walls">
+          <option value="navy">Deep Space Navy</option><option value="purple">Galactic Purple</option><option value="gray">Retro Gray</option><option value="dark">Obsidian</option><option value="cream">Warm Ivory</option>
+        </select></label>
+        <label class="room-field">FLOOR MATERIAL<select id="room-floor">
+          <option value="metal">Futuristic Metal</option><option value="wood">Polished Wood</option><option value="carpet">Plush Retro Carpet</option><option value="tile">Collector's Tile</option>
+        </select></label>
+        <label class="room-field">LIGHTING SCENE<select id="room-lights">
+          <option value="cyan">Electric Cyan</option><option value="violet">Galactic Violet</option><option value="green">UGN Neon</option><option value="warm">Cozy Retro Warm</option><option value="white">Bright Gallery</option>
+        </select></label>
+        <label class="room-field">WINDOW VIEW<select id="room-window">
+          <option value="earth">Blue Planet</option><option value="ringed">Ringed Planet</option><option value="nebula">Purple Nebula</option><option value="galaxy">Spiral Galaxy</option><option value="station">Orbiting Space Station</option><option value="stars">Deep Starfield</option>
+        </select></label>
+        <label class="room-field">ATMOSPHERE<select id="room-atmosphere">
+          <option value="neon">Neon Showcase</option><option value="cozy">Cozy Retro Night</option><option value="chill">Chill Night</option><option value="deep">Deep Space</option>
+        </select></label>
+        <label class="room-field">SHELF DENSITY<select id="room-clutter">
+          <option value="curated">Curated Collection</option><option value="packed">Packed Collector Shelves</option><option value="minimal">Minimal & Clean</option>
+        </select></label>
+      </div>
+      <label class="room-check"><input id="room-snap" type="checkbox" checked> SNAP FURNITURE TO GRID</label>
+    </div>
+  </details>
+  <details class="room-editor-section" open>
+    <summary>◫ FURNITURE & DECOR <span id="room-object-count" class="room-object-count"></span></summary>
+    <div class="room-editor-content">
+      <div class="furniture-categories" role="group" aria-label="Furniture categories">
+        <button class="active" data-furniture-category="all">ALL</button>
+        <button data-furniture-category="gaming">GAMING</button>
+        <button data-furniture-category="furniture">FURNITURE</button>
+        <button data-furniture-category="decor">DECOR</button>
+      </div>
+      <div class="furniture-tools">
+        <button data-furniture="crt" data-category="gaming">+ CRT TELEVISION</button>
+        <button data-furniture="console" data-category="gaming">+ RETRO CONSOLE</button>
+        <button data-furniture="cabinet" data-category="gaming">+ GLASS CONSOLE CASE</button>
+        <button data-furniture="shelf" data-category="gaming">+ GAME SHELVES</button>
+        <button data-furniture="stand" data-category="gaming">+ ENTERTAINMENT STAND</button>
+        <button data-furniture="controller" data-category="gaming">+ GAME CONTROLLER</button>
+        <button data-furniture="bed" data-category="furniture">+ GAMER BED</button>
+        <button data-furniture="desk" data-category="furniture">+ COMPUTER DESK</button>
+        <button data-furniture="chair" data-category="furniture">+ GAMING CHAIR</button>
+        <button data-furniture="sofa" data-category="furniture">+ COZY SOFA</button>
+        <button data-furniture="table" data-category="furniture">+ COFFEE TABLE</button>
+        <button data-furniture="rug" data-category="furniture">+ AREA RUG</button>
+        <button data-furniture="lamp" data-category="decor">+ FLOOR LAMP</button>
+        <button data-furniture="lava" data-category="decor">+ LAVA LAMP</button>
+        <button data-furniture="plant" data-category="decor">+ HOUSE PLANT</button>
+        <button data-furniture="poster" data-category="decor">+ NEON POSTER</button>
+        <button data-furniture="figure" data-category="decor">+ COLLECTIBLE FIGURE</button>
+        <button data-furniture="snacks" data-category="decor">+ SNACK BOWL</button>
+      </div>
+      <div class="furniture-editor">
+        <div>SELECTED OBJECT <b id="furniture-selected">NONE</b></div>
+        <div class="room-transform-buttons">
+          <button id="furniture-rotate" title="Rotate selected furniture">↻ ROTATE 45°</button>
+          <button id="furniture-duplicate" title="Duplicate selected furniture">⊞ DUPLICATE</button>
+          <button id="furniture-delete" title="Remove selected furniture">✕ REMOVE</button>
+        </div>
+        <div class="room-nudge" role="group" aria-label="Move selected furniture">
+          <button data-nudge-x="-1" data-nudge-z="0" title="Move furniture left">←</button>
+          <button data-nudge-x="0" data-nudge-z="-1" title="Move furniture toward back wall">↑</button>
+          <button data-nudge-x="0" data-nudge-z="1" title="Move furniture toward the front">↓</button>
+          <button data-nudge-x="1" data-nudge-z="0" title="Move furniture right">→</button>
+        </div>
+      </div>
+      <p class="room-tip">Click any object to select it. Drag it across the floor to move; rotate or nudge using the controls. Glass cases and CRTs are interactive.</p>
+    </div>
+  </details>
+  <details class="room-editor-section">
+    <summary>▥ FEATURED CONSOLE DISPLAY</summary>
+    <div class="room-editor-content">
+      <p class="room-tip">Pick four genuine console exhibits for the illuminated collector case.</p>
+      <div class="room-field-grid">
+        <label class="room-field">TOP LEFT<select id="room-display-0"></select></label>
+        <label class="room-field">TOP RIGHT<select id="room-display-1"></select></label>
+        <label class="room-field">BOTTOM LEFT<select id="room-display-2"></select></label>
+        <label class="room-field">BOTTOM RIGHT<select id="room-display-3"></select></label>
+      </div>
+    </div>
+  </details>
+  <details class="room-editor-section">
+    <summary>↺ SAVE, SHARE & RESET</summary>
+    <div class="room-editor-content">
+      <div class="room-file-actions">
+        <button id="room-undo">↶ UNDO</button>
+        <button id="room-redo">↷ REDO</button>
+        <button id="room-export">↓ EXPORT ROOM</button>
+        <button id="room-import-button">↑ IMPORT LAYOUT</button>
+        <button id="room-snapshot">▣ SAVE PHOTO</button>
+        <button id="room-reset">↺ RESET STYLE</button>
+      </div>
+      <input type="file" id="room-import-file" accept=".json,application/json" hidden aria-label="Import UGN room layout JSON">
+      <p class="room-tip">Changes save automatically to your browser. Export a JSON layout for a backup; no UGN account or server upload is used.</p>
+    </div>
+  </details>
+  <button class="primary-btn panel-wide" id="room-play-game">PLAY ON THE UGN CONSOLE ↗</button>
+  <button class="secondary-btn panel-wide" id="return-archive">RETURN TO STARSHIP ↗</button>
+</aside>
 <div id="quality-panel" class="quality-panel" hidden><strong>GRAPHICS QUALITY</strong><label><select id="graphics-preset"><option value="low">Low / Battery Saver</option><option value="balanced" selected>Balanced</option><option value="high">High</option><option value="ultra">Ultra</option></select></label><button id="close-display-settings">DONE ✓</button></div>
 </section>
 <section class="design-locations" aria-label="Explore UGN's Galactic Archive areas"><div class="locations-heading"><span>EXPLORE A LIVING UNIVERSE</span><strong>FOUR SIGNATURE SPACES.</strong><p>Your UGN Emulator references, built into one interconnected console experience.</p></div><div class="locations-grid">
