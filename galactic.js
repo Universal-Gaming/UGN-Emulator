@@ -387,11 +387,14 @@ export function mountGalacticArchive(api) {
     activeSector=next;
     $$('.world-dock [data-sector]').forEach(b=>b.classList.toggle('dock-active',b.dataset.sector===next));
     panels.forEach(s=>{const node=$(s);if(node)node.hidden=true});
-    if(archiveGroup)archiveGroup.visible=next!=='room';
+    if(archiveGroup)archiveGroup.visible=next==='archive'||next==='intro';
+    if(museumGroup)museumGroup.visible=next==='exhibits';
+    if(vaultGroup)vaultGroup.visible=next==='shelves';
     if(roomGroup)roomGroup.visible=next==='room';
-    if(next==='archive'){userCameraZ=9;userCameraX=0;orbitYaw=0;report('ARCHIVE DECK / DRAG TO LOOK / CLICK A HARDWARE EXHIBIT');}
-    else if(next==='exhibits'){userCameraZ=3.5;userCameraX=0;report('CONSOLE MUSEUM / SELECT A PHYSICAL CONSOLE DISPLAY');}
-    else if(next==='shelves'){userCameraZ=-5;userCameraX=0;openShelf();}
+    orbitYaw=0;orbitPitch=0;
+    if(next==='archive'){userCameraZ=9;userCameraX=0;report('OBSERVATION DECK / CLICK THE INTERACTIVE CONSOLE EXHIBITS');}
+    else if(next==='exhibits'){userCameraZ=12;userCameraX=0;report('CONSOLE MUSEUM / CLICK A 3D HARDWARE PEDESTAL');}
+    else if(next==='shelves'){userCameraZ=9;userCameraX=0;openShelf();}
     else if(next==='room'){userCameraZ=7;userCameraX=0;$('#room-panel').hidden=false;report('PERSONAL GAMING ROOM / SELECT AN OBJECT TO EDIT');}
     if(camera){movingTo={z:userCameraZ,x:userCameraX};camera.position.y=next==='room'?2.25:2.35;}
     if(options.fromIntro){$('.world-intro')?.classList.add('hidden');$('.galactic-world')?.classList.add('world-active');}
@@ -403,28 +406,30 @@ export function mountGalacticArchive(api) {
     setSector('exhibits');$('#exhibit-panel').hidden=false;
     $('#exhibit-maker').textContent=s.maker.toUpperCase()+' / '+s.year;$('#exhibit-title').textContent=s.name;$('#exhibit-about').textContent=s.about;
     const image=$('#exhibit-photo');image.src=api.photo(s);image.alt=s.name+' authentic hardware photo';image.onerror=()=>{image.hidden=true};image.hidden=false;
-    const available=api.games.filter(g=>g.system===id&&api.installed[g.file]===true);
+    const available=api.games.filter(g=>g.system===id&&(g.mode==='personal'||api.installed[g.file]===true));
+    api.loadPersonalFor?.(id);
     const list=$('#exhibit-game-list');list.innerHTML='';
-    if(available.length)available.forEach(g=>{const b=document.createElement('button');b.textContent=g.name+'  ↗';b.onclick=()=>api.launch(g.id);list.append(b)});
-    else{const p=document.createElement('p');p.textContent='Authentic hardware exhibit. No installed, redistributable games for this system yet.';list.append(p)}
+    if(available.length)available.slice(0,12).forEach(g=>{const b=document.createElement('button');b.textContent=g.name+(g.mode==='personal'?' / MY COPY':' / PLAY')+'  ↗';b.onclick=()=>api.inspect(g.id);list.append(b)});
+    else{const p=document.createElement('p');p.textContent='Browse authentic software titles for this console. Bring a lawful local game copy for titles not hosted by UGN.';list.append(p)}
     $('#exhibit-view-library').onclick=()=>openShelf(id);
-    const row=Math.floor(i/2);userCameraZ=Math.max(-22,9-row*4.65+1.8);
-    movingTo={z:userCameraZ,x:i%2===0?-1.2:1.2};
-    orbitYaw=i%2===0?-.34:.34;
+    const theta=i/api.systems.length*Math.PI*2+.45;
+    userCameraX=Math.sin(theta)*5.9;userCameraZ=Math.cos(theta)*5.9;
+    movingTo={z:userCameraZ,x:userCameraX};
+    orbitYaw=Math.atan2(Math.sin(theta),-Math.cos(theta));
     report(s.name.toUpperCase()+' / '+available.length+' INSTALLED TITLES');
   }
   function openShelf(systemId=null){
     activeSector='shelves';
-    if(roomGroup)roomGroup.visible=false;if(archiveGroup)archiveGroup.visible=true;
+    if(roomGroup)roomGroup.visible=false;if(archiveGroup)archiveGroup.visible=false;if(museumGroup)museumGroup.visible=false;if(vaultGroup)vaultGroup.visible=true;
     $$('.world-dock [data-sector]').forEach(b=>b.classList.toggle('dock-active',b.dataset.sector==='shelves'));
     $('#exhibit-panel').hidden=true;$('#room-panel').hidden=true;$('#holo-shelf').hidden=false;
     shelfFilterSystem=systemId;const inp=$('#holo-search-input');if(systemId){const s=api.systems.find(s=>s.id===systemId);inp.value=s?.name||'';}else inp.value='';
-    shelfIndex=0;renderShelf(systemId);
+    shelfIndex=0;renderShelf(systemId);if(systemId)api.loadPersonalFor?.(systemId);
     report('HOLOGRAPHIC LIBRARY / BROWSE REAL CONSOLE GAMES');
   }
   function renderShelf(systemId=shelfFilterSystem){
     const term=$('#holo-search-input').value.trim().toLowerCase();
-    shelfResults=api.games.filter(g=>api.installed[g.file]===true&&(systemId?g.system===systemId:true)&&(!term||(g.name+' '+g.creator+' '+api.systems.find(s=>s.id===g.system)?.name).toLowerCase().includes(term)));
+    shelfResults=api.games.filter(g=>(g.mode==='personal'||api.installed[g.file]===true)&&(systemId?g.system===systemId:true)&&(!term||(g.name+' '+g.creator+' '+api.systems.find(s=>s.id===g.system)?.name).toLowerCase().includes(term)));
     if(shelfIndex>=shelfResults.length)shelfIndex=Math.max(0,shelfResults.length-1);
     const track=$('#holo-shelf-track');track.replaceChildren();
     $('#holo-counter').textContent=shelfResults.length?(shelfIndex+1)+' / '+shelfResults.length:'0 / 0';
@@ -436,13 +441,13 @@ export function mountGalacticArchive(api) {
       caseButton.style.opacity=offset===0?'1':'.63';caseButton.style.zIndex=String(5-Math.abs(offset));
       if(g.image){const img=document.createElement('img');img.src=g.image;img.alt='Cover or screenshot for '+g.name;img.loading='lazy';img.onerror=()=>img.remove();caseButton.append(img)}
       const label=document.createElement('span');label.className='case-label';label.textContent=g.name;caseButton.append(label);
-      caseButton.onclick=()=>{if(index===shelfIndex)api.launch(g.id);else{shelfIndex=index;renderShelf(systemId)}};
+      caseButton.onclick=()=>{if(index===shelfIndex)api.inspect(g.id);else{shelfIndex=index;renderShelf(systemId)}};
       track.append(caseButton);
     }
     const current=shelfResults[shelfIndex];const info=api.systems.find(s=>s.id===current.system);
     $('#holo-selected-name').textContent=current.name;$('#holo-selected-system').textContent=(info?.name||current.system).toUpperCase()+' / '+current.year;
     $('#holo-selected-desc').textContent=current.desc+' · '+current.creator;
-    $('#holo-play').onclick=()=>api.launch(current.id);
+    $('#holo-play').textContent=current.mode==='personal'?'PLAY WITH MY OWN COPY ↗':'INSPECT / PLAY GAME ↗';$('#holo-play').onclick=()=>api.inspect(current.id);
   }
   $('#holo-prev').onclick=()=>{shelfIndex=Math.max(0,shelfIndex-1);renderShelf()};
   $('#holo-next').onclick=()=>{shelfIndex=Math.min(shelfResults.length-1,shelfIndex+1);renderShelf()};
@@ -511,7 +516,7 @@ export function mountGalacticArchive(api) {
   }
   function onPointerUp(e){
     if(dragFurniture&&selectedFurniture){const entry=config.furniture.find(f=>f.id===selectedFurniture.userData.furnitureId);if(entry){entry.x=selectedFurniture.position.x;entry.z=selectedFurniture.position.z;persist();}report('FURNITURE POSITION SAVED');}
-    else if(lastPointer&&lastPointer.moved<10){const hits=intersects(e,activeSector==='room'?furnitureObjects:archiveObjects);if(hits.length){const obj=hits[0].object;if(obj.userData.interact==='library')openShelf();else if(obj.userData.interact==='room')setSector('room',{fromIntro:true});else if(obj.userData.interact==='archive')setSector('archive',{fromIntro:true});else if(obj.userData.interact==='console')focusExhibit(obj.userData.consoleId);}}
+    else if(lastPointer&&lastPointer.moved<10){const hits=intersects(e,activeSector==='room'?furnitureObjects:activeSector==='exhibits'?museumObjects:activeSector==='shelves'?vaultObjects:archiveObjects);if(hits.length){const obj=hits[0].object;if(obj.userData.interact==='library')openShelf();else if(obj.userData.interact==='room')setSector('room',{fromIntro:true});else if(obj.userData.interact==='archive')setSector('archive',{fromIntro:true});else if(obj.userData.interact==='console')focusExhibit(obj.userData.consoleId);else if(obj.userData.interact==='vault'&&obj.userData.gameId)api.inspect(obj.userData.gameId);}}
     lastPointer=null;draggingCamera=false;dragFurniture=false;
   }
   root.addEventListener('pointerdown',onPointerDown);
@@ -533,8 +538,8 @@ export function mountGalacticArchive(api) {
     if(held.has('KeyS')||held.has('ArrowDown'))userCameraZ+=speed;
     if(held.has('KeyA'))userCameraX-=speed;
     if(held.has('KeyD'))userCameraX+=speed;
-    userCameraZ=Math.max(activeSector==='room'?-1:-21,Math.min(activeSector==='room'?8.8:12,userCameraZ));
-    userCameraX=Math.max(activeSector==='room'?-7.4:-2.7,Math.min(activeSector==='room'?7.4:2.7,userCameraX));
+    userCameraZ=Math.max(activeSector==='room'?-1:activeSector==='exhibits'?-10:-21,Math.min(activeSector==='room'?8.8:12,userCameraZ));
+    userCameraX=Math.max(activeSector==='room'?-7.4:activeSector==='exhibits'?-9:-2.7,Math.min(activeSector==='room'?7.4:activeSector==='exhibits'?9:2.7,userCameraX));
     const destination=movingTo||{x:userCameraX,z:userCameraZ};
     if(movingTo){destination.z=userCameraZ;destination.x=userCameraX;if(Math.abs(camera.position.z-userCameraZ)<.05&&Math.abs(camera.position.x-userCameraX)<.05)movingTo=null}
     const lerp=Math.min(1,dt*3.2);
@@ -566,7 +571,7 @@ export function mountGalacticArchive(api) {
       root.append(renderer.domElement);
       const fallback=$('.galactic-fallback');if(fallback)fallback.style.display='none';
       raycaster=new THREE.Raycaster();mouse=new THREE.Vector2(0,0);
-      buildArchive();buildRoom();archiveGroup.visible=true;roomGroup.visible=false;
+      buildArchive();buildMuseum();buildVault();buildRoom();archiveGroup.visible=true;museumGroup.visible=false;vaultGroup.visible=false;roomGroup.visible=false;
       applyQuality();resize();window.addEventListener('resize',resize);
       requestAnimationFrame(tick);report('STARSHIP RENDERER ONLINE / EXPLORE THE DECK');
     }catch(err){
