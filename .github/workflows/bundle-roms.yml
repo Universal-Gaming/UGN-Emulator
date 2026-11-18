@@ -69,7 +69,7 @@ jobs:
           roms=[p for p in files if p.is_file()]
           assert len(roms)==27, f'Expected 27 ROM files, got {len(roms)}'
           for p in roms:
-              assert p.stat().st_size>8000, f'Undersized ROM {p}'
+              assert p.stat().st_size >= (4096 if p.suffix=='.a26' else 8000), f'Undersized ROM {p}'
               data=p.read_bytes()
               assert not data.startswith(b'<!DOCTYPE') and not data.startswith(b'<html'),f'HTML error instead of ROM: {p}'
               if p.suffix=='.nes': assert data[:4]==b'NES\x1a',f'Invalid NES ROM: {p}'
