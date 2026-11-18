@@ -24,6 +24,18 @@ const systemCatalog=[
 ];
 const C=(id,file,name,genre,creator,year,desc,color='cyan',image='')=>({id:file,file,name,genre,creator,year,desc,system:id,color,image});
 const games=[
+// More licensed original GB/GBC cartridge games; see CREDITS.md
+C("gb","roms/gb/crystal-lake.gb","Crystal Lake","Puzzle Action","VHVS","—","An original puzzle action homebrew game compiled for Game Boy hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/crystal-lake/crystallake-1.png"),
+C("gb","roms/gb/shock-lobster.gb","Shock Lobster","Action","tbsp","—","An original action homebrew game compiled for Game Boy hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/shock-lobster/sh.png"),
+C("gb","roms/gb/carazu.gb","Carazu","Platformer","Martin Holtkamp","—","An original platformer homebrew game compiled for Game Boy hardware.","cyan",""),
+C("gb","roms/gb/big2small.gb","Big2Small","Puzzle","mdsteele","—","An original puzzle homebrew game compiled for Game Boy hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/big2small/screenshot1.png"),
+C("gb","roms/gb/gb-wordyl.gb","GB-Wordyl","Word Puzzle","bbbbbr","—","An original word puzzle homebrew game compiled for Game Boy hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/gb-wordyl/1.png"),
+C("gb","roms/gb/el-dueloroso.gb","El Dueloroso","Action","Adrián JG","—","An original action homebrew game compiled for Game Boy hardware.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/el-dueloroso/b_JIo3.png"),
+C("gb","roms/gb/rex-run-v1-0.gb","Rex Run","Platformer","el_seyf","—","An original platformer homebrew game compiled for Game Boy hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/rex-run-v1-0/rex-run-v1.0.png"),
+C("gbc","roms/gbc/escape-obliterizer-dx.gbc","Escape Obliterizer Deluxe","Action","João Godinho","—","An original action homebrew game compiled for Game Boy Color hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/escape-obliterizer-dx/ESCAPE_OBLITERIZER_DX.png"),
+C("gb","roms/gb/bit_bang.gb","Bit Bang","Puzzle","StudioGuma","—","An original puzzle homebrew game compiled for Game Boy hardware.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/bit_bang/bit_bang_logo.png"),
+C("gb","roms/gb/sushi-nights.gb","Sushi Nights","Puzzle","Zalo","—","An original puzzle homebrew game compiled for Game Boy hardware.","violet","https://raw.githubusercontent.com/gbdev/database/master/entries/sushi-nights/su.png"),
+C("gb","roms/gb/porklike-gb.gb","Porklike GB","Roguelike","binji","—","An original roguelike homebrew game compiled for Game Boy hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/porklike-gb/1oZHTl.gif"),
 // Additional explicitly licensed GB/GBC homebrew (details in CREDITS.md)
 C("gb","roms/gb/plantboy.gb","PlantBoy","Action","exezin","—","Independently developed action game, compiled for the original Game Boy hardware.","cyan","https://raw.githubusercontent.com/gbdev/database/master/entries/plantboy/screenshot01.bmp"),
 C("gb","roms/gb/rex-runner-gb.gb","Rex Runner GB","Platformer","The Void","—","Independently developed platformer game, compiled for the original Game Boy hardware.","lime","https://raw.githubusercontent.com/gbdev/database/master/entries/rex-runner-gb/screenshot_00.png"),
