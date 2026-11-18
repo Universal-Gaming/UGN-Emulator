@@ -53,6 +53,13 @@ try {
   await page.locator('#game-grid .game-card').first().scrollIntoViewIfNeeded();
   assert.ok(await page.locator('#game-grid .game-card img[data-artwork-title]').first().isVisible(),'Mobile cover invisible');
   const width=await page.evaluate(()=>({content:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth}));
+  if(width.content>width.viewport+5){
+    const culprits=await page.evaluate(()=>[...document.querySelectorAll('body *')].map(el=>{
+      const r=el.getBoundingClientRect(),css=getComputedStyle(el);
+      return {tag:el.tagName.toLowerCase(),id:el.id,cls:String(el.className||'').slice(0,70),left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),position:css.position,display:css.display};
+    }).filter(e=>e.right>innerWidth+10 && e.width>0 && e.display!=='none').sort((a,b)=>b.right-a.right).slice(0,16));
+    console.log('Mobile overflow diagnostics:',JSON.stringify(culprits));
+  }
   assert.ok(width.content<=width.viewport+5,'Mobile horizontal overflow '+JSON.stringify(width));
   assert.deepEqual(errors,[],'Artwork/mobile page threw uncaught JavaScript errors');
   console.log('PASS: all 79 hosted cover images, distinct alt text, honest SVG fallback for failed HTTP, 30 PlayStation title visuals, details dialog, responsive mobile view');
