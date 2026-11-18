@@ -247,6 +247,27 @@ window.addEventListener('message',e=>{
 });
 async function validateROMS(){await Promise.all(games.map(async g=>{try{let res=await fetch('./'+g.file,{method:'HEAD',cache:'no-store'});installed[g.file]=res.ok&&Number(res.headers.get('content-length')||10000)>2000}catch{installed[g.file]=false}}));renderSystems();renderGames();renderHistory();changeSpot(0);window.__ugnArchiveRefresh?.();}
 renderPills();renderSystems();renderGames();renderHistory();validateROMS();
+/* The complete console-title catalog runs independently of the hosted ROM collection. */
+let fullConsoleIndex=null;
+if (document.querySelector('#index-console')) {
+  import('./copy-library.js').then(mod=>{
+    fullConsoleIndex=mod.mountConsoleIndex({
+      systems:systemCatalog,hosted:games,installed,launchHosted:launch,
+      notify,photo
+    });
+    if(window.UGN_GALACTIC){
+      window.UGN_GALACTIC.gameIndex=fullConsoleIndex;
+    }
+  }).catch(err=>{console.error('UGN BYO catalog failed:',err);notify('Complete game index temporarily unavailable — hosted games still work')});
+}
+window.UGN_OpenConsoleCatalog=function(consoleId){
+  if(fullConsoleIndex)fullConsoleIndex.gotoSystem(consoleId);
+  else document.querySelector('#all-games')?.scrollIntoView({behavior:'smooth'});
+};
+window.UGN_OpenCustomCopy=function(consoleId){
+  if(fullConsoleIndex)fullConsoleIndex.openCustom(consoleId);
+};
+
 /* Galactic Archive: the starship world is the primary UI. The classic console grid remains an accessibility fallback. */
 if(document.querySelector('#galactic-stage')){
   import('./galactic.js').then(module=>{
