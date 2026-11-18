@@ -10,26 +10,26 @@ assert.doesNotMatch(index,/Nebula Defender|Cosmic Serpent|Prism Breaker|Orbit Po
 assert.match(js,/cdn\.emulatorjs\.org/);
 const roms=[];
 for(const dir of readdirSync('roms',{withFileTypes:true}).filter(x=>x.isDirectory()))for(const f of readdirSync(path.join('roms',dir.name)))roms.push('roms/'+dir.name+'/'+f);
-assert.equal(roms.length,27,'Expect 27 homebrew ROMs');
+assert.equal(roms.length,31,'Expect 31 homebrew ROMs');
 for(const f of roms)assert.ok(existsSync(f),'Missing '+f);
-const server=spawn('python3',['-m','http.server','8000','--bind','127.0.0.1'],{stdio:'ignore'});
+const server=spawn('python3',['-m','http.server','8000','--bind','131.0.0.1'],{stdio:'ignore'});
 await new Promise(r=>setTimeout(r,1300));
 let browser;
 try{
  browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
  const page=await browser.newPage({viewport:{width:1440,height:900}});
  const fatal=[];page.on('pageerror',e=>fatal.push(String(e)));
- await page.goto('http://127.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.goto('http://131.0.0.1:8000/',{waitUntil:'domcontentloaded',timeout:30000});
  await page.locator('#game-grid .game-card').first().waitFor({timeout:15000});
  await page.waitForFunction(()=>document.querySelector('#hero-games').textContent!=='—',{timeout:20000});
- assert.equal(Number(await page.locator('#hero-games').innerText()),27);
+ assert.equal(Number(await page.locator('#hero-games').innerText()),31);
  assert.equal(Number(await page.locator('#hero-systems').innerText()),9);
- assert.equal(await page.locator('#game-grid .game-card').count(),27);
+ assert.equal(await page.locator('#game-grid .game-card').count(),31);
  await page.locator('#game-search').fill('Celeste');
  assert.equal(await page.locator('#game-grid .game-card').count(),1);
  await page.locator('#game-search').fill('');
  await page.locator('[data-platform=nes]').click();
- assert.equal(await page.locator('#game-grid .game-card').count(),5);
+ assert.equal(await page.locator('#game-grid .game-card').count(),9);
  await page.locator('[data-platform=all]').click();
  // The starship is the primary experience, not a static marketing hero.
  await page.locator('#galactic-stage').waitFor({timeout:10000});
@@ -60,5 +60,5 @@ try{
  await page.setViewportSize({width:390,height:844});
  await page.screenshot({path:'smoke-mobile.png',fullPage:true});
  assert.equal(fatal.length,0,'Uncaught JS exceptions: '+fatal.join('; '));
- console.log('PASS: 27 real ROMs, nine installed systems, 3D starship, holographic library, editable room, search, launcher and responsive layouts');
+ console.log('PASS: 31 real ROMs, nine installed systems, 3D starship, holographic library, editable room, search, launcher and responsive layouts');
 }finally{if(browser)await browser.close();server.kill();}
