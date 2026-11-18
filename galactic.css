@@ -176,3 +176,17 @@ body.fast-library .galactic-world{display:none}
  .room-view-buttons button{font-size:8px}
  .room-panel{inset:104px 10px 150px;width:auto}
 }
+
+
+/* The cinematic gradient belongs to the arrival screen only. Once inside, reveal
+   the real Three.js exhibits and furniture instead of darkening them by ~70–90%. */
+.galactic-world.world-active .world-vignette{
+  background:linear-gradient(0deg,rgba(2,6,18,.28),transparent 23%,transparent 87%,rgba(2,6,18,.18));
+}
+.galactic-world.world-active .galactic-stage{filter:brightness(1.12) saturate(1.08)}
+/* Keep the menu readable while the in-world environment stays brightly visible. */
+.galactic-world.world-active .world-help>div{background:#04132caa}
+.galactic-world.world-active .world-dock{background:#061124db}
+@media(prefers-reduced-motion:reduce){
+  .galactic-world.world-active .galactic-stage{transition:none}
+}
