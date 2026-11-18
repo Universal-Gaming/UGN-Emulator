@@ -32,9 +32,9 @@ try{
  await page.locator('#game-search').fill('');
  await page.locator('[data-platform=nes]').click();
  assert.equal(await page.locator('#game-grid .game-card').count(),10);
- const distinctGameIds=await page.locator('#game-grid [data-inspect]').evaluateAll(nodes=>nodes.map(n=>n.dataset.inspect));
+ const distinctGameIds=await page.locator('#game-grid .game-card .game-art[data-inspect]').evaluateAll(nodes=>nodes.map(n=>n.dataset.inspect));
  assert.equal(new Set(distinctGameIds).size,distinctGameIds.length,'Every NES game must have a unique launch identifier');
- await page.locator('#game-grid [data-inspect]').nth(1).click();
+ await page.locator('#game-grid .game-card .game-art[data-inspect]').nth(1).click();
  await page.locator('#title-dialog[open]').waitFor({timeout:10000});
  const selectedName=await page.locator('#title-name').innerText();
  const exactCardName=await page.locator('#game-grid .game-card').nth(1).locator('h3').innerText();
